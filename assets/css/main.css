@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* ===== MiniMax Design System Tokens ===== */
+    /* Surfaces */
+    --background: 0 0% 100%;         /* canvas #ffffff */
+    --foreground: 0 0% 3.9%;         /* ink #0a0a0a */
+    --card: 0 0% 100%;               /* canvas */
+    --card-foreground: 0 0% 3.9%;    /* ink */
+    --popover: 0 0% 100%;            /* canvas */
+    --popover-foreground: 0 0% 3.9%; /* ink */
+
+    /* Primary — black pill CTA */
+    --primary: 0 0% 3.9%;            /* #0a0a0a → button-primary bg */
+    --primary-foreground: 0 0% 100%; /* #ffffff → text on primary */
+
+    /* Secondary */
+    --secondary: 220 23% 97%;        /* surface #f7f8fa */
+    --secondary-foreground: 0 0% 13.3%; /* charcoal #222222 */
+
+    /* Muted */
+    --muted: 220 13% 95%;            /* surface-soft #f2f3f5 */
+    --muted-foreground: 0 0% 37.3%;  /* steel #5f5f5f */
+
+    /* Accent */
+    --accent: 220 23% 97%;           /* surface #f7f8fa */
+    --accent-foreground: 0 0% 3.9%;  /* ink */
+
+    /* Destructive — brand coral */
+    --destructive: 11 100% 59.4%;    /* brand-coral #ff5530 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 91%;           /* hairline #e5e7eb */
+    --input: 220 13% 91%;            /* hairline #e5e7eb */
+    --ring: 0 0% 3.9%;               /* ink */
+
+    /* Border Radius — MiniMax scale */
+    --radius: 0.75rem;               /* 12px → lg */
+
+    /* ===== Brand Accents ===== */
+    --brand-coral: 11 100% 59.4%;    /* #ff5530 */
+    --brand-magenta: 317 77% 64%;    /* #ea5ec1 */
+    --brand-blue: 222 88% 51%;       /* #1456f0 */
+    --brand-blue-deep: 224 76% 48%;  /* #1d4ed8 */
+    --brand-cyan: 204 100% 62%;      /* #3daeff */
+    --brand-purple: 271 91% 65%;     /* #a855f7 */
+    --brand-blue-200: 213 96% 87%;   /* #bfdbfe */
+
+    /* Semantic */
+    --success-bg: 125 100% 95%;      /* #e8ffea */
+    --success-text: 158 72% 38%;     /* #1ba673 */
+
+    /* Extended text */
+    --slate: 211 15% 32%;            /* #45515e */
+    --stone: 240 2% 57%;             /* #8e8e93 */
+    --muted-text: 228 6% 68%;        /* #a8aab2 */
+    --hairline-soft: 220 17% 93%;    /* #eaecf0 */
+  }
+
+  .dark {
+    --background: 0 0% 3.9%;         /* ink bg */
+    --foreground: 0 0% 100%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 3.9%;
+    --secondary: 0 0% 13.3%;         /* charcoal */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 13.3%;
+    --muted-foreground: 0 0% 57%;
+    --accent: 0 0% 13.3%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 11 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'DM Sans', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  }
+}
