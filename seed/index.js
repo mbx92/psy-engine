@@ -1,6 +1,6 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import * as schema from '../db/schema'
+import * as schema from '../db/schema/index.js'
 
 // Use the same connection as the app
 const connectionString = process.env.DATABASE_URL || 'postgres://mbx@127.0.0.1:5432/psy_engine'
@@ -201,7 +201,7 @@ async function seed() {
     slug: 'cfit-scale-2',
     type: 'aptitude',
     description: 'Culture Fair Intelligence Test — mengukur kemampuan intelektual umum non-verbal',
-    config: JSON.stringify({
+    config: {
       timeLimit: 30,
       allowSkip: true,
       randomize: true,
@@ -218,9 +218,9 @@ async function seed() {
         { key: 'matrices', label: 'Matrices (Matriks)', timeLimit: 4, questionCount: 3 },
         { key: 'topology', label: 'Topology (Topologi)', timeLimit: 4, questionCount: 3 },
       ],
-    }),
-    questions: JSON.stringify(cfitQuestions),
-    scoringConfig: JSON.stringify({
+    },
+    questions: cfitQuestions,
+    scoringConfig: {
       algorithm: 'correct_count',
       dimensions: [{ key: 'aptitude', label: 'General Aptitude', description: 'Kemampuan intelektual umum' }],
       interpretations: {
@@ -233,7 +233,7 @@ async function seed() {
           ],
         },
       },
-    }),
+    },
     isActive: true,
   })
   console.log('  ✓ CFIT Scale 2')
@@ -244,7 +244,7 @@ async function seed() {
     slug: 'papi-kostick',
     type: 'personality',
     description: 'Perception and Preference Inventory — mengukur preferensi perilaku di lingkungan kerja',
-    config: JSON.stringify({
+    config: {
       timeLimit: 20,
       allowSkip: false,
       randomize: true,
@@ -255,9 +255,9 @@ async function seed() {
         'Tidak ada jawaban benar atau salah',
         'Jawablah dengan jujur sesuai diri Anda, bukan yang ideal',
       ],
-    }),
-    questions: JSON.stringify(papiQuestions),
-    scoringConfig: JSON.stringify({
+    },
+    questions: papiQuestions,
+    scoringConfig: {
       algorithm: 'paired_choice',
       dimensions: papiDimensions,
       interpretations: {
@@ -277,7 +277,7 @@ async function seed() {
           { min: 6, max: 8, label: 'High', description: 'Sangat terorganisir' },
         ]},
       },
-    }),
+    },
     isActive: true,
   })
   console.log('  ✓ PAPI Kostick')
@@ -288,7 +288,7 @@ async function seed() {
     slug: 'epps',
     type: 'personality',
     description: 'Edwards Personal Preference Schedule — mengukur kebutuhan dan motivasi personal',
-    config: JSON.stringify({
+    config: {
       timeLimit: 15,
       allowSkip: true,
       randomize: true,
@@ -298,9 +298,9 @@ async function seed() {
         'Pilih Ya atau Tidak untuk setiap pernyataan',
         'Jawab dengan jujur sesuai diri Anda',
       ],
-    }),
-    questions: JSON.stringify(eppsQuestions),
-    scoringConfig: JSON.stringify({
+    },
+    questions: eppsQuestions,
+    scoringConfig: {
       algorithm: 'dimension_sum',
       dimensions: eppsDimensions,
       interpretations: {
@@ -315,7 +315,7 @@ async function seed() {
           { min: 71, max: 100, label: 'High', description: 'Sangat membutuhkan keteraturan' },
         ]},
       },
-    }),
+    },
     isActive: true,
   })
   console.log('  ✓ EPPS')

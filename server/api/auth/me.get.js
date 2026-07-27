@@ -1,5 +1,6 @@
 import { users } from '~~/db/schema/users'
 import { eq } from 'drizzle-orm'
+import { getRolePermissionKeys } from '~~/server/utils/permissions'
 
 export default defineEventHandler(async (event) => {
   const auth = event.context.auth
@@ -20,5 +21,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'User not found' })
   }
 
-  return { user }
+  const permissions = await getRolePermissionKeys(user.role)
+
+  return { user: { ...user, permissions } }
 })

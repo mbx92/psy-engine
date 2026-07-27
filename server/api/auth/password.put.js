@@ -1,18 +1,11 @@
 import { users } from '~~/db/schema/users'
 import { eq } from 'drizzle-orm'
+import { validateBody, passwordChangeSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
   const { userId } = event.context.auth
   const body = await readBody(event)
-  const { currentPassword, newPassword } = body || {}
-
-  if (!currentPassword || !newPassword) {
-    throw createError({ statusCode: 400, message: 'Current password and new password are required' })
-  }
-
-  if (newPassword.length < 6) {
-    throw createError({ statusCode: 400, message: 'New password must be at least 6 characters' })
-  }
+  const { currentPassword, newPassword } = validateBody(passwordChangeSchema, body)
 
   const db = useDB()
 

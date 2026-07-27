@@ -1,13 +1,14 @@
 import { users } from '~~/db/schema/users'
 import { eq } from 'drizzle-orm'
+import { getRolePermissionKeys } from '~~/server/utils/permissions'
+import { validateBody, registerSchema } from '~~/server/utils/validation'
+import { checkRateLimit } from '~~/server/utils/rateLimit'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
-  const { email, password, name } = body || {}
+  checkRateLimit(event, { key: 'register', max: 5, windowMs: 60 * 60 * 1000 })
 
-  if (!email || !password || !name) {
-    throw createError({ statusCode: 400, message: 'Email, password, and name are required' })
-  }
+  const body = await readBody(event)
+  const { email, password, name } = validateBody(registerSchema, body)
 
   const db = useDB()
 
@@ -32,6 +33,8 @@ export default defineEventHandler(async (event) => {
     role: user.role,
   })
 
+  const permissions = await getRolePermissionKeys(user.role)
+
   return {
     token,
     user: {
@@ -39,6 +42,7 @@ export default defineEventHandler(async (event) => {
       email: user.email,
       name: user.name,
       role: user.role,
+      permissions,
     },
   }
 })

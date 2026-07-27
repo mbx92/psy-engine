@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, text, jsonb, timestamp } from 'drizzle-orm/pg-core'
-import { testTypes } from './testTypes'
+import { testTypes } from './testTypes.js'
 
 export const testTypeNorms = pgTable('test_type_norms', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -15,6 +15,6 @@ export const testTypeNorms = pgTable('test_type_norms', {
   /** Metadata about the norm (population, source, etc.) */
   metadata: jsonb('metadata').default({}),
   notes: text('notes'),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })

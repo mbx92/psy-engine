@@ -11,11 +11,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:seed-rbac": "node scripts/seed-rbac.mjs"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.1",
-    "@lucide/vue": "^1.26.0",
+    "@lucide/vue": "^1.27.0",
     "@nuxtjs/tailwindcss": "^6.14.0",
     "@vueuse/core": "^14.3.0",
     "bcryptjs": "^3.0.3",
@@ -31,11 +32,11 @@
     "shadcn-vue": "^2.8.0",
     "tailwind-merge": "^3.6.0",
     "vue": "^3.5.0",
-    "vue-router": "^4.5.0"
+    "vue-router": "^4.5.0",
+    "vue-sonner": "^2.0.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.10",
     "drizzle-kit": "^0.31.10"
   }
 }

@@ -5,15 +5,57 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1721884800,
+      "when": 1785077737063,
       "tag": "0000_initial",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1785037918278,
-      "tag": "0001_careless_cobalt_man",
+      "when": 1785078941382,
+      "tag": "0001_nasty_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1785081145263,
+      "tag": "0002_happy_big_bertha",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785081422844,
+      "tag": "0003_medical_puff_adder",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785111644726,
+      "tag": "0004_grey_morlocks",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1785112691944,
+      "tag": "0005_normal_switch",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785115085064,
+      "tag": "0006_open_invitations",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785120000000,
+      "tag": "0007_open_invitation_multi_tests",
       "breakpoints": true
     }
   ]

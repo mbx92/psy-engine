@@ -11,3 +11,6 @@ dist/
 .temp/
 tmp/
 .trash/
+
+# Local exports from old psychology system
+tmp-*.json

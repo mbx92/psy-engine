@@ -81,7 +81,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 const mobileMenuOpen = ref(false)
 const route = useRoute()
 
@@ -95,7 +95,7 @@ const navItems = computed(() => [
   { label: 'Settings', to: '/settings', icon: 'lucide:settings', show: can('settings:read') },
 ].filter(i => i.show))
 
-function isActive(path: string) {
+function isActive(path) {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
 }
@@ -105,3 +105,11 @@ async function handleLogout() {
   navigateTo('/login')
 }
 </script>
+
+<style>
+@media print {
+  header {
+    display: none !important;
+  }
+}
+</style>

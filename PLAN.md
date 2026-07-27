@@ -5,7 +5,7 @@
 > **Dev URL**: http://10.50.30.35:3000
 > **Tunnel**: https://psy.yumalab.my.id/
 > **DB**: PostgreSQL 17 — `psy_engine` (mbx@127.0.0.1)
-> **Last Updated**: 2026-07-25
+> **Last Updated**: 2026-07-27 — Acceptance Criteria below now reflect actually-verified state, not aspirational placeholders. See inline notes for any deliberate scope cuts. Note: each phase's "Files Affected" listing is left as the original planning artifact and may not match actual file names/locations 1:1 (e.g. routing uses `/take/[token]` throughout rather than mixed `/take`/`/t` paths, and some composables were implemented as inline page logic instead of standalone files) — treat Acceptance Criteria as the authoritative done/not-done signal, not the file lists.
 
 ---
 
@@ -59,11 +59,11 @@ Build settings pages: user profile management, password change, and app-wide con
 - `db/schema/users.ts` — maybe add preferences JSONB column
 
 ### Acceptance Criteria
-- User can view & edit their name/email
-- User can change password
-- Admin can access app settings page
-- Settings nav item appears & highlights
-- Password change validates current password
+- [x] User can view & edit their name/email
+- [x] User can change password
+- [ ] Admin can access an app-wide config page (app name, description, dark-mode toggle) — **not built**; Settings currently only has Profile/Security/Users/Roles & Permissions tabs, no system-config tab
+- [x] Settings nav item appears & highlights
+- [x] Password change validates current password
 
 ### Risks
 - Forgot to validate current password before updating
@@ -172,7 +172,7 @@ MODIFIED:
 ### Acceptance Criteria
 
 - [x] Can create, read, update, delete participants via API and UI
-- [x] Can create, read, update, deactivate test types via API and UI
+- [x] Can create, read, update, deactivate test types via API and UI — **scope cut**: create/edit UI uses raw JSON textareas for `config`/`questions`/`scoringConfig` (client-validated), not the visual question-builder originally envisioned. Fully functional for JSON-comfortable admins.
 - [x] Can create sessions (with auto-generated tokens) via API and UI
 - [x] Sessions list shows real data with filtering
 - [x] Admin-only endpoints are protected (non-admin gets 403)
@@ -281,13 +281,13 @@ MODIFIED:
 
 ### Acceptance Criteria
 
-- [x] `/take/[token]` loads test info and shows instructions
+- [x] `/take/[token]` loads test info, participant confirmation, and instructions
 - [x] Questions render dynamically from DB JSONB for all 4 algorithm types
-- [x] Pagination works per `questionsPerPage` config
-- [x] Timer counts down and auto-submits on expiry
-- [x] Subtests (CFIT) work with timed sections
-- [x] Auto-save persists answers — refresh restores them
-- [x] Submission completes the session and calculates scores
+- [ ] Pagination per `questionsPerPage` config — **not implemented**; renderer always shows one question at a time regardless of the config value
+- [x] Timer counts down and auto-submits on expiry (single global timer, resumes correctly across page refresh using `startedAt` + elapsed time)
+- [ ] Subtests (CFIT) timed sections — **partial**: subtest label displays as a cosmetic header, but there is no per-subtest timer or auto-advance; only one test-wide timer exists
+- [x] Auto-save persists answers — refresh restores them (debounced 30s + on submit, verified via session `answers` jsonb)
+- [x] Submission completes the session and calculates scores (verified live for all 4 scoring algorithms)
 
 ### Risks
 
@@ -549,13 +549,15 @@ MODIFIED:
 
 ### Acceptance Criteria
 
-- [x] Toast notifications appear on all CRUD operations and errors
-- [x] Loading skeletons show during data fetch
-- [x] Error page handles 404/500 gracefully
-- [x] Network errors show user-friendly messages
-- [x] Delete operations require confirmation
-- [x] Forms show inline validation errors
-- [x] Empty states are informative (not blank tables)
+- [x] Toast notifications appear on all CRUD operations and errors — `vue-sonner`, layered additively on top of existing inline error/success text (not a replacement — see note below)
+- [x] Loading skeletons show during data fetch — `components/ui/skeleton/` on participants/sessions list loading states
+- [x] Error page handles 404/500 gracefully — root `error.vue`, styled consistently, routes back to `/` or `/login` based on auth state
+- [x] Network errors show user-friendly messages — via toasts on fetch failures
+- [x] Delete operations require confirmation — `composables/useConfirm.js` + `components/global/ConfirmDialog.vue` (`UiDialog`-based, replacing the earlier native `confirm()` calls on role/test-type/participant/session destructive actions)
+- [~] Forms show inline validation errors — **partial**: field-adjacent errors (e.g. password mismatch, dialog-level create validation) still show as inline text as before; server-side Zod validation (Phase 6) is surfaced as a generic error/toast message, not per-field highlighting tied to individual inputs
+- [x] Empty states are informative (not blank tables) — `components/global/EmptyState.vue` via `UiResponsiveTable`'s `#empty` slot on participants/test-types/sessions list pages
+
+_Note: toasts were layered on top of, not swapped in for, the existing inline error/success refs — deliberate, lower-risk than rewriting 5+ already-working page templates. Both now coexist by design._
 
 ### Risks
 
@@ -653,15 +655,15 @@ MODIFIED:
 
 ### Acceptance Criteria
 
-- [x] Auth endpoints are rate-limited
-- [x] All API inputs are validated with Zod
-- [x] DB has indexes on query-heavy columns
-- [x] List endpoints are paginated
+- [x] Auth endpoints are rate-limited — in-memory fixed-window limiter (login 10/15min, register 5/hour per IP); documented single-instance limitation, would need a shared store (Redis) behind a load balancer
+- [x] All API inputs are validated with Zod — `server/utils/validation.js`, wired into all mutating endpoints, replacing hand-rolled checks
+- [x] DB has indexes on query-heavy columns — `sessions(status, test_type_id, participant_id, created_at)`, `participants(email, nik)`
+- [ ] List endpoints are paginated — **deliberate scope cut**: at this app's current data scale, enforced pagination risks silently truncating existing list pages without coordinated frontend changes; revisit if/when real data volume grows
 - [x] Bulk participant import works (CSV)
 - [x] Bulk session creation works
 - [x] Dashboard shows real stats with charts
-- [x] API documentation is accessible (OpenAPI UI)
-- [x] Not a single password hash or token leaks in any response
+- [ ] API documentation is accessible (OpenAPI UI) — not yet attempted; `nitro.experimental.openAPI: true` is set but no browsable docs UI (Scalar/Swagger) is wired up
+- [x] Not a single password hash or token leaks in any response — verified: every endpoint touching `passwordHash` explicitly projects it out of responses
 
 ### Risks
 
@@ -810,12 +812,12 @@ psy-engine/
 ### Running Locally
 ```bash
 # Dev server
-cd psy-engine && npm run dev
+cd psy-engine && pnpm run dev
 
 # DB migrations
-npm run db:generate    # Generate migration from schema changes
-npm run db:migrate     # Apply migrations to DB
-npm run db:push        # Push schema directly (dev only)
+pnpm run db:generate    # Generate migration from schema changes
+pnpm run db:migrate     # Apply migrations to DB
+pnpm run db:push        # Push schema directly (dev only)
 ```
 
 ### Environment Variables

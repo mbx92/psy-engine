@@ -58,7 +58,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
   layout: 'login',
 })
@@ -90,7 +90,7 @@ async function handleLogin() {
   try {
     await login(email.value, password.value)
     navigateTo('/')
-  } catch (err: any) {
+  } catch (err) {
     error.value = err?.data?.message || err?.message || 'Login failed'
   } finally {
     loading.value = false

@@ -1,35 +1,17 @@
-<script setup lang="ts">
-import type { HTMLAttributes } from 'vue'
+<script setup>
 import { cn } from '@/lib/utils'
 
-export interface ColumnDef {
-  key: string
-  label: string
-  /** Responsive hidden classes for desktop table cells, e.g. 'hidden sm:table-cell' */
-  headClass?: HTMLAttributes['class']
-  cellClass?: HTMLAttributes['class']
-  /** Show this column on mobile card view? Default true */
-  showOnMobile?: boolean
-  /** Format value for mobile display */
-  mobileLabel?: string
-}
-
-const props = withDefaults(defineProps<{
-  columns: ColumnDef[]
-  data: Record<string, any>[] | null
-  itemKey?: string
-  emptyMessage?: string
-  class?: HTMLAttributes['class']
-}>(), {
-  itemKey: 'id',
-  emptyMessage: 'No data',
+const props = defineProps({
+  columns: { type: Array, required: true },
+  data: { type: Array, required: true, default: null },
+  itemKey: { type: String, required: false, default: 'id' },
+  emptyMessage: { type: String, required: false, default: 'No data' },
+  class: { type: null, required: false },
 })
 
 const items = computed(() => props.data ?? [])
 
-const emits = defineEmits<{
-  (e: 'select', row: Record<string, any>): void
-}>()
+const emits = defineEmits(['select'])
 </script>
 
 <template>

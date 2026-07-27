@@ -1,35 +1,45 @@
-<script setup lang="ts">
-import type { DialogContentEmits, DialogContentProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import type { SheetVariants } from "."
-import { reactiveOmit } from "@vueuse/core"
-import { X } from "lucide-vue-next"
+<script setup>
+import { reactiveOmit } from "@vueuse/core";
+import { X } from "lucide-vue-next";
 import {
   DialogClose,
   DialogContent,
   DialogOverlay,
   DialogPortal,
   useForwardPropsEmits,
-} from "reka-ui"
-import { cn } from "@/lib/utils"
-import { sheetVariants } from "."
-
-interface SheetContentProps extends DialogContentProps {
-  class?: HTMLAttributes["class"]
-  side?: SheetVariants["side"]
-}
+} from "reka-ui";
+import { cn } from "@/lib/utils";
+import { sheetVariants } from ".";
 
 defineOptions({
   inheritAttrs: false,
-})
+});
 
-const props = defineProps<SheetContentProps>()
+const props = defineProps({
+  class: {
+    type: [Boolean, null, String, Object, Array],
+    required: false,
+    skipCheck: true,
+  },
+  side: { type: null, required: false },
+  forceMount: { type: Boolean, required: false },
+  disableOutsidePointerEvents: { type: Boolean, required: false },
+  asChild: { type: Boolean, required: false },
+  as: { type: null, required: false },
+});
 
-const emits = defineEmits<DialogContentEmits>()
+const emits = defineEmits([
+  "escapeKeyDown",
+  "pointerDownOutside",
+  "focusOutside",
+  "interactOutside",
+  "openAutoFocus",
+  "closeAutoFocus",
+]);
 
-const delegatedProps = reactiveOmit(props, "class", "side")
+const delegatedProps = reactiveOmit(props, "class", "side");
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
+const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>

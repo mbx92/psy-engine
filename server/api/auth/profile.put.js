@@ -1,14 +1,12 @@
 import { users } from '~~/db/schema/users'
 import { eq } from 'drizzle-orm'
+import { getRolePermissionKeys } from '~~/server/utils/permissions'
+import { validateBody, profileUpdateSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
   const { userId } = event.context.auth
   const body = await readBody(event)
-  const { name, email } = body || {}
-
-  if (!name && !email) {
-    throw createError({ statusCode: 400, message: 'Nothing to update' })
-  }
+  const { name, email } = validateBody(profileUpdateSchema, body)
 
   const db = useDB()
 
@@ -21,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const updateData: Record<string, any> = {}
+  const updateData = {}
   if (name) updateData.name = name
   if (email) updateData.email = email
   updateData.updatedAt = new Date()
@@ -31,5 +29,7 @@ export default defineEventHandler(async (event) => {
     .where(eq(users.id, userId))
     .returning({ id: users.id, email: users.email, name: users.name, role: users.role })
 
-  return { user: updated }
+  const permissions = await getRolePermissionKeys(updated.role)
+
+  return { user: { ...updated, permissions } }
 })

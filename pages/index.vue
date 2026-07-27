@@ -61,52 +61,118 @@
       </div>
     </div>
 
-    <!-- Recent Activity -->
-    <UiCard>
-      <UiCardHeader class="py-3 md:py-4">
-        <UiCardTitle class="text-base md:text-lg">Recent Activity</UiCardTitle>
-        <UiCardDescription class="text-xs md:text-sm">Latest test sessions and registrations</UiCardDescription>
-      </UiCardHeader>
-      <UiCardContent>
-        <p class="text-xs md:text-sm text-muted-foreground py-4 text-center">No recent activity</p>
-      </UiCardContent>
-    </UiCard>
+    <!-- Sessions by Status -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <UiCard>
+        <UiCardHeader class="py-3 md:py-4">
+          <UiCardTitle class="text-base md:text-lg">Sessions by Status</UiCardTitle>
+        </UiCardHeader>
+        <UiCardContent>
+          <p v-if="loading" class="text-xs md:text-sm text-muted-foreground py-4 text-center">Loading...</p>
+          <p v-else-if="!statusChartData.length" class="text-xs md:text-sm text-muted-foreground py-4 text-center">No sessions yet</p>
+          <ReportsBarChart v-else :dimensions="statusChartData" />
+        </UiCardContent>
+      </UiCard>
+
+      <!-- Recent Activity -->
+      <UiCard>
+        <UiCardHeader class="py-3 md:py-4">
+          <UiCardTitle class="text-base md:text-lg">Recent Activity</UiCardTitle>
+          <UiCardDescription class="text-xs md:text-sm">Latest test sessions</UiCardDescription>
+        </UiCardHeader>
+        <UiCardContent>
+          <p v-if="loading" class="text-xs md:text-sm text-muted-foreground py-4 text-center">Loading...</p>
+          <p v-else-if="!recentSessions.length" class="text-xs md:text-sm text-muted-foreground py-4 text-center">No recent activity</p>
+          <ul v-else class="space-y-2">
+            <li v-for="s in recentSessions" :key="s.id" class="flex items-center justify-between text-sm py-1.5 border-b last:border-0">
+              <div class="min-w-0">
+                <p class="font-medium truncate">{{ s.participantName }}</p>
+                <p class="text-xs text-muted-foreground truncate">{{ s.testTypeName }}</p>
+              </div>
+              <UiBadge :variant="s.status === 'verified' ? 'default' : s.status === 'abandoned' ? 'destructive' : 'secondary'" class="text-xs shrink-0">
+                {{ s.status }}
+              </UiBadge>
+            </li>
+          </ul>
+        </UiCardContent>
+      </UiCard>
+    </div>
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
 })
 
-const { user } = useAuth()
+const { user, getAuthHeaders } = useAuth()
 const { data: tests } = await useFetch('/api/tests')
+
+const loading = ref(true)
+const participantsData = ref([])
+const sessionsData = ref([])
+const testTypesData = ref([])
+
+async function loadDashboard() {
+  loading.value = true
+  try {
+    const [partRes, sessRes, ttRes] = await Promise.all([
+      $fetch('/api/participants', { headers: getAuthHeaders() }).catch(() => ({ participants: [] })),
+      $fetch('/api/sessions', { headers: getAuthHeaders() }).catch(() => ({ sessions: [] })),
+      $fetch('/api/admin/test-types', { headers: getAuthHeaders() }).catch(() => ({ testTypes: [] })),
+    ])
+    participantsData.value = partRes.participants || []
+    sessionsData.value = sessRes.sessions || []
+    testTypesData.value = ttRes.testTypes || []
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(loadDashboard)
+
+const completedCount = computed(() => sessionsData.value.filter((s) => ['completed', 'verified'].includes(s.status)).length)
 
 const stats = computed(() => [
   {
     label: 'Test Types',
-    value: tests.value?.length || 0,
+    value: testTypesData.value.length || tests.value?.length || 0,
     description: 'Available test definitions',
     icon: 'lucide:clipboard-list',
   },
   {
     label: 'Participants',
-    value: '—',
+    value: participantsData.value.length,
     description: 'Registered participants',
     icon: 'lucide:users',
   },
   {
     label: 'Sessions',
-    value: '—',
+    value: sessionsData.value.length,
     description: 'Test sessions created',
     icon: 'lucide:play-circle',
   },
   {
     label: 'Completed',
-    value: '—',
+    value: completedCount.value,
     description: 'Completed test sessions',
     icon: 'lucide:check-circle',
   },
 ])
+
+const STATUS_LABELS = { pending: 'Pending', in_progress: 'In Progress', completed: 'Completed', verified: 'Verified', abandoned: 'Abandoned' }
+
+const statusChartData = computed(() => {
+  const counts = {}
+  for (const s of sessionsData.value) counts[s.status] = (counts[s.status] || 0) + 1
+  const max = Math.max(...Object.values(counts), 1)
+  return Object.entries(counts).map(([status, value]) => ({ label: STATUS_LABELS[status] || status, value, max }))
+})
+
+const recentSessions = computed(() =>
+  [...sessionsData.value]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5),
+)
 </script>

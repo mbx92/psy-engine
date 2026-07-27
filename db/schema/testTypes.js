@@ -10,6 +10,6 @@ export const testTypes = pgTable('test_types', {
   questions: jsonb('questions').default([]),
   scoringConfig: jsonb('scoring_config').default({}),
   isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 })

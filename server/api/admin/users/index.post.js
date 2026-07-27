@@ -2,20 +2,13 @@ import { users } from '~~/db/schema/users'
 import { eq } from 'drizzle-orm'
 import { PERMISSIONS } from '~~/server/utils/permissions'
 import { requirePermission } from '~~/server/utils/access'
+import { validateBody, userCreateSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
-  requirePermission(event, PERMISSIONS.USERS_CREATE)
+  await requirePermission(event, PERMISSIONS.USERS_CREATE)
 
   const body = await readBody(event)
-  const { email, password, name, role } = body || {}
-
-  if (!email || !password || !name) {
-    throw createError({ statusCode: 400, message: 'Email, password, and name are required' })
-  }
-
-  if (password.length < 6) {
-    throw createError({ statusCode: 400, message: 'Password must be at least 6 characters' })
-  }
+  const { email, password, name, role } = validateBody(userCreateSchema, body)
 
   const db = useDB()
 

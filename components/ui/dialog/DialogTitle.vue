@@ -1,25 +1,28 @@
-<script setup lang="ts">
-import type { DialogTitleProps } from "reka-ui"
-import type { HTMLAttributes } from "vue"
-import { reactiveOmit } from "@vueuse/core"
-import { DialogTitle, useForwardProps } from "reka-ui"
-import { cn } from "@/lib/utils"
+<script setup>
+import { reactiveOmit } from "@vueuse/core";
+import { DialogTitle, useForwardProps } from "reka-ui";
+import { cn } from "@/lib/utils";
 
-const props = defineProps<DialogTitleProps & { class?: HTMLAttributes["class"] }>()
+const props = defineProps({
+  asChild: { type: Boolean, required: false },
+  as: { type: null, required: false },
+  class: {
+    type: [Boolean, null, String, Object, Array],
+    required: false,
+    skipCheck: true,
+  },
+});
 
-const delegatedProps = reactiveOmit(props, "class")
+const delegatedProps = reactiveOmit(props, "class");
 
-const forwardedProps = useForwardProps(delegatedProps)
+const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
   <DialogTitle
     v-bind="forwardedProps"
     :class="
-      cn(
-        'text-lg font-semibold leading-none tracking-tight',
-        props.class,
-      )
+      cn('text-lg font-semibold leading-none tracking-tight', props.class)
     "
   >
     <slot />
