@@ -14,7 +14,7 @@
             </UiButton>
             <UiBadge :variant="statusVariant(session.status)" class="text-xs">{{ statusLabel(session.status) }}</UiBadge>
             <span
-              v-if="liveConnected"
+              v-if="liveConnected && session.status === 'in_progress'"
               class="inline-flex items-center gap-1.5 text-xs text-emerald-600"
             >
               <span class="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -200,6 +200,7 @@
                 {{ logs.length }} events
               </UiBadge>
               <span
+                v-if="session.status === 'in_progress'"
                 class="inline-flex items-center gap-1.5 text-xs"
                 :class="liveConnected ? 'text-emerald-600' : 'text-muted-foreground'"
               >
@@ -282,21 +283,18 @@
 <script setup>
 import { buildEppsAnswerBlocks } from '~~/utils/eppsConstants'
 import { buildScoreView } from '~~/utils/scoreDisplay'
+import { statusLabel, statusVariant } from '~~/utils/sessionStatus'
 
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
 })
 
-const MetaRow = {
-  props: { label: String, value: [String, Number] },
-  template: `
-    <div class="flex justify-between gap-3">
-      <span class="text-muted-foreground shrink-0">{{ label }}</span>
-      <span class="font-medium text-right break-all">{{ value }}</span>
-    </div>
-  `,
-}
+const MetaRow = (props) => h('div', { class: 'flex justify-between gap-3' }, [
+  h('span', { class: 'text-muted-foreground shrink-0' }, props.label),
+  h('span', { class: 'font-medium text-right break-all' }, props.value),
+])
+MetaRow.props = { label: String, value: [String, Number] }
 
 const route = useRoute()
 const { can, getAuthHeaders } = useAuth()
@@ -312,21 +310,6 @@ const liveAnswered = ref(0)
 const liveLastActivity = ref(null)
 const liveConnected = ref(false)
 const logScrollEl = ref(null)
-
-const STATUS_LABELS = {
-  pending: 'Pending',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  verified: 'Verified',
-  abandoned: 'Abandoned',
-}
-function statusLabel(s) { return STATUS_LABELS[s] || s }
-function statusVariant(s) {
-  if (s === 'verified') return 'default'
-  if (s === 'abandoned') return 'destructive'
-  if (s === 'in_progress') return 'secondary'
-  return 'secondary'
-}
 
 const EVENT_LABELS = {
   session_created: 'Session created',
@@ -443,7 +426,7 @@ const answerRows = computed(() => {
     }
     return {
       questionId: q.id,
-      questionText: q.text || q.prompt || `Soal ${q.id}`,
+      questionText: (q.text || q.prompt || '').replace(/Pilih pernyataan yang paling sesuai dengan diri Anda\.?\s*/i, '').trim() || `Soal ${q.id}`,
       answerText: option?.text || (answerId != null ? String(answerId) : null),
       isCorrect,
     }

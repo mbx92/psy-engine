@@ -57,6 +57,34 @@
       "when": 1785120000000,
       "tag": "0007_open_invitation_multi_tests",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1785163489026,
+      "tag": "0008_narrow_lily_hollister",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1785180000000,
+      "tag": "0009_app_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1785181000000,
+      "tag": "0010_system_setup",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785270000000,
+      "tag": "0011_activity_logs",
+      "breakpoints": true
     }
   ]
 }

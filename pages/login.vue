@@ -1,19 +1,42 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-background p-4">
-    <UiCard class="w-full max-w-sm mx-auto">
-      <UiCardHeader class="space-y-2 pb-4">
+  <div class="w-full min-h-screen flex items-center justify-center bg-background p-4">
+    <UiCard class="w-full max-w-md">
+      <UiCardHeader class="space-y-3 pb-6 pt-8 px-8">
         <div class="flex justify-center mb-2">
-          <div class="size-10 rounded-full bg-primary/10 flex items-center justify-center">
-            <Icon icon="lucide:brain" class="size-5 text-primary" />
+          <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+            <img v-if="logo" :src="logo" alt="" class="size-full object-contain p-2" />
+            <Icon v-else icon="lucide:brain" class="size-7 text-primary" />
           </div>
         </div>
-        <UiCardTitle class="text-xl text-center">PsyEngine</UiCardTitle>
-        <UiCardDescription class="text-sm text-center">
-          Psychology Test Management
+        <UiCardTitle class="text-2xl text-center">{{ systemName }}</UiCardTitle>
+        <UiCardDescription class="text-base text-center">
+          {{ tagline }}
         </UiCardDescription>
       </UiCardHeader>
-      <UiCardContent>
-        <form @submit.prevent="handleLogin" class="space-y-4">
+      <UiCardContent class="px-8 pb-8">
+        <div
+          v-if="systemLocked || maintenanceMode"
+          class="mb-4 rounded-md border px-3 py-3 text-sm"
+          :class="systemLocked ? 'border-destructive/40 bg-destructive/10 text-destructive' : 'border-amber-500/40 bg-amber-500/10 text-amber-800'"
+        >
+          <div class="flex gap-3">
+            <Icon
+              :icon="systemLocked ? 'lucide:lock' : 'lucide:construction'"
+              class="size-5 shrink-0 mt-0.5"
+            />
+            <div class="min-w-0 space-y-0.5">
+              <p class="font-medium">
+                {{ systemLocked ? 'Akses sistem ditangguhkan' : 'Pemeliharaan sistem' }}
+              </p>
+              <p class="text-xs opacity-90">
+                {{ systemLocked
+                  ? 'Sistem sedang dikunci. Silakan hubungi administrator untuk informasi lebih lanjut.'
+                  : (maintenanceMessage || 'Sistem sedang dalam pemeliharaan. Silakan coba kembali nanti.') }}
+              </p>
+            </div>
+          </div>
+        </div>
+        <form @submit.prevent="handleLogin" class="space-y-5">
           <div class="space-y-2">
             <UiLabel for="email" class="text-sm">Email</UiLabel>
             <UiInput
@@ -22,7 +45,7 @@
               type="email"
               placeholder="admin@example.com"
               required
-              class="h-10"
+              class="h-11"
             />
           </div>
           <div class="space-y-2">
@@ -33,25 +56,25 @@
               type="password"
               placeholder="••••••••"
               required
-              class="h-10"
+              class="h-11"
             />
           </div>
 
-          <UiButton type="submit" class="w-full h-10" :disabled="loading">
+          <UiButton type="submit" class="w-full h-11" :disabled="loading">
             {{ loading ? 'Signing in...' : 'Sign In' }}
           </UiButton>
 
           <UiButton
             type="button"
             variant="outline"
-            class="w-full h-9 text-xs text-muted-foreground"
+            class="w-full h-10 text-sm text-muted-foreground"
             @click="fillDevCreds"
           >
-            <Icon icon="lucide:bug" class="size-3 mr-2" />
+            <Icon icon="lucide:bug" class="size-3.5 mr-2" />
             Fill Dev Credentials
           </UiButton>
 
-          <p v-if="error" class="text-xs text-destructive text-center">{{ error }}</p>
+          <p v-if="error" class="text-sm text-destructive text-center">{{ error }}</p>
         </form>
       </UiCardContent>
     </UiCard>
@@ -69,8 +92,10 @@ const error = ref('')
 const loading = ref(false)
 
 const { login, isAuthenticated } = useAuth()
+const { systemName, tagline, logo, maintenanceMode, maintenanceMessage, systemLocked, refresh: refreshAppSettings } = useAppSettings()
 
 onMounted(() => {
+  refreshAppSettings()
   if (isAuthenticated.value) {
     navigateTo('/')
   } else {

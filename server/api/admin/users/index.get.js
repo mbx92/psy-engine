@@ -1,5 +1,5 @@
 import { users } from '~~/db/schema/users'
-import { eq } from 'drizzle-orm'
+import { ne } from 'drizzle-orm'
 import { PERMISSIONS } from '~~/server/utils/permissions'
 import { requirePermission } from '~~/server/utils/access'
 
@@ -14,7 +14,9 @@ export default defineEventHandler(async (event) => {
     role: users.role,
     isActive: users.isActive,
     createdAt: users.createdAt,
-  }).from(users).orderBy(users.createdAt)
+  }).from(users)
+    .where(ne(users.role, 'superadmin'))
+    .orderBy(users.createdAt)
 
   return { users: allUsers }
 })

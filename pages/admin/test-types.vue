@@ -1,5 +1,6 @@
 <template>
-  <div class="space-y-4 md:space-y-6">
+  <NuxtPage v-if="route.matched.length > 1" />
+  <div v-else class="space-y-4 md:space-y-6">
     <!-- Header -->
     <div class="flex items-start justify-between gap-4">
       <div class="min-w-0">
@@ -17,6 +18,7 @@
       :columns="columns"
       :data="tests"
       item-key="id"
+      @select="(row) => navigateTo(`/admin/test-types/${row.id}`)"
     >
       <template #empty>
         <EmptyState
@@ -60,7 +62,7 @@
       <template #cell-actions="{ row }">
         <UiDropdownMenu>
           <UiDropdownMenuTrigger as-child>
-            <UiButton variant="ghost" size="icon" class="size-8">
+            <UiButton variant="ghost" size="icon" class="size-8" @click.stop>
               <Icon icon="lucide:more-horizontal" class="size-4" />
             </UiButton>
           </UiDropdownMenuTrigger>
@@ -96,6 +98,7 @@ definePageMeta({
   middleware: 'auth',
 })
 
+const route = useRoute()
 const { can, getAuthHeaders } = useAuth()
 const toast = useToast()
 const { confirm } = useConfirm()
@@ -146,5 +149,7 @@ async function deactivateTestType(row) {
   }
 }
 
-await loadTestTypes()
+if (route.matched.length === 1) {
+  await loadTestTypes()
+}
 </script>

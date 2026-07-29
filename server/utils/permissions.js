@@ -38,12 +38,24 @@ export const PERMISSIONS = {
   SESSIONS_READ: 'sessions:read',
   SESSIONS_MANAGE: 'sessions:manage',
 
+  // Psikograms
+  PSIKOGRAMS_READ: 'psikograms:read',
+  PSIKOGRAMS_CREATE: 'psikograms:create',
+  PSIKOGRAMS_UPDATE: 'psikograms:update',
+  PSIKOGRAMS_DELETE: 'psikograms:delete',
+
   // Settings
   SETTINGS_READ: 'settings:read',
   SETTINGS_UPDATE: 'settings:update',
 
   // RBAC administration
   RBAC_MANAGE: 'rbac:manage',
+
+  // System setup (superadmin / god mode only)
+  SYSTEM_MANAGE: 'system:manage',
+
+  // Activity / audit log
+  ACTIVITY_READ: 'activity:read',
 }
 
 /** Get all permission keys granted to a role (DB-backed). */

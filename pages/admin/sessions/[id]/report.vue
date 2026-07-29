@@ -36,8 +36,8 @@
             <p class="font-medium">{{ formatDate(session.participant.birthDate) }}</p>
           </div>
           <div>
-            <p class="text-xs text-muted-foreground">Status</p>
-            <p class="font-medium capitalize">{{ session.status }}</p>
+            <p class="text-xs text-muted-foreground mb-1">Status</p>
+            <UiBadge :variant="statusVariant(session.status)" class="text-xs">{{ statusLabel(session.status) }}</UiBadge>
           </div>
           <div>
             <p class="text-xs text-muted-foreground">Completed</p>
@@ -99,6 +99,8 @@
 </template>
 
 <script setup>
+import { statusLabel, statusVariant } from '~~/utils/sessionStatus'
+
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
@@ -159,7 +161,7 @@ const answerRows = computed(() => {
       const text = option?.text || q.textA && answerId?.endsWith('_A') ? q.textA : q.textB && answerId?.endsWith('_B') ? q.textB : option?.text
       return {
         questionId: q.id,
-        questionText: q.text || q.textA || `Soal ${q.number ?? i + 1}`,
+        questionText: (q.text || q.textA || '').replace(/Pilih pernyataan yang paling sesuai dengan diri Anda\.?\s*/i, '').trim() || `Soal ${q.number ?? i + 1}`,
         answerText: text || (answerId ? String(answerId) : null),
         isCorrect,
       }

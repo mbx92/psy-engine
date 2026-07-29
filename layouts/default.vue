@@ -11,8 +11,14 @@
           </UiSheetTrigger>
           <UiSheetContent side="left" class="w-64 p-0">
             <div class="p-6 border-b">
-              <h2 class="font-semibold text-lg">PsyEngine</h2>
-              <p class="text-sm text-muted-foreground">Psychology Test System</p>
+              <div class="flex items-center gap-2">
+                <img v-if="logo" :src="logo" alt="" class="size-8 object-contain" />
+                <Icon v-else icon="lucide:brain" class="size-5 text-primary" />
+                <div class="min-w-0">
+                  <h2 class="font-semibold text-lg truncate">{{ systemName }}</h2>
+                  <p class="text-sm text-muted-foreground truncate">{{ tagline }}</p>
+                </div>
+              </div>
             </div>
             <nav class="p-4 space-y-1">
               <NuxtLink
@@ -30,9 +36,10 @@
           </UiSheetContent>
         </UiSheet>
 
-        <NuxtLink to="/" class="flex items-center gap-2 font-semibold">
-          <Icon icon="lucide:brain" class="size-5 text-primary" />
-          PsyEngine
+        <NuxtLink to="/" class="flex items-center gap-2 font-semibold min-w-0">
+          <img v-if="logo" :src="logo" alt="" class="size-6 object-contain shrink-0" />
+          <Icon v-else icon="lucide:brain" class="size-5 text-primary shrink-0" />
+          <span class="truncate">{{ systemName }}</span>
         </NuxtLink>
 
         <nav class="hidden md:flex items-center gap-1 ml-6">
@@ -52,10 +59,14 @@
 
         <UiDropdownMenu v-if="user">
           <UiDropdownMenuTrigger as-child>
-            <UiButton variant="ghost" class="relative h-8 w-8 rounded-full">
-              <UiAvatar class="h-8 w-8">
-                <UiAvatarFallback>{{ user.name?.charAt(0)?.toUpperCase() || 'U' }}</UiAvatarFallback>
+            <UiButton
+              variant="ghost"
+              class="h-9 gap-2 rounded-full pl-1.5 pr-3 hover:bg-accent"
+            >
+              <UiAvatar class="h-7 w-7 shrink-0 border-2 border-border">
+                <UiAvatarFallback class="text-xs">{{ user.name?.charAt(0)?.toUpperCase() || 'U' }}</UiAvatarFallback>
               </UiAvatar>
+              <span class="max-w-[10rem] truncate text-sm font-medium">{{ user.name }}</span>
             </UiButton>
           </UiDropdownMenuTrigger>
           <UiDropdownMenuContent class="w-56" align="end">
@@ -86,12 +97,23 @@ const mobileMenuOpen = ref(false)
 const route = useRoute()
 
 const { user, can, logout } = useAuth()
+const { systemName, tagline, logo, refresh: refreshAppSettings } = useAppSettings()
+
+useHead(() => ({
+  title: systemName.value,
+}))
+
+onMounted(() => {
+  refreshAppSettings()
+})
 
 const navItems = computed(() => [
   { label: 'Dashboard', to: '/', icon: 'lucide:layout-dashboard', show: true },
   { label: 'Test Types', to: '/admin/test-types', icon: 'lucide:clipboard-list', show: can('tests:read') },
   { label: 'Participants', to: '/admin/participants', icon: 'lucide:users', show: can('participants:read') },
   { label: 'Sessions', to: '/admin/sessions', icon: 'lucide:play-circle', show: can('sessions:read') },
+  { label: 'Psikogram', to: '/admin/psikograms', icon: 'lucide:file-text', show: can('psikograms:read') },
+  { label: 'Activity Log', to: '/admin/activity-logs', icon: 'lucide:scroll-text', show: can('activity:read') },
   { label: 'Settings', to: '/settings', icon: 'lucide:settings', show: can('settings:read') },
 ].filter(i => i.show))
 

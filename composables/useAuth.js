@@ -32,7 +32,8 @@ export const useAuth = () => {
     return permissions.some((p) => can(p))
   }
 
-  const isAdmin = computed(() => role.value === 'admin')
+  const isAdmin = computed(() => role.value === 'admin' || role.value === 'superadmin')
+  const isSuperadmin = computed(() => role.value === 'superadmin')
 
   function persist(nextToken, nextUser) {
     token.value = nextToken
@@ -120,6 +121,7 @@ export const useAuth = () => {
     loading,
     isAuthenticated,
     isAdmin,
+    isSuperadmin,
     can,
     canAll,
     canAny,

@@ -125,3 +125,87 @@ export const roleUpdateSchema = z.object({
   label: z.string().min(1, 'Role label cannot be empty').optional(),
   permissionKeys: z.array(z.string()).optional(),
 })
+
+// ── Psikograms ───────────────────────────────────────────────
+const psikogramSectionItem = z.object({
+  key: z.string().optional(),
+  title: z.string(),
+  description: z.string().optional().default(''),
+  rating: z.enum(['R', 'K', 'C', 'B', 'T', '']).optional().default(''),
+})
+
+const psikogramSection = z.object({
+  items: z.array(psikogramSectionItem).default([]),
+  conclusion: z.string().optional().default(''),
+})
+
+const psikogramSections = z.object({
+  kecerdasan: psikogramSection.optional(),
+  sikapKerja: psikogramSection.optional(),
+  kepribadian: psikogramSection.optional(),
+  kemampuanBelajar: psikogramSection.optional(),
+}).catchall(psikogramSection)
+
+const psikogramParticipant = z.object({
+  name: z.string().min(1, 'Participant name is required'),
+  birthDate: z.string().optional().nullable(),
+  education: z.string().optional().nullable(),
+  corporate: z.string().optional().nullable(),
+}).catchall(z.any())
+
+export const psikogramCreateSchema = z.object({
+  participantId: uuid(),
+  sessionId: uuid().optional().nullable(),
+  examDate: dateString(),
+  participant: psikogramParticipant,
+  sections: psikogramSections.optional(),
+  recommendation: z.enum(['recommended', 'not_recommended']).optional().nullable(),
+  status: z.enum(['draft', 'final']).optional().default('draft'),
+  notes: z.string().optional().nullable(),
+})
+
+export const psikogramUpdateSchema = z.object({
+  examDate: dateString().optional(),
+  participant: psikogramParticipant.optional(),
+  sections: psikogramSections.optional(),
+  recommendation: z.enum(['recommended', 'not_recommended']).optional().nullable(),
+  status: z.enum(['draft', 'final']).optional(),
+  notes: z.string().optional().nullable(),
+})
+
+// ── Psychology Settings ──────────────────────────────────────
+const hexColor = () => z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Must be a hex color like #1e3a5f').optional().nullable()
+const optionalString = (max) => z.union([z.string().max(max), z.literal('')]).optional().nullable()
+
+export const psychologySettingsSchema = z.object({
+  logo: z.string().optional().nullable(),
+  footer: z.string().optional().nullable(),
+  primaryColor: hexColor(),
+  secondaryColor: hexColor(),
+  psychologistName: optionalString(255),
+  licenseNumber: optionalString(100),
+  email: z.union([z.string().email('Must be a valid email'), z.literal(''), z.null()]).optional(),
+  phone: optionalString(50),
+  institutionName: optionalString(255),
+  tagline: optionalString(255),
+  address: optionalString(2000),
+  institutionWebsite: optionalString(255),
+  institutionEmail: z.union([z.string().email('Must be a valid email'), z.literal(''), z.null()]).optional(),
+  institutionPhone: optionalString(50),
+  instagram: optionalString(100),
+  reportTitle: optionalString(100),
+  reportSubtitle: optionalString(255),
+  reportFooter: optionalString(2000),
+  showLogo: z.boolean().optional(),
+  showSignature: z.boolean().optional(),
+  showWatermark: z.boolean().optional(),
+  signature: z.string().optional().nullable(),
+})
+
+// ── App Settings ─────────────────────────────────────────────
+export const appSettingsSchema = z.object({
+  systemName: z.string().min(1, 'System name is required').max(100).optional(),
+  tagline: optionalString(255),
+  timezone: z.string().min(1).max(64).optional(),
+  logo: z.string().optional().nullable(),
+})

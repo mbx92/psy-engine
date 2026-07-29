@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
-    <div class="overflow-x-auto">
-      <div class="grid grid-cols-3 w-max min-w-full">
+    <div class="overflow-x-auto flex justify-center">
+      <div class="grid grid-cols-3 w-max">
         <div
           v-for="block in blocks"
           :key="block.block"

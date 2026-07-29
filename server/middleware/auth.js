@@ -17,6 +17,12 @@ export default defineEventHandler((event) => {
   // Public: open invitation claim flow (biodata → mint session)
   if (path.startsWith('/api/open-invitations/token/')) return
 
+  // Public: psikogram share links (no login)
+  if (method === 'get' && path.startsWith('/api/public/psikograms/')) return
+
+  // Public: app branding (login page / favicon chrome)
+  if (method === 'get' && (path === '/api/public/app-settings' || path.startsWith('/api/public/app-settings?'))) return
+
   // Protected: everything else needs auth
   const token = getTokenFromEvent(event)
   if (!token) {

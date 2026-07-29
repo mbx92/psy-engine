@@ -139,7 +139,7 @@
             <p class="font-medium text-foreground">Yang perlu Anda ketahui</p>
             <ul class="space-y-1.5 text-xs list-disc list-inside">
               <li>Jawaban Anda sudah tersimpan dan akan diperiksa oleh administrator / psikolog yang menyelenggarakan tes ini.</li>
-              <li>Ringkasan skor dapat Anda lihat sendiri lewat tombol di bawah, namun interpretasi resmi tetap ditentukan oleh psikolog.</li>
+              <li>Hasil dan interpretasi resmi akan disampaikan langsung oleh psikolog / administrator, bukan lewat halaman ini.</li>
               <li>Membuka ulang link sesi ini hanya menampilkan status selesai.</li>
               <li v-if="joinPath">Link undangan publik (`/join/...`) dapat dibuka lagi untuk peserta baru — form registrasi akan muncul.</li>
               <li>Anda boleh menutup tab ini sekarang.</li>
@@ -147,16 +147,8 @@
           </UiCardContent>
         </UiCard>
 
-        <div class="w-full space-y-2">
-          <NuxtLink :to="`/take/${token}/result`" class="block">
-            <UiButton variant="outline" class="w-full h-11">Lihat ringkasan hasil</UiButton>
-          </NuxtLink>
-          <UiButton
-            v-if="joinPath"
-            variant="ghost"
-            class="w-full"
-            @click="goJoinFresh"
-          >
+        <div v-if="joinPath" class="w-full">
+          <UiButton variant="ghost" class="w-full" @click="goJoinFresh">
             Kembali ke halaman registrasi
           </UiButton>
         </div>
@@ -170,15 +162,11 @@ import { clearParticipantClientState } from '~~/utils/participantSession'
 
 definePageMeta({ layout: false })
 
-const InfoRow = {
-  props: { label: String, value: [String, Number] },
-  template: `
-    <div class="flex justify-between gap-3">
-      <span class="text-muted-foreground shrink-0">{{ label }}</span>
-      <span class="font-medium text-right break-words">{{ value || '—' }}</span>
-    </div>
-  `,
-}
+const InfoRow = (props) => h('div', { class: 'flex justify-between gap-3' }, [
+  h('span', { class: 'text-muted-foreground shrink-0' }, props.label),
+  h('span', { class: 'font-medium text-right break-words' }, props.value || '—'),
+])
+InfoRow.props = { label: String, value: [String, Number] }
 
 const route = useRoute()
 const token = route.params.token

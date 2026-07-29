@@ -3,6 +3,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-01-01',
   devtools: { enabled: true },
 
+  app: {
+    head: {
+      title: 'PsyEngine',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
+  },
+
   modules: [
 
     ['@nuxtjs/tailwindcss', {

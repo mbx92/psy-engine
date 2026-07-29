@@ -1,8 +1,8 @@
 <template>
-  <div class="space-y-4 md:space-y-6 max-w-3xl">
+  <div class="space-y-4 md:space-y-6 max-w-6xl">
     <div>
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Add Test Type</h1>
-      <p class="text-sm md:text-base text-muted-foreground">Define a new test — basic info plus its config/questions/scoring as JSON</p>
+      <p class="text-sm md:text-base text-muted-foreground">Define a new test — basic info, config, questions, and scoring</p>
     </div>
 
     <form @submit.prevent="handleCreate" class="space-y-6">
@@ -35,35 +35,35 @@
         </UiCardContent>
       </UiCard>
 
-      <UiCard>
-        <UiCardHeader>
-          <UiCardTitle>Config (JSON)</UiCardTitle>
-          <UiCardDescription>timeLimit, allowSkip, randomize, questionsPerPage, instructions, subtests, ...</UiCardDescription>
-        </UiCardHeader>
-        <UiCardContent>
-          <UiTextarea v-model="configText" class="min-h-40 font-mono text-xs" spellcheck="false" />
-          <p v-if="configError" class="text-xs text-destructive mt-2">{{ configError }}</p>
-        </UiCardContent>
-      </UiCard>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <UiCard>
+          <UiCardHeader>
+            <UiCardTitle>Config</UiCardTitle>
+            <UiCardDescription>Timing, navigation, participant requirements, instructions, subtests</UiCardDescription>
+          </UiCardHeader>
+          <UiCardContent>
+            <AdminTestTypeConfigEditor v-model="config" />
+          </UiCardContent>
+        </UiCard>
+
+        <UiCard>
+          <UiCardHeader>
+            <UiCardTitle>Scoring Config</UiCardTitle>
+            <UiCardDescription>Algorithm, dimensions, interpretations</UiCardDescription>
+          </UiCardHeader>
+          <UiCardContent>
+            <TestTypeEditorScoringConfigForm v-model="scoringConfig" />
+          </UiCardContent>
+        </UiCard>
+      </div>
 
       <UiCard>
         <UiCardHeader>
-          <UiCardTitle>Questions (JSON array)</UiCardTitle>
+          <UiCardTitle>Questions</UiCardTitle>
+          <UiCardDescription>{{ questions.length }} question{{ questions.length === 1 ? '' : 's' }}</UiCardDescription>
         </UiCardHeader>
         <UiCardContent>
-          <UiTextarea v-model="questionsText" class="min-h-60 font-mono text-xs" spellcheck="false" />
-          <p v-if="questionsError" class="text-xs text-destructive mt-2">{{ questionsError }}</p>
-        </UiCardContent>
-      </UiCard>
-
-      <UiCard>
-        <UiCardHeader>
-          <UiCardTitle>Scoring Config (JSON)</UiCardTitle>
-          <UiCardDescription>algorithm, dimensions, interpretations</UiCardDescription>
-        </UiCardHeader>
-        <UiCardContent>
-          <UiTextarea v-model="scoringConfigText" class="min-h-40 font-mono text-xs" spellcheck="false" />
-          <p v-if="scoringConfigError" class="text-xs text-destructive mt-2">{{ scoringConfigError }}</p>
+          <TestTypeEditorQuestionsBuilder v-model="questions" :subtests="config.subtests || []" :test-type="form.type" />
         </UiCardContent>
       </UiCard>
 
@@ -96,42 +96,21 @@ const form = reactive({
   isActive: true,
 })
 
-const configText = ref(JSON.stringify({ timeLimit: 20, allowSkip: false, randomize: true, questionsPerPage: 1, instructions: [] }, null, 2))
-const questionsText = ref('[]')
-const scoringConfigText = ref(JSON.stringify({ algorithm: 'correct_count', dimensions: [], interpretations: {} }, null, 2))
+const config = ref({ timeLimit: 20, allowSkip: false, randomize: true, questionsPerPage: 1, instructions: [] })
+const questions = ref([])
+const scoringConfig = ref({ algorithm: 'correct_count', dimensions: [], interpretations: {} })
 
-const configError = ref('')
-const questionsError = ref('')
-const scoringConfigError = ref('')
 const submitError = ref('')
 const submitting = ref(false)
 
-function parseJsonField(text, errorRef, fieldLabel) {
-  errorRef.value = ''
-  try {
-    return JSON.parse(text)
-  } catch (err) {
-    errorRef.value = `Invalid JSON in ${fieldLabel}: ${err.message}`
-    return undefined
-  }
-}
-
 async function handleCreate() {
   submitError.value = ''
-
-  const config = parseJsonField(configText.value, configError, 'Config')
-  const questions = parseJsonField(questionsText.value, questionsError, 'Questions')
-  const scoringConfig = parseJsonField(scoringConfigText.value, scoringConfigError, 'Scoring Config')
-
-  if (config === undefined || questions === undefined || scoringConfig === undefined) {
-    return
-  }
 
   submitting.value = true
   try {
     const data = await $fetch('/api/admin/test-types', {
       method: 'POST',
-      body: { ...form, config, questions, scoringConfig },
+      body: { ...form, config: config.value, questions: questions.value, scoringConfig: scoringConfig.value },
       headers: getAuthHeaders(),
     })
     toast.success(`${data.testType.name} created`)

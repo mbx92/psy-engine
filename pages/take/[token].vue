@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen bg-background flex flex-col">
+  <NuxtPage v-if="route.matched.length > 1" />
+  <div v-else class="min-h-screen bg-background flex flex-col">
 
     <div v-if="loading" class="flex-1 flex items-center justify-center">
       <div class="text-center space-y-4">
@@ -10,35 +11,19 @@
 
     <div v-else-if="error" class="flex-1 flex items-center justify-center p-4">
       <UiCard class="w-full max-w-sm text-center">
-        <UiCardHeader>
-          <UiCardTitle class="text-destructive">Tidak Dapat Membuka Tes</UiCardTitle>
+        <UiCardHeader class="space-y-3">
+          <div
+            v-if="accessBlocked"
+            class="mx-auto size-12 rounded-full flex items-center justify-center"
+            :class="accessBlocked.code === 'SYSTEM_LOCKED' ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-800'"
+          >
+            <Icon :icon="accessBlocked.icon" class="size-6" />
+          </div>
+          <UiCardTitle :class="accessBlocked ? '' : 'text-destructive'">
+            {{ accessBlocked?.title || 'Tidak Dapat Membuka Tes' }}
+          </UiCardTitle>
           <UiCardDescription>{{ error }}</UiCardDescription>
         </UiCardHeader>
-      </UiCard>
-    </div>
-
-    <div v-else-if="status === 'completed' || status === 'verified'" class="flex-1 flex items-center justify-center p-4">
-      <UiCard class="w-full max-w-sm text-center">
-        <UiCardHeader>
-          <UiCardTitle>
-            {{ battery?.nextTakePath ? 'Tes Ini Selesai' : (battery?.total > 1 ? 'Semua Tes Selesai' : 'Tes Sudah Selesai') }}
-          </UiCardTitle>
-          <UiCardDescription>
-            {{ battery?.nextTakePath
-              ? `Lanjutkan ke ${battery.nextTestName || 'tes berikutnya'}.`
-              : 'Anda sudah menyelesaikan tes ini sebelumnya.' }}
-          </UiCardDescription>
-        </UiCardHeader>
-        <UiCardContent class="space-y-2">
-          <UiButton v-if="battery?.nextTakePath" class="w-full" @click="navigateTo(battery.nextTakePath)">
-            Lanjut Tes Berikutnya
-          </UiButton>
-          <NuxtLink :to="`/take/${token}/complete`" class="block">
-            <UiButton :variant="battery?.nextTakePath ? 'outline' : 'default'" class="w-full">
-              Lihat Ringkasan
-            </UiButton>
-          </NuxtLink>
-        </UiCardContent>
       </UiCard>
     </div>
 
@@ -315,18 +300,25 @@
 <script setup>
 import { buildDevAnswers, mergeDevAnswers, pickDevAnswer } from '~~/utils/devFillAnswers'
 import { clearParticipantClientState } from '~~/utils/participantSession'
+import {
+  parseSystemAccessError,
+  systemAccessIcon,
+  systemAccessMessage,
+  systemAccessTitle,
+} from '~~/utils/systemAccess'
 
 definePageMeta({ layout: false })
 
 const route = useRoute()
 const runtimeConfig = useRuntimeConfig()
 const token = route.params.token
+const { refresh: refreshAppSettings, systemLocked, maintenanceMode, maintenanceMessage } = useAppSettings()
 const devToolsEnabled = computed(() => import.meta.dev || runtimeConfig.public.devTestTools)
 
 const loading = ref(true)
 const error = ref('')
+const accessBlocked = ref(null)
 const status = ref('')
-const battery = ref(null)
 const test = ref(null)
 const participantName = ref('')
 const questions = ref([])
@@ -816,11 +808,38 @@ function restoreInProgress(session) {
 }
 
 onMounted(async () => {
+  if (route.matched.length > 1) {
+    // Nested child route (e.g. /complete) handles its own data fetching.
+    loading.value = false
+    return
+  }
+
   try {
+    await refreshAppSettings()
+    if (systemLocked.value || maintenanceMode.value) {
+      const flags = {
+        systemLocked: systemLocked.value,
+        maintenanceMode: maintenanceMode.value,
+      }
+      accessBlocked.value = {
+        code: systemLocked.value ? 'SYSTEM_LOCKED' : 'MAINTENANCE_MODE',
+        title: systemAccessTitle(flags),
+        icon: systemAccessIcon(flags),
+      }
+      error.value = systemAccessMessage(flags, maintenanceMessage.value)
+      loading.value = false
+      return
+    }
+
     const data = await $fetch(`/api/sessions/token/${token}`)
     const session = data.session
     status.value = session.status
-    battery.value = data.battery
+
+    if (['completed', 'verified'].includes(session.status)) {
+      await goToComplete()
+      return
+    }
+
     test.value = session.testType
     participantName.value = session.participantName
     config.value = test.value.config
@@ -839,9 +858,15 @@ onMounted(async () => {
     if (session.status === 'in_progress') {
       restoreInProgress(session)
     }
+    loading.value = false
   } catch (err) {
-    error.value = err?.data?.message || err?.message || 'Undangan tidak ditemukan'
-  } finally {
+    const blocked = parseSystemAccessError(err)
+    if (blocked) {
+      accessBlocked.value = blocked
+      error.value = systemAccessMessage(blocked.code, maintenanceMessage.value)
+    } else {
+      error.value = err?.data?.message || err?.message || 'Undangan tidak ditemukan'
+    }
     loading.value = false
   }
 })

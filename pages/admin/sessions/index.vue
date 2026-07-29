@@ -17,76 +17,98 @@
       </div>
     </div>
 
-    <UiTabs v-model="activeTab" class="w-full">
-      <UiTabsList class="w-full sm:w-auto">
-        <UiTabsTrigger value="active" class="flex-1 sm:flex-none text-sm">Active</UiTabsTrigger>
-        <UiTabsTrigger value="completed" class="flex-1 sm:flex-none text-sm">Completed</UiTabsTrigger>
-        <UiTabsTrigger value="all" class="flex-1 sm:flex-none text-sm">All</UiTabsTrigger>
-      </UiTabsList>
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <div class="relative w-full sm:max-w-xs shrink-0">
+        <Icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+        <UiInput
+          v-model="search"
+          placeholder="Search participant, test, or status..."
+          class="h-10 pl-9"
+        />
+      </div>
 
-      <UiTabsContent :value="activeTab" class="mt-4">
-        <div v-if="loading" class="space-y-2">
-          <UiSkeleton v-for="i in 5" :key="i" class="h-12 w-full rounded-md" />
-        </div>
+      <UiTabs v-model="activeTab" class="w-full sm:w-auto overflow-x-auto">
+        <UiTabsList class="w-max sm:w-auto">
+          <UiTabsTrigger value="all" class="text-sm">All</UiTabsTrigger>
+          <UiTabsTrigger value="pending" class="text-sm">Pending</UiTabsTrigger>
+          <UiTabsTrigger value="in_progress" class="text-sm">In Progress</UiTabsTrigger>
+          <UiTabsTrigger value="completed" class="text-sm">Completed</UiTabsTrigger>
+          <UiTabsTrigger value="verified" class="text-sm">Verified</UiTabsTrigger>
+          <UiTabsTrigger value="abandoned" class="text-sm">Abandoned</UiTabsTrigger>
+        </UiTabsList>
+      </UiTabs>
+    </div>
 
-        <UiResponsiveTable
-          v-else
-          :columns="columns"
-          :data="filteredSessions"
-          item-key="id"
-          class="cursor-pointer"
-          @select="(row) => navigateTo(`/admin/sessions/${row.id}`)"
-        >
-          <template #empty>
-            <EmptyState
-              icon="lucide:clipboard-check"
-              title="No sessions found"
-              :description="activeTab === 'active' ? 'No pending or in-progress sessions right now.' : activeTab === 'completed' ? 'No completed sessions yet.' : 'Create a session to get started.'"
-            />
-          </template>
-          <template #cell-participant="{ row }">
-            <span class="font-medium text-sm">{{ row.participantName }}</span>
-          </template>
-          <template #cell-test="{ row }">
-            <span class="text-sm">{{ row.testTypeName }}</span>
-          </template>
-          <template #cell-status="{ row }">
-            <UiBadge :variant="statusVariant(row.status)" class="text-xs whitespace-nowrap">{{ statusLabel(row.status) }}</UiBadge>
-          </template>
-          <template #cell-created="{ row }">
-            <span class="text-muted-foreground text-xs">{{ formatDateTime(row.createdAt) }}</span>
-          </template>
-          <template #cell-invite="{ row }">
-            <div v-if="row.token" class="flex items-center gap-1.5 min-w-0" @click.stop>
-              <span class="font-mono text-[11px] text-muted-foreground truncate max-w-[10rem] lg:max-w-[14rem]" :title="inviteUrl(row)">
-                /take/{{ shortToken(row.token) }}
-              </span>
-              <UiButton
-                type="button"
-                variant="outline"
-                size="icon"
-                class="size-7 shrink-0"
-                :title="copiedId === row.id ? 'Copied' : 'Copy invitation link'"
-                @click="copySessionInvite(row)"
-              >
-                <Icon :icon="copiedId === row.id ? 'lucide:check' : 'lucide:copy'" class="size-3.5" />
-              </UiButton>
-            </div>
-            <span v-else class="text-xs text-muted-foreground">—</span>
-          </template>
-          <template #cell-actions="{ row }">
-            <NuxtLink
-              :to="`/admin/sessions/${row.id}`"
-              class="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-md text-xs font-medium hover:bg-accent hover:text-accent-foreground"
-              @click.stop
+    <div>
+      <div v-if="loading" class="space-y-2">
+        <UiSkeleton v-for="i in 5" :key="i" class="h-12 w-full rounded-md" />
+      </div>
+
+      <UiResponsiveTable
+        v-else
+        :columns="columns"
+        :data="sessions"
+        item-key="id"
+        class="cursor-pointer"
+        @select="(row) => navigateTo(`/admin/sessions/${row.id}`)"
+      >
+        <template #empty>
+          <EmptyState
+            icon="lucide:clipboard-check"
+            title="No sessions found"
+            :description="emptyDescription"
+          />
+        </template>
+        <template #cell-participant="{ row }">
+          <span class="font-medium text-sm">{{ row.participantName }}</span>
+        </template>
+        <template #cell-test="{ row }">
+          <span class="text-sm">{{ row.testTypeName }}</span>
+        </template>
+        <template #cell-status="{ row }">
+          <UiBadge :variant="statusVariant(row.status)" class="text-xs whitespace-nowrap">{{ statusLabel(row.status) }}</UiBadge>
+        </template>
+        <template #cell-created="{ row }">
+          <span class="text-muted-foreground text-xs">{{ formatDateTime(row.createdAt) }}</span>
+        </template>
+        <template #cell-invite="{ row }">
+          <div v-if="row.token" class="flex items-center gap-1.5 min-w-0" @click.stop>
+            <span class="font-mono text-[11px] text-muted-foreground truncate max-w-[10rem] lg:max-w-[14rem]" :title="inviteUrl(row)">
+              /take/{{ shortToken(row.token) }}
+            </span>
+            <UiButton
+              type="button"
+              variant="outline"
+              size="icon"
+              class="size-7 shrink-0"
+              :title="copiedId === row.id ? 'Copied' : 'Copy invitation link'"
+              @click="copySessionInvite(row)"
             >
-              <Icon icon="lucide:eye" class="size-3.5" />
-              <span class="hidden md:inline">View</span>
-            </NuxtLink>
-          </template>
-        </UiResponsiveTable>
-      </UiTabsContent>
-    </UiTabs>
+              <Icon :icon="copiedId === row.id ? 'lucide:check' : 'lucide:copy'" class="size-3.5" />
+            </UiButton>
+          </div>
+          <span v-else class="text-xs text-muted-foreground">—</span>
+        </template>
+        <template #cell-actions="{ row }">
+          <NuxtLink
+            :to="`/admin/sessions/${row.id}`"
+            class="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-md text-xs font-medium hover:bg-accent hover:text-accent-foreground"
+            @click.stop
+          >
+            <Icon icon="lucide:eye" class="size-3.5" />
+            <span class="hidden md:inline">View</span>
+          </NuxtLink>
+        </template>
+      </UiResponsiveTable>
+
+      <PaginationBar
+        v-if="!loading && (pageMeta?.total ?? 0) > 0"
+        :page="page"
+        :limit="pageSize"
+        :total="pageMeta.total"
+        @update:page="goToPage"
+      />
+    </div>
 
     <div v-if="listError" class="text-xs text-destructive">{{ listError }}</div>
 
@@ -284,58 +306,84 @@
         <div v-if="publicLinksLoading" class="space-y-2">
           <UiSkeleton v-for="i in 3" :key="i" class="h-14 w-full rounded-md" />
         </div>
-        <div v-else-if="!publicLinks.length" class="text-sm text-muted-foreground py-6 text-center">
-          Belum ada public link.
-        </div>
-        <div v-else class="space-y-2 max-h-80 overflow-y-auto">
-          <div
-            v-for="link in publicLinks"
-            :key="link.id"
-            class="border rounded-md p-3 space-y-2"
-          >
-            <div class="flex items-start justify-between gap-2">
-              <div class="min-w-0">
-                <p class="text-sm font-medium truncate">{{ link.testTypeName }}</p>
-                <p class="text-xs text-muted-foreground truncate">
-                  {{ link.label || 'Tanpa label' }}
-                  <span v-if="link.testCount > 1"> · {{ link.testCount }} tes</span>
-                </p>
-              </div>
-              <div
-                v-if="can('sessions:manage')"
-                class="flex items-center gap-2 shrink-0"
-              >
-                <span class="text-[11px] text-muted-foreground">
+        <template v-else-if="!publicLinks.length">
+          <div class="text-sm text-muted-foreground py-6 text-center">
+            Belum ada public link.
+          </div>
+        </template>
+        <template v-else>
+          <div class="flex flex-col gap-3">
+            <div class="relative w-full">
+              <Icon icon="lucide:search" class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+              <UiInput
+                v-model="publicLinksSearch"
+                placeholder="Search label, test, or path..."
+                class="h-9 pl-9"
+              />
+            </div>
+
+            <UiTabs v-model="publicLinksTab" class="w-full">
+              <UiTabsList class="w-full grid grid-cols-3">
+                <UiTabsTrigger value="all" class="text-sm">All</UiTabsTrigger>
+                <UiTabsTrigger value="active" class="text-sm">Active</UiTabsTrigger>
+                <UiTabsTrigger value="inactive" class="text-sm">Inactive</UiTabsTrigger>
+              </UiTabsList>
+            </UiTabs>
+          </div>
+
+          <div v-if="!filteredPublicLinks.length" class="text-sm text-muted-foreground py-6 text-center">
+            Tidak ada link yang cocok.
+          </div>
+          <div v-else class="space-y-2 max-h-80 overflow-y-auto">
+            <div
+              v-for="link in filteredPublicLinks"
+              :key="link.id"
+              class="border rounded-md p-3 space-y-2"
+            >
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <p class="text-sm font-medium truncate">{{ link.testTypeName }}</p>
+                  <p class="text-xs text-muted-foreground truncate">
+                    {{ link.label || 'Tanpa label' }}
+                    <span v-if="link.testCount > 1"> · {{ link.testCount }} tes</span>
+                  </p>
+                </div>
+                <div
+                  v-if="can('sessions:manage')"
+                  class="flex items-center gap-2 shrink-0"
+                >
+                  <span class="text-[11px] text-muted-foreground">
+                    {{ link.isActive ? 'Active' : 'Off' }}
+                  </span>
+                  <UiSwitch
+                    :model-value="link.isActive"
+                    :disabled="!!link._toggling"
+                    @update:model-value="(v) => togglePublicLink(link, v)"
+                  />
+                </div>
+                <UiBadge
+                  v-else
+                  :variant="link.isActive ? 'secondary' : 'destructive'"
+                  class="text-xs shrink-0"
+                >
                   {{ link.isActive ? 'Active' : 'Off' }}
-                </span>
-                <UiSwitch
-                  :model-value="link.isActive"
-                  :disabled="!!link._toggling"
-                  @update:model-value="(v) => togglePublicLink(link, v)"
-                />
+                </UiBadge>
               </div>
-              <UiBadge
-                v-else
-                :variant="link.isActive ? 'secondary' : 'destructive'"
-                class="text-xs shrink-0"
-              >
-                {{ link.isActive ? 'Active' : 'Off' }}
-              </UiBadge>
-            </div>
-            <div class="flex items-center gap-2">
-              <UiInput :model-value="origin + link.invitationPath" readonly class="h-8 font-mono text-[11px]" />
-              <UiButton type="button" variant="outline" size="icon" class="size-8 shrink-0" @click="copyText(origin + link.invitationPath)">
-                <Icon icon="lucide:copy" class="size-3.5" />
-              </UiButton>
-            </div>
-            <div class="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>
-                Used {{ link.useCount }}{{ link.maxUses != null ? ` / ${link.maxUses}` : '' }}
-                <span v-if="link.expiresAt"> · exp {{ formatDateTime(link.expiresAt) }}</span>
-              </span>
+              <div class="flex items-center gap-2">
+                <UiInput :model-value="origin + link.invitationPath" readonly class="h-8 font-mono text-[11px]" />
+                <UiButton type="button" variant="outline" size="icon" class="size-8 shrink-0" @click="copyText(origin + link.invitationPath)">
+                  <Icon icon="lucide:copy" class="size-3.5" />
+                </UiButton>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>
+                  Used {{ link.useCount }}{{ link.maxUses != null ? ` / ${link.maxUses}` : '' }}
+                  <span v-if="link.expiresAt"> · exp {{ formatDateTime(link.expiresAt) }}</span>
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
 
         <UiDialogFooter>
           <UiButton type="button" variant="outline" @click="showPublicLinks = false">Close</UiButton>
@@ -347,6 +395,8 @@
 </template>
 
 <script setup>
+import { statusLabel, statusVariant } from '~~/utils/sessionStatus'
+
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
@@ -392,19 +442,14 @@ async function copySessionInvite(row) {
   }
 }
 
-const STATUS_LABELS = {
-  pending: 'Pending',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  verified: 'Verified',
-  abandoned: 'Abandoned',
-}
-function statusLabel(s) { return STATUS_LABELS[s] || s }
-function statusVariant(s) {
-  if (s === 'verified') return 'default'
-  if (s === 'abandoned') return 'destructive'
-  return 'secondary'
-}
+const activeTab = ref('all')
+const search = ref('')
+const page = ref(1)
+const pageSize = 20
+const sessions = ref([])
+const pageMeta = ref({ total: 0, totalPages: 1 })
+const loading = ref(false)
+const listError = ref('')
 
 function formatDateTime(value) {
   if (!value) return '—'
@@ -413,17 +458,21 @@ function formatDateTime(value) {
   return d.toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
-const activeTab = ref('active')
-const sessions = ref([])
-const loading = ref(false)
-const listError = ref('')
-
 async function loadSessions() {
   loading.value = true
   listError.value = ''
   try {
-    const data = await $fetch('/api/sessions', { headers: getAuthHeaders() })
+    const data = await $fetch('/api/sessions', {
+      query: {
+        page: page.value,
+        limit: pageSize,
+        tab: activeTab.value,
+        ...(search.value.trim() ? { search: search.value.trim() } : {}),
+      },
+      headers: getAuthHeaders(),
+    })
     sessions.value = data.sessions || []
+    pageMeta.value = data.pagination ?? { total: sessions.value.length, totalPages: 1 }
   } catch (err) {
     listError.value = err?.data?.message || 'Failed to load sessions'
     toast.error(listError.value)
@@ -432,10 +481,29 @@ async function loadSessions() {
   }
 }
 
-const filteredSessions = computed(() => {
-  if (activeTab.value === 'active') return sessions.value.filter((s) => ['pending', 'in_progress'].includes(s.status))
-  if (activeTab.value === 'completed') return sessions.value.filter((s) => ['completed', 'verified'].includes(s.status))
-  return sessions.value
+function goToPage(next) {
+  page.value = next
+  loadSessions()
+}
+
+const emptyDescription = computed(() => {
+  if (search.value.trim()) return 'Try a different search term.'
+  if (activeTab.value === 'all') return 'Create a session to get started.'
+  return `No ${statusLabel(activeTab.value).toLowerCase()} sessions found.`
+})
+
+let searchDebounce = null
+watch(search, () => {
+  clearTimeout(searchDebounce)
+  searchDebounce = setTimeout(() => {
+    page.value = 1
+    loadSessions()
+  }, 300)
+})
+
+watch(activeTab, () => {
+  page.value = 1
+  loadSessions()
 })
 
 onMounted(loadSessions)
@@ -456,6 +524,28 @@ const origin = import.meta.client ? window.location.origin : ''
 const showPublicLinks = ref(false)
 const publicLinks = ref([])
 const publicLinksLoading = ref(false)
+const publicLinksSearch = ref('')
+const publicLinksTab = ref('all')
+
+const filteredPublicLinks = computed(() => {
+  const q = publicLinksSearch.value.trim().toLowerCase()
+  return publicLinks.value.filter((link) => {
+    if (publicLinksTab.value === 'active' && !link.isActive) return false
+    if (publicLinksTab.value === 'inactive' && link.isActive) return false
+    if (!q) return true
+    const haystack = [
+      link.label,
+      link.testTypeName,
+      ...(link.testTypeNames || []),
+      link.invitationPath,
+      link.token,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase()
+    return haystack.includes(q)
+  })
+})
 
 function toggleBulkParticipant(id) {
   const idx = bulkParticipantIds.value.indexOf(id)
@@ -527,6 +617,8 @@ function openCreate(mode = 'single') {
 
 async function openPublicLinks() {
   showPublicLinks.value = true
+  publicLinksSearch.value = ''
+  publicLinksTab.value = 'all'
   publicLinksLoading.value = true
   try {
     const data = await $fetch('/api/admin/open-invitations', { headers: getAuthHeaders() })

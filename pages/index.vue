@@ -70,7 +70,7 @@
         <UiCardContent>
           <p v-if="loading" class="text-xs md:text-sm text-muted-foreground py-4 text-center">Loading...</p>
           <p v-else-if="!statusChartData.length" class="text-xs md:text-sm text-muted-foreground py-4 text-center">No sessions yet</p>
-          <ReportsBarChart v-else :dimensions="statusChartData" />
+          <DashboardSessionsStatusChart v-else :items="statusChartData" />
         </UiCardContent>
       </UiCard>
 
@@ -89,8 +89,8 @@
                 <p class="font-medium truncate">{{ s.participantName }}</p>
                 <p class="text-xs text-muted-foreground truncate">{{ s.testTypeName }}</p>
               </div>
-              <UiBadge :variant="s.status === 'verified' ? 'default' : s.status === 'abandoned' ? 'destructive' : 'secondary'" class="text-xs shrink-0">
-                {{ s.status }}
+              <UiBadge :variant="statusVariant(s.status)" class="text-xs shrink-0">
+                {{ statusLabel(s.status) }}
               </UiBadge>
             </li>
           </ul>
@@ -101,6 +101,8 @@
 </template>
 
 <script setup>
+import { statusLabel, statusVariant, STATUS_LABELS } from '~~/utils/sessionStatus'
+
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
@@ -161,13 +163,18 @@ const stats = computed(() => [
   },
 ])
 
-const STATUS_LABELS = { pending: 'Pending', in_progress: 'In Progress', completed: 'Completed', verified: 'Verified', abandoned: 'Abandoned' }
+const STATUS_ORDER = ['pending', 'in_progress', 'completed', 'verified', 'abandoned']
 
 const statusChartData = computed(() => {
   const counts = {}
   for (const s of sessionsData.value) counts[s.status] = (counts[s.status] || 0) + 1
-  const max = Math.max(...Object.values(counts), 1)
-  return Object.entries(counts).map(([status, value]) => ({ label: STATUS_LABELS[status] || status, value, max }))
+  return STATUS_ORDER
+    .filter((status) => counts[status])
+    .map((status) => ({
+      key: status,
+      label: STATUS_LABELS[status] || status,
+      value: counts[status],
+    }))
 })
 
 const recentSessions = computed(() =>

@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 md:space-y-6 max-w-3xl">
+  <div class="space-y-4 md:space-y-6 max-w-6xl">
     <div v-if="loading" class="text-sm text-muted-foreground text-center py-12">Loading...</div>
 
     <div v-else-if="loadError" class="text-sm text-destructive text-center py-12">{{ loadError }}</div>
@@ -40,35 +40,35 @@
           </UiCardContent>
         </UiCard>
 
-        <UiCard>
-          <UiCardHeader>
-            <UiCardTitle>Config (JSON)</UiCardTitle>
-            <UiCardDescription>timeLimit, allowSkip, randomize, questionsPerPage, instructions, subtests, ...</UiCardDescription>
-          </UiCardHeader>
-          <UiCardContent>
-            <UiTextarea v-model="configText" class="min-h-40 font-mono text-xs" spellcheck="false" />
-            <p v-if="configError" class="text-xs text-destructive mt-2">{{ configError }}</p>
-          </UiCardContent>
-        </UiCard>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <UiCard>
+            <UiCardHeader>
+              <UiCardTitle>Config</UiCardTitle>
+              <UiCardDescription>Timing, navigation, participant requirements, instructions, subtests</UiCardDescription>
+            </UiCardHeader>
+            <UiCardContent>
+              <AdminTestTypeConfigEditor v-model="config" />
+            </UiCardContent>
+          </UiCard>
+
+          <UiCard>
+            <UiCardHeader>
+              <UiCardTitle>Scoring Config</UiCardTitle>
+              <UiCardDescription>Algorithm, dimensions, interpretations</UiCardDescription>
+            </UiCardHeader>
+            <UiCardContent>
+              <TestTypeEditorScoringConfigForm v-model="scoringConfig" />
+            </UiCardContent>
+          </UiCard>
+        </div>
 
         <UiCard>
           <UiCardHeader>
-            <UiCardTitle>Questions (JSON array)</UiCardTitle>
+            <UiCardTitle>Questions</UiCardTitle>
+            <UiCardDescription>{{ questions.length }} question{{ questions.length === 1 ? '' : 's' }}</UiCardDescription>
           </UiCardHeader>
           <UiCardContent>
-            <UiTextarea v-model="questionsText" class="min-h-60 font-mono text-xs" spellcheck="false" />
-            <p v-if="questionsError" class="text-xs text-destructive mt-2">{{ questionsError }}</p>
-          </UiCardContent>
-        </UiCard>
-
-        <UiCard>
-          <UiCardHeader>
-            <UiCardTitle>Scoring Config (JSON)</UiCardTitle>
-            <UiCardDescription>algorithm, dimensions, interpretations</UiCardDescription>
-          </UiCardHeader>
-          <UiCardContent>
-            <UiTextarea v-model="scoringConfigText" class="min-h-40 font-mono text-xs" spellcheck="false" />
-            <p v-if="scoringConfigError" class="text-xs text-destructive mt-2">{{ scoringConfigError }}</p>
+            <TestTypeEditorQuestionsBuilder v-model="questions" :subtests="config.subtests || []" :test-type="form.type" />
           </UiCardContent>
         </UiCard>
 
@@ -108,44 +108,23 @@ const form = reactive({
   isActive: true,
 })
 
-const configText = ref('{}')
-const questionsText = ref('[]')
-const scoringConfigText = ref('{}')
+const config = ref({})
+const questions = ref([])
+const scoringConfig = ref({})
 
-const configError = ref('')
-const questionsError = ref('')
-const scoringConfigError = ref('')
 const submitError = ref('')
 const submitSuccess = ref('')
 const submitting = ref(false)
-
-function parseJsonField(text, errorRef, fieldLabel) {
-  errorRef.value = ''
-  try {
-    return JSON.parse(text)
-  } catch (err) {
-    errorRef.value = `Invalid JSON in ${fieldLabel}: ${err.message}`
-    return undefined
-  }
-}
 
 async function handleUpdate() {
   submitError.value = ''
   submitSuccess.value = ''
 
-  const config = parseJsonField(configText.value, configError, 'Config')
-  const questions = parseJsonField(questionsText.value, questionsError, 'Questions')
-  const scoringConfig = parseJsonField(scoringConfigText.value, scoringConfigError, 'Scoring Config')
-
-  if (config === undefined || questions === undefined || scoringConfig === undefined) {
-    return
-  }
-
   submitting.value = true
   try {
     await $fetch(`/api/admin/test-types/${id}`, {
       method: 'PUT',
-      body: { ...form, config, questions, scoringConfig },
+      body: { ...form, config: config.value, questions: questions.value, scoringConfig: scoringConfig.value },
       headers: getAuthHeaders(),
     })
     submitSuccess.value = 'Saved'
@@ -167,9 +146,9 @@ onMounted(async () => {
     form.type = t.type
     form.description = t.description || ''
     form.isActive = !!t.isActive
-    configText.value = JSON.stringify(t.config ?? {}, null, 2)
-    questionsText.value = JSON.stringify(t.questions ?? [], null, 2)
-    scoringConfigText.value = JSON.stringify(t.scoringConfig ?? {}, null, 2)
+    config.value = t.config ?? {}
+    questions.value = t.questions ?? []
+    scoringConfig.value = t.scoringConfig ?? {}
   } catch (err) {
     loadError.value = err?.data?.message || 'Failed to load test type'
   } finally {

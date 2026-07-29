@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { PERMISSIONS } from '~~/server/utils/permissions'
 import { requirePermission } from '~~/server/utils/access'
 import { validateBody, userUpdateSchema } from '~~/server/utils/validation'
+import { isSuperadminRole } from '~~/server/utils/systemFlags'
 
 export default defineEventHandler(async (event) => {
   await requirePermission(event, PERMISSIONS.USERS_UPDATE)
@@ -12,15 +13,25 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'User ID required' })
   }
 
-  const { userId: currentUserId } = event.context.auth
+  const { userId: currentUserId, role: currentRole } = event.context.auth
 
-  // Prevent self-deactivation
   if (targetId === currentUserId) {
     throw createError({ statusCode: 400, message: 'Cannot modify your own account here' })
   }
 
   const body = validateBody(userUpdateSchema, await readBody(event))
   const db = useDB()
+
+  const [target] = await db.select({ id: users.id, role: users.role }).from(users).where(eq(users.id, targetId)).limit(1)
+  if (!target) {
+    throw createError({ statusCode: 404, message: 'User not found' })
+  }
+
+  if (!isSuperadminRole(currentRole)) {
+    if (body.role === 'superadmin' || target.role === 'superadmin') {
+      throw createError({ statusCode: 403, message: 'Only superadmin can modify superadmin accounts' })
+    }
+  }
 
   const updateData = {}
   if (body.role) updateData.role = body.role

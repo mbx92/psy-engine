@@ -9,8 +9,17 @@
 
     <div v-else-if="error" class="flex-1 flex items-center justify-center p-4">
       <UiCard class="w-full max-w-sm text-center">
-        <UiCardHeader>
-          <UiCardTitle class="text-destructive">Link Tidak Valid</UiCardTitle>
+        <UiCardHeader class="space-y-3">
+          <div
+            v-if="accessBlocked"
+            class="mx-auto size-12 rounded-full flex items-center justify-center"
+            :class="accessBlocked.code === 'SYSTEM_LOCKED' ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-800'"
+          >
+            <Icon :icon="accessBlocked.icon" class="size-6" />
+          </div>
+          <UiCardTitle :class="accessBlocked ? '' : 'text-destructive'">
+            {{ accessBlocked?.title || 'Link Tidak Valid' }}
+          </UiCardTitle>
           <UiCardDescription>{{ error }}</UiCardDescription>
         </UiCardHeader>
       </UiCard>
@@ -104,14 +113,22 @@
 
 <script setup>
 import { clearParticipantClientState, saveParticipantFlow } from '~~/utils/participantSession'
+import {
+  parseSystemAccessError,
+  systemAccessIcon,
+  systemAccessMessage,
+  systemAccessTitle,
+} from '~~/utils/systemAccess'
 
 definePageMeta({ layout: false })
 
 const route = useRoute()
 const token = computed(() => route.params.token)
+const { refresh: refreshAppSettings, systemLocked, maintenanceMode, maintenanceMessage } = useAppSettings()
 
 const loading = ref(true)
 const error = ref('')
+const accessBlocked = ref(null)
 const invitation = ref(null)
 const testType = ref(null)
 const testTypes = ref([])
@@ -134,13 +151,35 @@ onMounted(async () => {
   clearParticipantClientState()
   loading.value = true
   error.value = ''
+  accessBlocked.value = null
   try {
+    await refreshAppSettings()
+    if (systemLocked.value || maintenanceMode.value) {
+      const flags = {
+        systemLocked: systemLocked.value,
+        maintenanceMode: maintenanceMode.value,
+      }
+      accessBlocked.value = {
+        code: systemLocked.value ? 'SYSTEM_LOCKED' : 'MAINTENANCE_MODE',
+        title: systemAccessTitle(flags),
+        icon: systemAccessIcon(flags),
+      }
+      error.value = systemAccessMessage(flags, maintenanceMessage.value)
+      return
+    }
+
     const data = await $fetch(`/api/open-invitations/token/${token.value}`)
     invitation.value = data.invitation
     testType.value = data.testType
     testTypes.value = data.testTypes?.length ? data.testTypes : (data.testType ? [data.testType] : [])
   } catch (err) {
-    error.value = err?.data?.message || err?.message || 'Gagal membuka undangan'
+    const blocked = parseSystemAccessError(err)
+    if (blocked) {
+      accessBlocked.value = blocked
+      error.value = systemAccessMessage(blocked.code, maintenanceMessage.value)
+    } else {
+      error.value = err?.data?.message || err?.message || 'Gagal membuka undangan'
+    }
   } finally {
     loading.value = false
   }

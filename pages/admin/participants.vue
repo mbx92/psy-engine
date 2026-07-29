@@ -73,6 +73,14 @@
       </template>
     </UiResponsiveTable>
 
+    <PaginationBar
+      v-if="!loading && (pageMeta?.total ?? 0) > 0"
+      :page="page"
+      :limit="pageSize"
+      :total="pageMeta.total"
+      @update:page="goToPage"
+    />
+
     <div v-if="listError" class="text-xs text-destructive">{{ listError }}</div>
     <div v-if="listSuccess" class="text-xs text-green-600">{{ listSuccess }}</div>
 
@@ -221,16 +229,24 @@ const loading = ref(false)
 const listError = ref('')
 const listSuccess = ref('')
 const search = ref('')
+const page = ref(1)
+const pageSize = 20
+const pageMeta = ref({ total: 0, totalPages: 1 })
 
 async function loadParticipants() {
   loading.value = true
   listError.value = ''
   try {
     const data = await $fetch('/api/participants', {
-      query: search.value ? { search: search.value } : {},
+      query: {
+        page: page.value,
+        limit: pageSize,
+        ...(search.value.trim() ? { search: search.value.trim() } : {}),
+      },
       headers: getAuthHeaders(),
     })
     participants.value = data.participants || []
+    pageMeta.value = data.pagination ?? { total: participants.value.length, totalPages: 1 }
   } catch (err) {
     listError.value = err?.data?.message || 'Failed to load participants'
   } finally {
@@ -238,10 +254,18 @@ async function loadParticipants() {
   }
 }
 
+function goToPage(next) {
+  page.value = next
+  loadParticipants()
+}
+
 let searchDebounce = null
 watch(search, () => {
   clearTimeout(searchDebounce)
-  searchDebounce = setTimeout(loadParticipants, 300)
+  searchDebounce = setTimeout(() => {
+    page.value = 1
+    loadParticipants()
+  }, 300)
 })
 
 onMounted(loadParticipants)
@@ -292,8 +316,6 @@ async function handleSubmit() {
         body,
         headers: getAuthHeaders(),
       })
-      const idx = participants.value.findIndex((p) => p.id === editingId.value)
-      if (idx !== -1) participants.value[idx] = data.participant
       listSuccess.value = `${data.participant.name} updated`
       toast.success(listSuccess.value)
     } else {
@@ -302,11 +324,12 @@ async function handleSubmit() {
         body,
         headers: getAuthHeaders(),
       })
-      participants.value.unshift(data.participant)
       listSuccess.value = `${data.participant.name} added`
       toast.success(listSuccess.value)
+      page.value = 1
     }
     showForm.value = false
+    await loadParticipants()
   } catch (err) {
     formError.value = err?.data?.message || err?.message || 'Failed to save participant'
   } finally {
@@ -327,9 +350,11 @@ async function deleteParticipant(row) {
   listSuccess.value = ''
   try {
     await $fetch(`/api/participants/${row.id}`, { method: 'DELETE', headers: getAuthHeaders() })
-    participants.value = participants.value.filter((p) => p.id !== row.id)
     listSuccess.value = `${row.name} deleted`
     toast.success(listSuccess.value)
+    // If last item on page was deleted, step back a page
+    if (participants.value.length <= 1 && page.value > 1) page.value -= 1
+    await loadParticipants()
   } catch (err) {
     listError.value = err?.data?.message || 'Failed to delete participant'
     toast.error(listError.value)

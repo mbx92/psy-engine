@@ -85,46 +85,49 @@
             </div>
           </div>
 
-          <div v-if="chartDimensions.length" class="max-w-xl mx-auto">
-            <ClientOnly><ReportsRadarChart :dimensions="chartDimensions" /></ClientOnly>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="rounded-lg border p-3">
-              <p class="text-xs font-medium text-muted-foreground mb-2">Top 5 kebutuhan</p>
-              <ul class="space-y-1 text-sm">
-                <li v-for="key in view.top5" :key="key" class="flex justify-between">
-                  <span>{{ needCode(key) }} <span class="text-muted-foreground">· {{ needLabel(key) }}</span></span>
-                  <span class="font-bold tabular-nums">{{ needScore(key) }}</span>
-                </li>
-              </ul>
+          <div class="flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-10">
+            <div v-if="chartDimensions.length" class="flex-1 w-full max-w-[320px] shrink-0 mx-auto lg:mx-0">
+              <ClientOnly><ReportsRadarChart :dimensions="chartDimensions" /></ClientOnly>
             </div>
-            <div class="rounded-lg border p-3">
-              <p class="text-xs font-medium text-muted-foreground mb-2">Low 5 kebutuhan</p>
-              <ul class="space-y-1 text-sm">
-                <li v-for="key in view.low5" :key="key" class="flex justify-between">
-                  <span>{{ needCode(key) }} <span class="text-muted-foreground">· {{ needLabel(key) }}</span></span>
-                  <span class="font-bold tabular-nums">{{ needScore(key) }}</span>
-                </li>
-              </ul>
+
+            <div class="flex flex-col gap-4 w-full lg:w-[320px] shrink-0">
+              <div class="rounded-lg border p-3 bg-muted/20">
+                <p class="text-xs font-medium text-muted-foreground mb-2">Top 5 kebutuhan</p>
+                <ul class="space-y-1 text-sm">
+                  <li v-for="key in view.top5" :key="key" class="flex justify-between gap-4">
+                    <span>{{ needCode(key) }} <span class="text-muted-foreground">· {{ needLabel(key) }}</span></span>
+                    <span class="font-bold tabular-nums">{{ needScore(key) }}</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="rounded-lg border p-3 bg-muted/20">
+                <p class="text-xs font-medium text-muted-foreground mb-2">Low 5 kebutuhan</p>
+                <ul class="space-y-1 text-sm">
+                  <li v-for="key in view.low5" :key="key" class="flex justify-between gap-4">
+                    <span>{{ needCode(key) }} <span class="text-muted-foreground">· {{ needLabel(key) }}</span></span>
+                    <span class="font-bold tabular-nums">{{ needScore(key) }}</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </UiCardContent>
       </UiCard>
 
-      <UiCard v-if="view.answerBlocks?.length">
-        <UiCardHeader>
-          <UiCardTitle class="text-sm">Matrix Jawaban 5×5</UiCardTitle>
-          <UiCardDescription>9 blok jawaban EPPS (layout sistem lama)</UiCardDescription>
-        </UiCardHeader>
-        <UiCardContent>
-          <ReportsEppsAnswerMatrix :blocks="view.answerBlocks" />
-        </UiCardContent>
-      </UiCard>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <UiCard v-if="view.answerBlocks?.length" class="lg:col-span-6">
+          <UiCardHeader>
+            <UiCardTitle class="text-sm">Matrix Jawaban 5×5</UiCardTitle>
+            <UiCardDescription>9 blok jawaban EPPS (layout sistem lama)</UiCardDescription>
+          </UiCardHeader>
+          <UiCardContent>
+            <ReportsEppsAnswerMatrix :blocks="view.answerBlocks" />
+          </UiCardContent>
+        </UiCard>
 
-      <UiCard>
-        <UiCardHeader><UiCardTitle class="text-sm">Matrix EPPS — Rincian Skor</UiCardTitle></UiCardHeader>
-        <UiCardContent class="p-0 overflow-x-auto">
+        <UiCard :class="view.answerBlocks?.length ? 'lg:col-span-6' : 'lg:col-span-12'">
+          <UiCardHeader><UiCardTitle class="text-sm">Matrix EPPS — Rincian Skor</UiCardTitle></UiCardHeader>
+          <UiCardContent class="p-0 overflow-x-auto">
           <UiTable>
             <UiTableHeader>
               <UiTableRow>
@@ -160,6 +163,7 @@
           </UiTable>
         </UiCardContent>
       </UiCard>
+      </div>
     </template>
 
     <!-- PAPI -->
