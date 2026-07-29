@@ -56,6 +56,9 @@ export const PERMISSIONS = {
 
   // Activity / audit log
   ACTIVITY_READ: 'activity:read',
+
+  // Reports / analytics
+  REPORTS_READ: 'reports:read',
 }
 
 /** Get all permission keys granted to a role (DB-backed). */

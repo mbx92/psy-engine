@@ -41,6 +41,7 @@ const PERMISSION_CATALOG = [
   { key: 'rbac:manage', resource: 'rbac', action: 'manage', label: 'Manage roles & permissions' },
   { key: 'system:manage', resource: 'system', action: 'manage', label: 'System setup (backup, maintenance, lock)' },
   { key: 'activity:read', resource: 'activity', action: 'read', label: 'View activity log' },
+  { key: 'reports:read', resource: 'reports', action: 'read', label: 'View system reports' },
 ]
 
 const ROLE_CATALOG = [
@@ -55,6 +56,7 @@ const OPERATOR_PERMISSION_KEYS = [
   'sessions:read', 'sessions:manage',
   'settings:read', 'settings:update',
   'psikograms:read', 'psikograms:create', 'psikograms:update',
+  'reports:read',
 ]
 
 const SUPERADMIN_USER = {

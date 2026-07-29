@@ -1,6 +1,10 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  compatibilityDate: '2026-01-01',
+  compatibilityDate: '2025-07-15',
+  future: {
+    // Keep Nuxt 3 defaults; avoids schema crash when `future` is undefined
+    compatibilityVersion: 3,
+  },
   devtools: { enabled: true },
 
   app: {

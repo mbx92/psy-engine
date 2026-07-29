@@ -113,6 +113,7 @@ const navItems = computed(() => [
   { label: 'Participants', to: '/admin/participants', icon: 'lucide:users', show: can('participants:read') },
   { label: 'Sessions', to: '/admin/sessions', icon: 'lucide:play-circle', show: can('sessions:read') },
   { label: 'Psikogram', to: '/admin/psikograms', icon: 'lucide:file-text', show: can('psikograms:read') },
+  { label: 'Reports', to: '/admin/reports', icon: 'lucide:bar-chart-3', show: can('reports:read') },
   { label: 'Activity Log', to: '/admin/activity-logs', icon: 'lucide:scroll-text', show: can('activity:read') },
   { label: 'Settings', to: '/settings', icon: 'lucide:settings', show: can('settings:read') },
 ].filter(i => i.show))
