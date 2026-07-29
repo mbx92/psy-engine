@@ -37,6 +37,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@nuxtjs/color-mode": "^4.0.1",
     "drizzle-kit": "^0.31.10"
   }
 }

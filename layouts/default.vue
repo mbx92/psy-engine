@@ -57,6 +57,18 @@
 
         <div class="flex-1" />
 
+        <!-- Dark Mode Toggle -->
+        <UiButton
+          variant="ghost"
+          size="icon"
+          class="h-9 w-9"
+          :title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+          @click="toggleColorMode"
+        >
+          <Icon v-if="colorMode.value === 'dark'" icon="lucide:sun" class="size-4" />
+          <Icon v-else icon="lucide:moon" class="size-4" />
+        </UiButton>
+
         <UiDropdownMenu v-if="user">
           <UiDropdownMenuTrigger as-child>
             <UiButton
@@ -98,6 +110,11 @@ const route = useRoute()
 
 const { user, can, logout } = useAuth()
 const { systemName, tagline, logo, refresh: refreshAppSettings } = useAppSettings()
+const colorMode = useColorMode()
+
+function toggleColorMode() {
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+}
 
 useHead(() => ({
   title: systemName.value,

@@ -22,6 +22,11 @@ export default defineNuxtConfig({
       cssPath: '~/assets/css/main.css',
       configPath: 'tailwind.config.js',
     }],
+    ['@nuxtjs/color-mode', {
+      classSuffix: '',
+      preference: 'system',
+      fallback: 'light',
+    }],
     'shadcn-nuxt',
     'vue-sonner/nuxt',
   ],
