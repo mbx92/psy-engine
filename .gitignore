@@ -2,6 +2,7 @@ node_modules/
 .nuxt/
 .output/
 .turbo/
+.claude/
 dist/
 .next/
 *.log
