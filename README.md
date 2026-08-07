@@ -1,75 +1,68 @@
-# Nuxt Minimal Starter
+# PsyEngine
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 3 + PostgreSQL (Drizzle) psychology test platform.
 
 ## Setup
 
-Make sure to install dependencies:
-
 ```bash
-# npm
-npm install
-
-# pnpm
 pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
+cp .env.example .env
+# edit DATABASE_URL + JWT_SECRET
+pnpm db:migrate
+pnpm db:seed-rbac   # optional: roles + god@psy.test / god123
 pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
-
-Build the application for production:
+## Production (local)
 
 ```bash
-# npm
-npm run build
-
-# pnpm
 pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+pnpm start
 ```
 
-Locally preview production build:
+## Docker
 
 ```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
+docker compose up --build
+# app: http://localhost:3000
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## Deploy on Coolify
+
+### Recommended: Dockerfile + Coolify Postgres
+
+1. In Coolify, create a **PostgreSQL** database resource and copy its connection URL.
+2. Create a new **Application** from this Git repo.
+3. Set **Build Pack** → `Dockerfile` (uses root `Dockerfile`).
+4. Set **Ports Exposes** → `3000`.
+5. Add environment variables:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Coolify Postgres URL (use internal hostname) |
+| `JWT_SECRET` | long random secret |
+| `HOST` | `0.0.0.0` |
+| `PORT` | `3000` |
+| `NODE_ENV` | `production` |
+| `RUN_MIGRATIONS` | `true` (default) |
+| `SEED_RBAC` | `true` once on first deploy, then set back to `false` |
+
+6. Deploy. The entrypoint runs migrations, then starts Nitro.
+7. Healthcheck path: `/api/health`
+
+### Alternative: Docker Compose
+
+Use Coolify **Docker Compose** resource with `docker-compose.yml`. Set `JWT_SECRET`, `POSTGRES_PASSWORD`, and optionally `SEED_RBAC=true` for first boot.
+
+### Alternative: Nixpacks
+
+Build Pack → Nixpacks. Start command: `node .output/server/index.mjs`. Still set `DATABASE_URL` + `JWT_SECRET`. Run migrations once via Coolify execute command: `node scripts/migrate.mjs` (needs source + deps available), or prefer the Dockerfile path which migrates automatically.
+
+## Default seed admin
+
+After `SEED_RBAC=true`:
+
+- Email: `god@psy.test`
+- Password: `god123`
+
+Change this immediately in production.

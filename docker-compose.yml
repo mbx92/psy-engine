@@ -1,0 +1,48 @@
+# Local full stack (also usable as Coolify Docker Compose resource).
+# For Coolify "Dockerfile" deploy: use Dockerfile only and attach a Coolify Postgres.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-psy}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psy_change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-psy_engine}
+    volumes:
+      - psy_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-psy} -d ${POSTGRES_DB:-psy_engine}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-psy}:${POSTGRES_PASSWORD:-psy_change_me}@db:5432/${POSTGRES_DB:-psy_engine}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-use-long-random-string}
+      HOST: 0.0.0.0
+      PORT: 3000
+      NODE_ENV: production
+      RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
+      SEED_RBAC: ${SEED_RBAC:-false}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+
+volumes:
+  psy_pg_data:

@@ -5,7 +5,7 @@ export default defineNuxtConfig({
     // Keep Nuxt 3 defaults; avoids schema crash when `future` is undefined
     compatibilityVersion: 3,
   },
-  devtools: { enabled: true },
+  devtools: { enabled: process.env.NODE_ENV !== 'production' },
 
   app: {
     head: {

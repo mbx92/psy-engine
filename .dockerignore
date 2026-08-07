@@ -1,0 +1,30 @@
+# Dependencies & build artifacts
+node_modules
+.nuxt
+.output
+dist
+.data
+.cache
+
+# Git / IDE / local
+.git
+.github
+.claude
+.cursor
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Docs / scratch (not needed in image)
+graphify-out
+PLAN.md
+tmp-*.json
+*.md
+!README.md
+
+# Tests / misc
+coverage
+**/*.test.*
+**/*.spec.*

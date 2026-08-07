@@ -14,6 +14,9 @@ export default defineEventHandler(async (event) => {
   // Login handler enforces lock/maintenance per role (superadmin may still sign in)
   if (path === '/api/auth/login' || path === '/api/auth/register') return
 
+  // Health probes must stay up during maintenance / lock
+  if (method === 'get' && (path === '/api/health' || path.startsWith('/api/health?'))) return
+
   // Public branding + status flags for login / take / join pages
   if (method === 'get' && path.startsWith('/api/public/app-settings')) return
 

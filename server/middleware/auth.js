@@ -8,6 +8,9 @@ export default defineEventHandler((event) => {
   // Public: auth endpoints
   if (['/api/auth/login', '/api/auth/register'].some(p => path === p)) return
 
+  // Public: health / readiness (Coolify, Docker, load balancers)
+  if (method === 'get' && (path === '/api/health' || path.startsWith('/api/health?'))) return
+
   // Public: GET test listing and detail
   if (method === 'get' && path.startsWith('/api/tests')) return
 

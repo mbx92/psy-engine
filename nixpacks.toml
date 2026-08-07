@@ -1,0 +1,14 @@
+# Coolify Nixpacks alternative (prefer Dockerfile build pack when available).
+providers = ["node"]
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["pnpm run build"]
+
+[start]
+cmd = "node .output/server/index.mjs"
