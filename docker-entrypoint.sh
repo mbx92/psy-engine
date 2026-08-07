@@ -10,13 +10,11 @@ if [ -z "${JWT_SECRET:-}" ] || [ "$JWT_SECRET" = "change-me-in-production-use-lo
   echo "[entrypoint] WARNING: set a strong JWT_SECRET for production"
 fi
 
-# Optional: skip with RUN_MIGRATIONS=false
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   echo "[entrypoint] Running database migrations..."
   node scripts/migrate.mjs
 fi
 
-# Optional first-boot RBAC seed (set SEED_RBAC=true in Coolify once)
 if [ "${SEED_RBAC:-false}" = "true" ]; then
   echo "[entrypoint] Seeding RBAC..."
   node scripts/seed-rbac.mjs

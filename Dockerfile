@@ -1,4 +1,4 @@
-# Coolify-friendly multi-stage build (no BuildKit cache mounts)
+# Slim Coolify-friendly build: final image = Nitro output only (no full pnpm install)
 
 # ---- Dependencies ----
 FROM node:22-bookworm-slim AS deps
@@ -21,31 +21,27 @@ ENV NITRO_PRESET=node-server
 ENV NODE_OPTIONS=--max-old-space-size=4096
 RUN pnpm run build
 
-# ---- Production ----
+# ---- Production (tiny) ----
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
-ENV NODE_OPTIONS=--max-old-space-size=512
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates wget \
- && rm -rf /var/lib/apt/lists/* \
- && npm install -g pnpm@11.15.1
+ && rm -rf /var/lib/apt/lists/*
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+COPY --from=build --chown=node:node /app/.output ./.output
+COPY --from=build --chown=node:node /app/db/migrations ./db/migrations
+COPY --from=build --chown=node:node /app/db/schema ./db/schema
+COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --chown=node:node docker-entrypoint.sh ./docker-entrypoint.sh
 
-COPY --from=build /app/.output ./.output
-COPY db/migrations ./db/migrations
-COPY db/schema ./db/schema
-COPY scripts ./scripts
-COPY docker-entrypoint.sh ./docker-entrypoint.sh
-
-RUN chmod +x docker-entrypoint.sh \
- && chown -R node:node /app
+# ESM resolve: scripts import drizzle-orm/postgres/bcryptjs from Nitro bundle
+RUN ln -s .output/server/node_modules node_modules \
+ && chmod +x docker-entrypoint.sh
 
 USER node
 EXPOSE 3000
