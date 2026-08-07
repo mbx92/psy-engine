@@ -1,5 +1,11 @@
+# Single-package workspace + pnpm install policy
+packages:
+  - '.'
+
+# Nuxt/Vite need esbuild binaries via install scripts
 allowBuilds:
-  esbuild: false
-  vue-demi: false
+  esbuild: true
+  vue-demi: true
+
 minimumReleaseAgeExclude:
   - '@lucide/vue@1.27.0'
