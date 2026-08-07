@@ -17,12 +17,15 @@ dist
 .env.*
 !.env.example
 
-# Docs / scratch (not needed in image)
+# Docs / scratch / agent graphs (keeps build context small)
 graphify-out
 PLAN.md
 tmp-*.json
 *.md
 !README.md
+agent-transcripts
+.vscode
+.idea
 
 # Tests / misc
 coverage

@@ -1,27 +1,27 @@
-# Slim Coolify-friendly build: final image = Nitro output only (no full pnpm install)
+# Two-stage only (less disk during Coolify builds). Uses corepack — no `npm i -g pnpm`.
 
-# ---- Dependencies ----
-FROM node:22-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS build
 WORKDIR /app
+
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates \
  && rm -rf /var/lib/apt/lists/* \
- && npm install -g pnpm@11.15.1
+ && corepack enable \
+ && corepack prepare pnpm@11.15.1 --activate
+
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 RUN pnpm install --frozen-lockfile
 
-# ---- Build ----
-FROM node:22-bookworm-slim AS build
-WORKDIR /app
-RUN npm install -g pnpm@11.15.1
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
 ENV NODE_ENV=production
 ENV NITRO_PRESET=node-server
-ENV NODE_OPTIONS=--max-old-space-size=4096
-RUN pnpm run build
+ENV NODE_OPTIONS=--max-old-space-size=2048
 
-# ---- Production (tiny) ----
+RUN pnpm run build \
+ && rm -rf node_modules .nuxt
+
+# ---- Runtime ----
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 
@@ -39,7 +39,6 @@ COPY --from=build --chown=node:node /app/db/schema ./db/schema
 COPY --from=build --chown=node:node /app/scripts ./scripts
 COPY --chown=node:node docker-entrypoint.sh ./docker-entrypoint.sh
 
-# ESM resolve: scripts import drizzle-orm/postgres/bcryptjs from Nitro bundle
 RUN ln -s .output/server/node_modules node_modules \
  && chmod +x docker-entrypoint.sh
 
