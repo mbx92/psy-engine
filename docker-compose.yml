@@ -34,7 +34,8 @@ services:
       PORT: 3000
       NODE_ENV: production
       RUN_MIGRATIONS: ${RUN_MIGRATIONS:-true}
-      SEED_RBAC: ${SEED_RBAC:-false}
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-true}
+      SEED_FORCE_TESTS: ${SEED_FORCE_TESTS:-false}
     ports:
       - "${APP_PORT:-3000}:3000"
     healthcheck:

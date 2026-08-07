@@ -1,17 +1,40 @@
 import { drizzle } from 'drizzle-orm/postgres-js'
+import { eq } from 'drizzle-orm'
 import postgres from 'postgres'
 import * as schema from '../db/schema/index.js'
 
-// Use the same connection as the app
-const connectionString = process.env.DATABASE_URL || 'postgres://mbx@127.0.0.1:5432/psy_engine'
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  console.error('[seed:tests] DATABASE_URL is required')
+  process.exit(1)
+}
+
 const client = postgres(connectionString)
 const db = drizzle(client, { schema })
 
+async function upsertTestType(values) {
+  const [existing] = await db.select().from(schema.testTypes)
+    .where(eq(schema.testTypes.slug, values.slug))
+    .limit(1)
+
+  if (existing) {
+    if (process.env.SEED_FORCE_TESTS === 'true') {
+      await db.update(schema.testTypes)
+        .set({ ...values, updatedAt: new Date() })
+        .where(eq(schema.testTypes.id, existing.id))
+      console.log(`  ↻ ${values.name} (forced update)`)
+    } else {
+      console.log(`  · ${values.name} (exists, skip)`)
+    }
+    return
+  }
+
+  await db.insert(schema.testTypes).values(values)
+  console.log(`  ✓ ${values.name}`)
+}
+
 async function seed() {
   console.log('Seeding test types...')
-
-  // Clear existing
-  await db.delete(schema.testTypes)
 
   // ── CFIT Scale 2 (Aptitude) ──────────────────────────────────
   const cfitQuestions = [
@@ -195,8 +218,8 @@ async function seed() {
     ]},
   ]
 
-  // Insert CFIT
-  await db.insert(schema.testTypes).values({
+  // Upsert CFIT
+  await upsertTestType({
     name: 'CFIT Scale 2',
     slug: 'cfit-scale-2',
     type: 'aptitude',
@@ -236,10 +259,9 @@ async function seed() {
     },
     isActive: true,
   })
-  console.log('  ✓ CFIT Scale 2')
 
-  // Insert PAPI
-  await db.insert(schema.testTypes).values({
+  // Upsert PAPI
+  await upsertTestType({
     name: 'PAPI Kostick',
     slug: 'papi-kostick',
     type: 'personality',
@@ -280,10 +302,9 @@ async function seed() {
     },
     isActive: true,
   })
-  console.log('  ✓ PAPI Kostick')
 
-  // Insert EPPS
-  await db.insert(schema.testTypes).values({
+  // Upsert EPPS
+  await upsertTestType({
     name: 'EPPS',
     slug: 'epps',
     type: 'personality',
@@ -318,9 +339,8 @@ async function seed() {
     },
     isActive: true,
   })
-  console.log('  ✓ EPPS')
 
-  console.log('\nSeed complete! 3 test types inserted.')
+  console.log('\nTest type seed complete.')
   await client.end()
 }
 

@@ -15,9 +15,20 @@ if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
   node scripts/migrate.mjs
 fi
 
-if [ "${SEED_RBAC:-false}" = "true" ]; then
-  echo "[entrypoint] Seeding RBAC..."
+# Idempotent bootstrap (safe on every restart). Disable with SEED_ON_BOOT=false
+if [ "${SEED_ON_BOOT:-true}" = "true" ]; then
+  echo "[entrypoint] Seeding RBAC + users..."
   node scripts/seed-rbac.mjs
+  echo "[entrypoint] Seeding test types..."
+  node seed/index.js
+elif [ "${SEED_RBAC:-false}" = "true" ]; then
+  echo "[entrypoint] Seeding RBAC + users..."
+  node scripts/seed-rbac.mjs
+fi
+
+if [ "${SEED_ON_BOOT:-true}" != "true" ] && [ "${SEED_TESTS:-false}" = "true" ]; then
+  echo "[entrypoint] Seeding test types..."
+  node seed/index.js
 fi
 
 echo "[entrypoint] Starting PsyEngine on ${HOST:-0.0.0.0}:${PORT:-3000}"

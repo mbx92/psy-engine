@@ -37,6 +37,7 @@ COPY --from=build --chown=node:node /app/.output ./.output
 COPY --from=build --chown=node:node /app/db/migrations ./db/migrations
 COPY --from=build --chown=node:node /app/db/schema ./db/schema
 COPY --from=build --chown=node:node /app/scripts ./scripts
+COPY --from=build --chown=node:node /app/seed ./seed
 COPY --chown=node:node docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN ln -s .output/server/node_modules node_modules \

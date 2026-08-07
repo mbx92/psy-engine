@@ -34,7 +34,10 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       appName: 'PsyEngine',
-      devTestTools: process.env.NODE_ENV !== 'production',
+      // Always false in builds unless explicitly enabled:
+      // NUXT_PUBLIC_DEV_TEST_TOOLS=true
+      // UI also allows import.meta.dev (local `pnpm dev` only).
+      devTestTools: false,
     },
   },
 

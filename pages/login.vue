@@ -65,6 +65,7 @@
           </UiButton>
 
           <UiButton
+            v-if="devToolsEnabled"
             type="button"
             variant="outline"
             class="w-full h-10 text-sm text-muted-foreground"
@@ -86,6 +87,9 @@ definePageMeta({
   layout: 'login',
 })
 
+const runtimeConfig = useRuntimeConfig()
+const devToolsEnabled = computed(() => import.meta.dev || !!runtimeConfig.public.devTestTools)
+
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -98,7 +102,7 @@ onMounted(() => {
   refreshAppSettings()
   if (isAuthenticated.value) {
     navigateTo('/')
-  } else {
+  } else if (devToolsEnabled.value) {
     email.value = 'admin@psy.test'
     password.value = 'admin123'
   }

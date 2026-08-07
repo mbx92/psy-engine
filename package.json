@@ -15,7 +15,9 @@
     "db:migrate:kit": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed-rbac": "node scripts/seed-rbac.mjs"
+    "db:seed-rbac": "node scripts/seed-rbac.mjs",
+    "db:seed-tests": "node seed/index.js",
+    "db:seed": "node scripts/seed-rbac.mjs && node seed/index.js"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.1",

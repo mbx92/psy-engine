@@ -13,7 +13,11 @@ import { eq, and } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import * as schema from '../db/schema/index.js'
 
-const connectionString = process.env.DATABASE_URL || 'postgres://mbx@127.0.0.1:5432/psy_engine'
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  console.error('[seed:rbac] DATABASE_URL is required')
+  process.exit(1)
+}
 const client = postgres(connectionString)
 const db = drizzle(client, { schema })
 
@@ -64,6 +68,13 @@ const SUPERADMIN_USER = {
   name: 'God Superadmin',
   password: 'god123',
   role: 'superadmin',
+}
+
+const ADMIN_USER = {
+  email: 'admin@psy.test',
+  name: 'Admin',
+  password: 'admin123',
+  role: 'admin',
 }
 
 async function ensureRolePermission(roleId, permissionId) {
@@ -142,6 +153,25 @@ async function seed() {
     console.log(`  ✓ Promoted ${SUPERADMIN_USER.email} to superadmin`)
   } else {
     console.log(`  ✓ Superadmin user already exists (${SUPERADMIN_USER.email})`)
+  }
+
+  // Ensure default admin user (login demo)
+  const [existingAdmin] = await db.select().from(schema.users)
+    .where(eq(schema.users.email, ADMIN_USER.email))
+    .limit(1)
+
+  if (!existingAdmin) {
+    const passwordHash = await bcrypt.hash(ADMIN_USER.password, 10)
+    await db.insert(schema.users).values({
+      email: ADMIN_USER.email,
+      name: ADMIN_USER.name,
+      passwordHash,
+      role: ADMIN_USER.role,
+      isActive: true,
+    })
+    console.log(`  ✓ Created admin user ${ADMIN_USER.email} / ${ADMIN_USER.password}`)
+  } else {
+    console.log(`  ✓ Admin user already exists (${ADMIN_USER.email})`)
   }
 
   console.log('\nRBAC seed complete.')

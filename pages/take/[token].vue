@@ -313,7 +313,7 @@ const route = useRoute()
 const runtimeConfig = useRuntimeConfig()
 const token = route.params.token
 const { refresh: refreshAppSettings, systemLocked, maintenanceMode, maintenanceMessage } = useAppSettings()
-const devToolsEnabled = computed(() => import.meta.dev || runtimeConfig.public.devTestTools)
+const devToolsEnabled = computed(() => import.meta.dev || !!runtimeConfig.public.devTestTools)
 
 const loading = ref(true)
 const error = ref('')
