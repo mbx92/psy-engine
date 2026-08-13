@@ -1,70 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* ===== MiniMax Design System Tokens ===== */
+  :root,
+  [data-theme="minimax"] {
+    --font-sans: 'DM Sans', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --body-tracking: 0px;
+    --heading-weight: 600;
+    --display-weight: 600;
+    --elevation-card: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
     /* Surfaces */
-    --background: 0 0% 100%;         /* canvas #ffffff */
-    --foreground: 0 0% 3.9%;         /* ink #0a0a0a */
-    --card: 0 0% 100%;               /* canvas */
-    --card-foreground: 0 0% 3.9%;    /* ink */
-    --popover: 0 0% 100%;            /* canvas */
-    --popover-foreground: 0 0% 3.9%; /* ink */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
 
     /* Primary — black pill CTA */
-    --primary: 0 0% 3.9%;            /* #0a0a0a → button-primary bg */
-    --primary-foreground: 0 0% 100%; /* #ffffff → text on primary */
+    --primary: 0 0% 3.9%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary */
-    --secondary: 220 23% 97%;        /* surface #f7f8fa */
-    --secondary-foreground: 0 0% 13.3%; /* charcoal #222222 */
+    --secondary: 220 23% 97%;
+    --secondary-foreground: 0 0% 13.3%;
 
-    /* Muted */
-    --muted: 220 13% 95%;            /* surface-soft #f2f3f5 */
-    --muted-foreground: 0 0% 37.3%;  /* steel #5f5f5f */
+    --muted: 220 13% 95%;
+    --muted-foreground: 0 0% 37.3%;
 
-    /* Accent */
-    --accent: 220 23% 97%;           /* surface #f7f8fa */
-    --accent-foreground: 0 0% 3.9%;  /* ink */
+    --accent: 220 23% 97%;
+    --accent-foreground: 0 0% 3.9%;
 
-    /* Destructive — brand coral */
-    --destructive: 11 100% 59.4%;    /* brand-coral #ff5530 */
+    --destructive: 11 100% 59.4%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders & Inputs */
-    --border: 220 13% 91%;           /* hairline #e5e7eb */
-    --input: 220 13% 91%;            /* hairline #e5e7eb */
-    --ring: 0 0% 3.9%;               /* ink */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --input-fill: 0 0% 100%;
+    --ring: 0 0% 3.9%;
 
-    /* Border Radius — MiniMax scale */
-    --radius: 0.75rem;               /* 12px → lg */
+    /* MiniMax radius scale */
+    --radius: 0.75rem;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-2xl: 20px;
+    --radius-3xl: 24px;
+    --radius-xxl: 20px;
+    --radius-xxxl: 24px;
+    --radius-hero: 32px;
+    --radius-control: 9999px;
 
-    /* ===== Brand Accents ===== */
-    --brand-coral: 11 100% 59.4%;    /* #ff5530 */
-    --brand-magenta: 317 77% 64%;    /* #ea5ec1 */
-    --brand-blue: 222 88% 51%;       /* #1456f0 */
-    --brand-blue-deep: 224 76% 48%;  /* #1d4ed8 */
-    --brand-cyan: 204 100% 62%;      /* #3daeff */
-    --brand-purple: 271 91% 65%;     /* #a855f7 */
-    --brand-blue-200: 213 96% 87%;   /* #bfdbfe */
+    --brand-coral: 11 100% 59.4%;
+    --brand-magenta: 317 77% 64%;
+    --brand-blue: 222 88% 51%;
+    --brand-blue-deep: 224 76% 48%;
+    --brand-cyan: 204 100% 62%;
+    --brand-purple: 271 91% 65%;
+    --brand-blue-200: 213 96% 87%;
 
-    /* Semantic */
-    --success-bg: 125 100% 95%;      /* #e8ffea */
-    --success-text: 158 72% 38%;     /* #1ba673 */
+    --success-bg: 125 100% 95%;
+    --success-text: 158 72% 38%;
 
-    /* Extended text */
-    --slate: 211 15% 32%;            /* #45515e */
-    --stone: 240 2% 57%;             /* #8e8e93 */
-    --muted-text: 228 6% 68%;        /* #a8aab2 */
-    --hairline-soft: 220 17% 93%;    /* #eaecf0 */
+    --slate: 211 15% 32%;
+    --stone: 240 2% 57%;
+    --muted-text: 228 6% 68%;
+    --hairline-soft: 220 17% 93%;
   }
 
-  .dark {
-    --background: 0 0% 3.9%;         /* ink bg */
+  .dark,
+  .dark[data-theme="minimax"],
+  [data-theme="minimax"].dark {
+    --background: 0 0% 3.9%;
     --foreground: 0 0% 100%;
     --card: 0 0% 6%;
     --card-foreground: 0 0% 100%;
@@ -72,7 +83,7 @@
     --popover-foreground: 0 0% 100%;
     --primary: 0 0% 100%;
     --primary-foreground: 0 0% 3.9%;
-    --secondary: 0 0% 13.3%;         /* charcoal */
+    --secondary: 0 0% 13.3%;
     --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 13.3%;
     --muted-foreground: 0 0% 57%;
@@ -82,7 +93,103 @@
     --destructive-foreground: 0 0% 100%;
     --border: 0 0% 20%;
     --input: 0 0% 20%;
+    --input-fill: 0 0% 6%;
     --ring: 0 0% 100%;
+    --elevation-card: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+  }
+
+  /* ===== IBM Carbon — corporate / clinical psychology ===== */
+  [data-theme="ibm"] {
+    --font-sans: 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+    --body-tracking: 0.16px;
+    --heading-weight: 400;
+    --display-weight: 300;
+    --elevation-card: none;
+
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8.6%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8.6%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8.6%;
+
+    /* IBM Blue #0f62fe */
+    --primary: 217 100% 53%;
+    --primary-foreground: 0 0% 100%;
+
+    /* surface-1 #f4f4f4 */
+    --secondary: 0 0% 95.7%;
+    --secondary-foreground: 0 0% 8.6%;
+
+    --muted: 0 0% 95.7%;
+    --muted-foreground: 0 0% 32.2%;
+
+    --accent: 0 0% 95.7%;
+    --accent-foreground: 0 0% 8.6%;
+
+    /* Carbon red-60 #da1e28 */
+    --destructive: 356 75% 49%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 87.8%;
+    --input: 0 0% 87.8%;
+    --input-fill: 0 0% 95.7%;
+    --ring: 217 100% 53%;
+
+    --radius: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --radius-xxl: 0px;
+    --radius-xxxl: 0px;
+    --radius-hero: 0px;
+    --radius-control: 0px;
+
+    --brand-coral: 356 75% 49%;
+    --brand-magenta: 304 28% 42%;
+    --brand-blue: 217 100% 53%;
+    --brand-blue-deep: 221 100% 40%;
+    --brand-cyan: 196 80% 36%;
+    --brand-purple: 262 40% 42%;
+    --brand-blue-200: 213 100% 94%;
+
+    --success-bg: 145 45% 94%;
+    --success-text: 145 65% 32%;
+
+    --slate: 0 0% 32.2%;
+    --stone: 0 0% 55%;
+    --muted-text: 0 0% 55%;
+    --hairline-soft: 0 0% 87.8%;
+  }
+
+  [data-theme="ibm"].dark,
+  .dark[data-theme="ibm"] {
+    --background: 0 0% 8.6%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 217 100% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 77.6%;
+    --accent: 0 0% 20%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 356 75% 49%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 24%;
+    --input: 0 0% 24%;
+    --input-fill: 0 0% 15%;
+    --ring: 217 100% 53%;
+    --elevation-card: none;
+    --success-bg: 145 30% 16%;
+    --success-text: 145 50% 62%;
   }
 }
 
@@ -91,8 +198,59 @@
     @apply border-border;
   }
 
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground;
-    font-family: 'DM Sans', Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
+    letter-spacing: var(--body-tracking);
+  }
+
+  [data-theme="ibm"] h1,
+  [data-theme="ibm"] h2,
+  [data-theme="ibm"] h3 {
+    font-weight: var(--heading-weight);
+    letter-spacing: 0;
+  }
+
+  [data-theme="ibm"] h1.font-bold,
+  [data-theme="ibm"] h1.font-semibold,
+  [data-theme="ibm"] h1.tracking-tight,
+  [data-theme="ibm"] h2.font-bold,
+  [data-theme="ibm"] h2.font-semibold,
+  [data-theme="ibm"] h3.font-semibold {
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  [data-theme="ibm"] input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="file"]):not([type="range"]):not([type="hidden"]):focus-visible,
+  [data-theme="ibm"] textarea:focus-visible {
+    box-shadow: inset 0 -2px 0 hsl(var(--primary));
+    outline: none;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+  }
+
+  [data-theme="ibm"] .theme-header {
+    backdrop-filter: none;
+    background-color: hsl(var(--background));
+  }
+
+  [data-theme="ibm"] .theme-header > div {
+    height: 3rem;
+  }
+
+  [data-theme="ibm"] button:where(.bg-primary):hover {
+    background-color: #0050e6;
+  }
+
+  [data-theme="ibm"] button:where(.bg-primary):active {
+    background-color: #002d9c;
   }
 }

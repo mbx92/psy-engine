@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col bg-background">
     <!-- Top Navigation -->
-    <header class="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header class="theme-header sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="flex h-14 items-center px-4 gap-4">
         <UiSheet v-model:open="mobileMenuOpen">
           <UiSheetTrigger as-child>
@@ -57,7 +57,8 @@
 
         <div class="flex-1" />
 
-        <!-- Dark Mode Toggle -->
+        <ThemeSwitcher />
+
         <UiButton
           variant="ghost"
           size="icon"
@@ -73,7 +74,7 @@
           <UiDropdownMenuTrigger as-child>
             <UiButton
               variant="ghost"
-              class="h-9 gap-2 rounded-full pl-1.5 pr-3 hover:bg-accent"
+              class="h-9 gap-2 rounded-control pl-1.5 pr-3 hover:bg-accent"
             >
               <UiAvatar class="h-7 w-7 shrink-0 border-2 border-border">
                 <UiAvatarFallback class="text-xs">{{ user.name?.charAt(0)?.toUpperCase() || 'U' }}</UiAvatarFallback>
