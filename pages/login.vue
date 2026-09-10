@@ -3,7 +3,7 @@
     <UiCard class="w-full max-w-md">
       <UiCardHeader class="space-y-3 pb-6 pt-8 px-8">
         <div class="flex justify-center mb-2">
-          <div class="size-14 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
+          <div class="size-14 rounded-control bg-primary/10 flex items-center justify-center overflow-hidden">
             <img v-if="logo" :src="logo" alt="" class="size-full object-contain p-2" />
             <Icon v-else icon="lucide:brain" class="size-7 text-primary" />
           </div>

@@ -10,6 +10,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'PsyEngine',
+      htmlAttrs: {
+        'data-theme': 'minimax',
+      },
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
       ],

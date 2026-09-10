@@ -1,6 +1,6 @@
 <template>
   <div class="text-center py-12 px-4">
-    <div class="mx-auto size-12 rounded-full bg-muted flex items-center justify-center mb-3">
+    <div class="mx-auto size-12 rounded-control bg-muted flex items-center justify-center mb-3">
       <Icon :icon="icon" class="size-6 text-muted-foreground" />
     </div>
     <p class="text-sm font-medium">{{ title }}</p>

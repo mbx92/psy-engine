@@ -3,7 +3,7 @@
     <UiCard class="w-full max-w-sm mx-auto">
       <UiCardHeader class="space-y-2 pb-4">
         <div class="flex justify-center mb-2">
-          <div class="size-10 rounded-full bg-destructive/10 flex items-center justify-center">
+          <div class="size-10 rounded-control bg-destructive/10 flex items-center justify-center">
             <Icon :icon="isNotFound ? 'lucide:map-pin-off' : 'lucide:alert-triangle'" class="size-5 text-destructive" />
           </div>
         </div>

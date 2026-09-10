@@ -15,6 +15,12 @@
           General
         </UiTabsTrigger>
         <UiTabsTrigger
+          value="appearance"
+          class="w-full justify-start rounded-md px-3 py-2 data-[state=active]:bg-muted data-[state=active]:shadow-none"
+        >
+          Appearance
+        </UiTabsTrigger>
+        <UiTabsTrigger
           value="profile"
           class="w-full justify-start rounded-md px-3 py-2 data-[state=active]:bg-muted data-[state=active]:shadow-none"
         >
@@ -135,6 +141,48 @@
           <div v-if="generalError" class="text-xs text-destructive">{{ generalError }}</div>
           <div v-if="generalSuccess" class="text-xs text-green-600">{{ generalSuccess }}</div>
         </template>
+      </UiTabsContent>
+
+      <!-- Appearance Tab -->
+      <UiTabsContent value="appearance" class="mt-0 space-y-4">
+        <div>
+          <h3 class="text-lg font-semibold">Appearance</h3>
+          <p class="text-sm text-muted-foreground">Design system and color mode for this browser</p>
+        </div>
+
+        <UiCard>
+          <UiCardHeader>
+            <UiCardTitle class="text-base">Design theme</UiCardTitle>
+            <UiCardDescription>
+              Studio is the product-forward language. Corporate is the enterprise psychology surface.
+            </UiCardDescription>
+          </UiCardHeader>
+          <UiCardContent>
+            <ThemePicker />
+          </UiCardContent>
+        </UiCard>
+
+        <UiCard>
+          <UiCardHeader>
+            <UiCardTitle class="text-base">Color mode</UiCardTitle>
+            <UiCardDescription>Light, dark, or follow the operating system</UiCardDescription>
+          </UiCardHeader>
+          <UiCardContent>
+            <div class="flex flex-wrap gap-2">
+              <UiButton
+                v-for="mode in colorModeOptions"
+                :key="mode.value"
+                type="button"
+                size="sm"
+                :variant="colorMode.preference === mode.value ? 'default' : 'outline'"
+                @click="colorMode.preference = mode.value"
+              >
+                <Icon :icon="mode.icon" class="size-4 mr-1.5" />
+                {{ mode.label }}
+              </UiButton>
+            </div>
+          </UiCardContent>
+        </UiCard>
       </UiTabsContent>
 
       <!-- Profile Tab -->
@@ -671,7 +719,7 @@
               <div v-if="!lockConfirming" class="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  class="inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
+                  class="inline-flex h-10 items-center justify-center gap-2 rounded-control px-4 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-50"
                   :class="systemForm.systemLocked
                     ? 'border border-input bg-background hover:bg-accent'
                     : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'"
@@ -695,7 +743,7 @@
                 <div class="flex flex-wrap gap-2">
                   <button
                     type="button"
-                    class="inline-flex h-9 items-center justify-center rounded-full border border-input bg-background px-3 text-sm hover:bg-accent disabled:opacity-50"
+                    class="inline-flex h-9 items-center justify-center rounded-control border border-input bg-background px-3 text-sm hover:bg-accent disabled:opacity-50"
                     :disabled="systemSaving"
                     @click="lockConfirming = false"
                   >
@@ -703,7 +751,7 @@
                   </button>
                   <button
                     type="button"
-                    class="inline-flex h-9 items-center justify-center rounded-full px-3 text-sm font-medium disabled:opacity-50"
+                    class="inline-flex h-9 items-center justify-center rounded-control px-3 text-sm font-medium disabled:opacity-50"
                     :class="systemForm.systemLocked
                       ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                       : 'bg-destructive text-destructive-foreground hover:bg-destructive/90'"
@@ -855,6 +903,13 @@ const canSystemSetup = computed(() => can('system:manage'))
 const toast = useToast()
 const { confirm } = useConfirm()
 const { applyLocal: applyAppSettingsLocal, refresh: refreshAppSettings } = useAppSettings()
+const colorMode = useColorMode()
+
+const colorModeOptions = [
+  { value: 'light', label: 'Light', icon: 'lucide:sun' },
+  { value: 'dark', label: 'Dark', icon: 'lucide:moon' },
+  { value: 'system', label: 'System', icon: 'lucide:monitor' },
+]
 
 const userColumns = [
   { key: 'name', label: 'Name' },

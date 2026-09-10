@@ -11,8 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['DM Sans', 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
-        display: ['DM Sans', 'Inter', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        sans: ['var(--font-sans)'],
+        display: ['var(--font-sans)'],
       },
       fontSize: {
         // MiniMax typography scale
@@ -31,6 +31,7 @@ export default {
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
+        'input-fill': 'hsl(var(--input-fill))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -82,15 +83,17 @@ export default {
         'success-text': 'hsl(var(--success-text))',
       },
       borderRadius: {
-        // MiniMax scale: match shadcn formulas
-        lg: 'var(--radius)',          /* 12px */
-        md: 'calc(var(--radius) - 4px)', /* 8px */
-        sm: 'calc(var(--radius) - 6px)', /* 6px */
-        // Extra MiniMax tokens (not in shadcn)
-        xl: '16px',
-        xxl: '20px',
-        xxxl: '24px',
-        hero: '32px',
+        DEFAULT: 'var(--radius-md)',
+        sm: 'var(--radius-sm)',
+        md: 'var(--radius-md)',
+        lg: 'var(--radius-lg)',
+        xl: 'var(--radius-xl)',
+        '2xl': 'var(--radius-2xl)',
+        '3xl': 'var(--radius-3xl)',
+        xxl: 'var(--radius-xxl)',
+        xxxl: 'var(--radius-xxxl)',
+        hero: 'var(--radius-hero)',
+        control: 'var(--radius-control)',
       },
       spacing: {
         'xxs': '4px',
