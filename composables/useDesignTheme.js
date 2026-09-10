@@ -9,6 +9,11 @@ export const DESIGN_THEMES = [
     label: 'Corporate',
     description: 'Enterprise psychology surface — square geometry and clinical restraint.',
   },
+  {
+    id: 'originals',
+    label: 'Originals',
+    description: 'A calmer workspace with warm surfaces, forest green accents, and focused navigation.',
+  },
 ]
 
 const THEME_IDS = new Set(DESIGN_THEMES.map((t) => t.id))

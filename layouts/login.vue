@@ -7,10 +7,11 @@
         size="icon"
         class="h-9 w-9"
         :title="colorMode.preference === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
+        :aria-label="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
         @click="toggleColorMode"
       >
-        <Icon v-if="colorMode.value === 'dark'" icon="lucide:sun" class="size-4" />
-        <Icon v-else icon="lucide:moon" class="size-4" />
+        <Sun v-if="colorMode.value === 'dark'" class="size-4" aria-hidden="true" />
+        <Moon v-else class="size-4" aria-hidden="true" />
       </UiButton>
     </div>
     <slot />
@@ -18,6 +19,8 @@
 </template>
 
 <script setup>
+import { Sun, Moon } from 'lucide-vue-next'
+
 const colorMode = useColorMode()
 
 function toggleColorMode() {

@@ -5,26 +5,26 @@
         variant="ghost"
         size="icon"
         class="h-9 w-9"
-        title="Switch design theme"
+        :title="`Design theme: ${currentMeta.label}`"
       >
-        <Icon icon="lucide:palette" class="size-4" />
+        <Palette class="size-4" aria-hidden="true" />
         <span class="sr-only">Switch design theme</span>
       </UiButton>
     </UiDropdownMenuTrigger>
-    <UiDropdownMenuContent align="end" class="w-40">
-      <UiDropdownMenuItem
-        v-for="item in themes"
-        :key="item.id"
-        class="justify-between"
-        @click="setTheme(item.id)"
-      >
-        {{ item.label }}
-        <Icon v-if="theme === item.id" icon="lucide:check" class="size-4" />
-      </UiDropdownMenuItem>
+    <UiDropdownMenuContent align="end" class="w-48">
+      <UiDropdownMenuLabel class="text-xs text-muted-foreground">Design theme</UiDropdownMenuLabel>
+      <UiDropdownMenuSeparator />
+      <UiDropdownMenuRadioGroup :model-value="theme" @update:model-value="setTheme">
+        <UiDropdownMenuRadioItem v-for="item in themes" :key="item.id" :value="item.id" class="min-h-9">
+          {{ item.label }}
+        </UiDropdownMenuRadioItem>
+      </UiDropdownMenuRadioGroup>
     </UiDropdownMenuContent>
   </UiDropdownMenu>
 </template>
 
 <script setup>
-const { theme, themes, setTheme } = useDesignTheme()
+import { Palette } from 'lucide-vue-next'
+
+const { theme, currentMeta, themes, setTheme } = useDesignTheme()
 </script>

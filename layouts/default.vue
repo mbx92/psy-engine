@@ -1,7 +1,8 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-background">
+  <div class="min-h-screen flex flex-col bg-background" :class="{ 'originals-workspace lg:pl-60': theme === 'originals' }">
+    <OriginalsShell v-if="theme === 'originals'" />
     <!-- Top Navigation -->
-    <header class="theme-header sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header v-else class="theme-header sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="flex h-14 items-center px-4 gap-4">
         <UiSheet v-model:open="mobileMenuOpen">
           <UiSheetTrigger as-child>
@@ -99,7 +100,7 @@
       </div>
     </header>
 
-    <main class="flex-1 p-4 md:p-6 lg:p-8">
+    <main id="main-content" tabindex="-1" class="min-w-0 flex-1 outline-none" :class="theme === 'originals' ? 'originals-main mx-auto w-full max-w-[1440px] p-4 sm:p-6 lg:p-10' : 'p-4 md:p-6 lg:p-8'">
       <slot />
     </main>
   </div>
@@ -107,9 +108,10 @@
 
 <script setup>
 const mobileMenuOpen = ref(false)
-const route = useRoute()
+const { theme } = useDesignTheme()
+const { navItems, isActive } = useAppNavigation()
 
-const { user, can, logout } = useAuth()
+const { user, logout } = useAuth()
 const { systemName, tagline, logo, refresh: refreshAppSettings } = useAppSettings()
 const colorMode = useColorMode()
 
@@ -124,22 +126,6 @@ useHead(() => ({
 onMounted(() => {
   refreshAppSettings()
 })
-
-const navItems = computed(() => [
-  { label: 'Dashboard', to: '/', icon: 'lucide:layout-dashboard', show: true },
-  { label: 'Test Types', to: '/admin/test-types', icon: 'lucide:clipboard-list', show: can('tests:read') },
-  { label: 'Participants', to: '/admin/participants', icon: 'lucide:users', show: can('participants:read') },
-  { label: 'Sessions', to: '/admin/sessions', icon: 'lucide:play-circle', show: can('sessions:read') },
-  { label: 'Psikogram', to: '/admin/psikograms', icon: 'lucide:file-text', show: can('psikograms:read') },
-  { label: 'Reports', to: '/admin/reports', icon: 'lucide:bar-chart-3', show: can('reports:read') },
-  { label: 'Activity Log', to: '/admin/activity-logs', icon: 'lucide:scroll-text', show: can('activity:read') },
-  { label: 'Settings', to: '/settings', icon: 'lucide:settings', show: can('settings:read') },
-].filter(i => i.show))
-
-function isActive(path) {
-  if (path === '/') return route.path === '/'
-  return route.path.startsWith(path)
-}
 
 async function handleLogout() {
   await logout()

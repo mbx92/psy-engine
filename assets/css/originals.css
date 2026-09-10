@@ -1,0 +1,192 @@
+@layer base {
+  html[data-theme="originals"] {
+    --font-sans: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+    --body-tracking: 0px;
+    --heading-weight: 600;
+    --display-weight: 600;
+    --elevation-card: 0 2px 6px -3px rgb(24 57 45 / 0.08);
+    --background: 48 25% 96%;
+    --foreground: 155 20% 15%;
+    --card: 45 33% 99%;
+    --card-foreground: 155 20% 15%;
+    --popover: 45 33% 99%;
+    --popover-foreground: 155 20% 15%;
+    --primary: 158 38% 27%;
+    --primary-foreground: 48 33% 98%;
+    --secondary: 145 20% 91%;
+    --secondary-foreground: 158 34% 25%;
+    --muted: 45 14% 92%;
+    --muted-foreground: 150 7% 40%;
+    --accent: 145 23% 92%;
+    --accent-foreground: 158 38% 25%;
+    --destructive: 5 60% 44%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 10% 85%;
+    --input: 140 10% 78%;
+    --input-fill: 45 33% 99%;
+    --ring: 158 38% 27%;
+    --radius: 1rem;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-2xl: 24px;
+    --radius-3xl: 28px;
+    --radius-xxl: 24px;
+    --radius-xxxl: 28px;
+    --radius-hero: 32px;
+    --radius-control: 10px;
+    --brand-coral: 15 60% 47%;
+    --brand-magenta: 330 35% 48%;
+    --brand-blue: 205 45% 40%;
+    --brand-blue-deep: 205 50% 30%;
+    --brand-cyan: 180 40% 37%;
+    --brand-purple: 265 28% 48%;
+    --brand-blue-200: 205 35% 88%;
+    --success-bg: 145 30% 91%;
+    --success-text: 158 45% 29%;
+    --slate: 150 7% 35%;
+    --stone: 150 5% 45%;
+    --muted-text: 150 7% 40%;
+    --hairline-soft: 140 10% 89%;
+    --originals-sidebar: 158 29% 17%;
+    --originals-sidebar-ink: 48 28% 95%;
+    --originals-sidebar-muted: 145 14% 72%;
+    --originals-highlight: 75 40% 78%;
+  }
+
+  html[data-theme="originals"].dark {
+    --elevation-card: 0 2px 8px -3px rgb(0 0 0 / 0.3);
+    --background: 155 16% 10%;
+    --foreground: 45 20% 92%;
+    --card: 155 14% 13%;
+    --card-foreground: 45 20% 92%;
+    --popover: 155 14% 15%;
+    --popover-foreground: 45 20% 92%;
+    --primary: 145 30% 70%;
+    --primary-foreground: 158 35% 13%;
+    --secondary: 155 17% 21%;
+    --secondary-foreground: 145 25% 82%;
+    --muted: 155 10% 19%;
+    --muted-foreground: 145 9% 67%;
+    --accent: 155 17% 23%;
+    --accent-foreground: 145 30% 83%;
+    --destructive: 5 72% 69%;
+    --destructive-foreground: 5 40% 12%;
+    --border: 155 10% 25%;
+    --input: 155 10% 33%;
+    --input-fill: 155 14% 15%;
+    --ring: 145 30% 70%;
+    --brand-coral: 15 65% 66%;
+    --brand-magenta: 330 40% 70%;
+    --brand-blue: 205 55% 67%;
+    --brand-blue-deep: 205 55% 59%;
+    --brand-cyan: 180 40% 65%;
+    --brand-purple: 265 40% 71%;
+    --brand-blue-200: 205 25% 25%;
+    --success-bg: 155 25% 20%;
+    --success-text: 145 38% 73%;
+    --slate: 145 9% 72%;
+    --stone: 145 7% 62%;
+    --muted-text: 145 9% 67%;
+    --hairline-soft: 155 10% 22%;
+    --originals-sidebar: 158 25% 12%;
+  }
+
+  [data-theme="originals"] ::selection {
+    color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
+  }
+}
+
+@layer components {
+  .originals-sidebar {
+    color: hsl(var(--originals-sidebar-ink));
+    background: hsl(var(--originals-sidebar));
+  }
+
+  .originals-nav-link {
+    @apply flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors;
+    color: hsl(var(--originals-sidebar-muted));
+  }
+
+  .originals-nav-link:hover {
+    color: hsl(var(--originals-sidebar-ink));
+    background: rgb(255 255 255 / 0.07);
+  }
+
+  .originals-nav-link[aria-current="page"] {
+    color: hsl(var(--originals-highlight));
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  .originals-nav-link:focus-visible {
+    outline: 2px solid hsl(var(--originals-highlight));
+    outline-offset: 3px;
+  }
+
+  .originals-eyebrow {
+    @apply text-[10px] font-semibold uppercase tracking-[0.18em];
+  }
+
+  .originals-action {
+    @apply flex items-center gap-4 rounded-lg border bg-card p-4 transition-colors hover:border-primary/40 hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  [data-theme="originals"] .originals-login {
+    @apply grid min-h-screen p-6 pt-20 lg:grid-cols-2 lg:gap-12 lg:p-8;
+  }
+
+  [data-theme="originals"] .originals-login-card {
+    @apply mx-auto border-0 bg-transparent shadow-none;
+  }
+
+  [data-theme="originals"] .originals-login-card > div {
+    @apply px-0 sm:px-6;
+  }
+
+  [data-theme="originals"] .originals-login-brand {
+    @apply justify-start;
+  }
+
+  [data-theme="originals"] .originals-login-title,
+  [data-theme="originals"] .originals-login-description {
+    @apply text-left;
+  }
+
+  [data-theme="originals"] .originals-login-title {
+    @apply text-3xl font-semibold tracking-tight;
+  }
+
+  [data-theme="originals"] [role="tablist"] {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  [data-theme="originals"] [role="tab"] {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 767px) {
+    [data-theme="originals"] [role="tab"] {
+      width: auto;
+    }
+  }
+
+  @media print {
+    .originals-sidebar,
+    .originals-toolbar,
+    .originals-skip-link {
+      display: none !important;
+    }
+
+    .originals-workspace {
+      padding-left: 0 !important;
+    }
+
+    .originals-main {
+      max-width: none !important;
+      padding: 0 !important;
+    }
+  }
+}

@@ -1,5 +1,14 @@
 <template>
-  <div class="space-y-4 md:space-y-6">
+  <OriginalsDashboard
+    v-if="theme === 'originals'"
+    :stats="stats"
+    :sessions="sessionsData"
+    :status-items="statusChartData"
+    :loading="loading"
+    :error="dashboardError"
+    @refresh="loadDashboard"
+  />
+  <div v-else class="space-y-4 md:space-y-6">
     <div>
       <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
       <p class="text-sm md:text-base text-muted-foreground">Welcome, {{ user?.name }}</p>
@@ -108,21 +117,28 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const { user, getAuthHeaders } = useAuth()
+const { user, can, getAuthHeaders } = useAuth()
+const { theme } = useDesignTheme()
 const { data: tests } = await useFetch('/api/tests')
 
 const loading = ref(true)
+const dashboardError = ref('')
 const participantsData = ref([])
 const sessionsData = ref([])
 const testTypesData = ref([])
 
 async function loadDashboard() {
   loading.value = true
+  dashboardError.value = ''
+  function unavailable() {
+    dashboardError.value = 'Some overview data could not be loaded. The figures below may be incomplete.'
+    return {}
+  }
   try {
     const [partRes, sessRes, ttRes] = await Promise.all([
-      $fetch('/api/participants', { headers: getAuthHeaders() }).catch(() => ({ participants: [] })),
-      $fetch('/api/sessions', { headers: getAuthHeaders() }).catch(() => ({ sessions: [] })),
-      $fetch('/api/admin/test-types', { headers: getAuthHeaders() }).catch(() => ({ testTypes: [] })),
+      can('participants:read') ? $fetch('/api/participants', { headers: getAuthHeaders() }).catch(unavailable) : {},
+      can('sessions:read') ? $fetch('/api/sessions', { headers: getAuthHeaders() }).catch(unavailable) : {},
+      can('tests:read') ? $fetch('/api/admin/test-types', { headers: getAuthHeaders() }).catch(unavailable) : {},
     ])
     participantsData.value = partRes.participants || []
     sessionsData.value = sessRes.sessions || []

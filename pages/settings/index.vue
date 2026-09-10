@@ -154,7 +154,7 @@
           <UiCardHeader>
             <UiCardTitle class="text-base">Design theme</UiCardTitle>
             <UiCardDescription>
-              Studio is the product-forward language. Corporate is the enterprise psychology surface.
+              Choose Studio, Corporate, or Originals. Preview a style below and apply it instantly to this browser.
             </UiCardDescription>
           </UiCardHeader>
           <UiCardContent>
