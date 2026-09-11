@@ -100,7 +100,7 @@
       </div>
     </header>
 
-    <main id="main-content" tabindex="-1" class="min-w-0 flex-1 outline-none" :class="theme === 'originals' ? 'originals-main mx-auto w-full max-w-[1440px] p-4 sm:p-6 lg:p-10' : 'p-4 md:p-6 lg:p-8'">
+    <main id="main-content" tabindex="-1" class="min-w-0 flex-1 outline-none" :class="theme === 'originals' ? 'originals-main mx-auto w-full max-w-[1440px] px-3 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-10' : 'p-4 md:p-6 lg:p-8'">
       <slot />
     </main>
   </div>
