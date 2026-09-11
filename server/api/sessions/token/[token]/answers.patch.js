@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { sessions } from '~~/db/schema/sessions'
 import { logSessionEvent } from '~~/server/utils/sessionLifecycle'
 import { publishSessionEvent } from '~~/server/utils/sessionLogBus'
@@ -24,14 +24,14 @@ export default defineEventHandler(async (event) => {
   const prevCount = Object.keys(session.answers || {}).length
   const merged = { ...session.answers, ...answers }
   const answeredCount = Object.keys(merged).length
-  const nextMetadata = metadata && typeof metadata === 'object'
-    ? { ...(session.metadata || {}), ...metadata }
-    : session.metadata
+  const metadataPatch = metadata && typeof metadata === 'object' && !Array.isArray(metadata)
+    ? { ...metadata } : {}
+  delete metadataPatch.monitoring
   const now = new Date()
 
   await db.update(sessions).set({
     answers: merged,
-    metadata: nextMetadata,
+    metadata: sql`coalesce(${sessions.metadata}, '{}'::jsonb) || ${JSON.stringify(metadataPatch)}::jsonb`,
     lastActivity: now,
     updatedAt: now,
   }).where(eq(sessions.id, session.id))

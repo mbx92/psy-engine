@@ -7,6 +7,7 @@ export function useAppNavigation() {
     { label: 'Test Types', to: '/admin/test-types', icon: 'lucide:clipboard-list', group: 'Workspace', show: can('tests:read') },
     { label: 'Participants', to: '/admin/participants', icon: 'lucide:users', group: 'Workspace', show: can('participants:read') },
     { label: 'Sessions', to: '/admin/sessions', icon: 'lucide:play-circle', group: 'Workspace', show: can('sessions:read') },
+    { label: 'Monitoring', to: '/admin/monitoring', icon: 'lucide:monitor', group: 'Workspace', show: can('sessions:read') },
     { label: 'Psikogram', to: '/admin/psikograms', icon: 'lucide:file-text', group: 'Insights', show: can('psikograms:read') },
     { label: 'Reports', to: '/admin/reports', icon: 'lucide:bar-chart-3', group: 'Insights', show: can('reports:read') },
     { label: 'Activity Log', to: '/admin/activity-logs', icon: 'lucide:scroll-text', group: 'Management', show: can('activity:read') },

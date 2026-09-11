@@ -5,6 +5,7 @@ const MUTED_PATH_PATTERNS = [
   /^\/api\/admin\/activity-logs/,
   /^\/api\/public\/app-settings/,
   /^\/api\/sessions\/token\/[^/]+\/answers$/,
+  /^\/api\/sessions\/token\/[^/]+\/heartbeat$/,
   /\/logs\/stream$/,
 ]
 

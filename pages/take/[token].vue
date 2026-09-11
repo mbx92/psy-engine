@@ -326,6 +326,7 @@ const config = ref(null)
 const instructions = ref([])
 const answers = ref({})
 const currentIndex = ref(0)
+const saveState = ref('idle')
 const started = ref(false)
 const starting = ref(false)
 const submitting = ref(false)
@@ -339,6 +340,7 @@ const timerRunning = ref(false)
 const devFillNotice = ref('')
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
+useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState })
 const isInstruction = computed(() => currentQuestion.value?.type === 'instruction')
 const hasSubtests = computed(() => !!(config.value?.hasSubtests || config.value?.subtestTimeLimit))
 const questionCount = computed(() =>
@@ -687,6 +689,7 @@ async function startTest() {
   starting.value = true
   try {
     await $fetch(`/api/sessions/token/${token}/start`, { method: 'PATCH' })
+    status.value = 'in_progress'
     started.value = true
     prepareQuestions()
     beginAutoSave()
@@ -707,6 +710,7 @@ async function startTest() {
 }
 
 async function saveAnswers() {
+  saveState.value = 'saving'
   try {
     persistSubtestTime()
     await $fetch(`/api/sessions/token/${token}/answers`, {
@@ -720,8 +724,9 @@ async function saveAnswers() {
         },
       },
     })
+    saveState.value = 'saved'
   } catch {
-    // Non-fatal
+    saveState.value = 'error'
   }
 }
 

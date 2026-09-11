@@ -5,12 +5,15 @@
         <h1 class="text-2xl md:text-3xl font-bold tracking-tight">Sessions</h1>
         <p class="text-sm md:text-base text-muted-foreground">Monitor ongoing and completed test sessions</p>
       </div>
-      <div v-if="can('sessions:manage')" class="flex items-center gap-2 shrink-0">
-        <UiButton variant="outline" @click="openPublicLinks">
+      <div class="flex items-center gap-2 shrink-0">
+        <UiButton v-if="can('sessions:read')" as-child variant="outline">
+          <NuxtLink to="/admin/monitoring"><Icon icon="lucide:monitor" class="size-4 md:mr-2" /><span class="hidden md:inline">Monitoring</span></NuxtLink>
+        </UiButton>
+        <UiButton v-if="can('sessions:manage')" variant="outline" @click="openPublicLinks">
           <Icon icon="lucide:link" class="size-4 md:mr-2" />
           <span class="hidden md:inline">Public Links</span>
         </UiButton>
-        <UiButton @click="openCreate">
+        <UiButton v-if="can('sessions:manage')" @click="openCreate">
           <Icon icon="lucide:plus" class="size-4 md:mr-2" />
           <span class="hidden md:inline">Create Session</span>
         </UiButton>
