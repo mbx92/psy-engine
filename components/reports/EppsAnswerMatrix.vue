@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-4">
-    <div class="overflow-x-auto flex justify-center">
-      <div class="grid grid-cols-3 w-max">
+    <div class="min-w-0">
+      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3">
         <div
           v-for="block in blocks"
           :key="block.block"
-          class="border overflow-hidden w-56 shrink-0 -ml-px -mt-px"
+          class="min-w-0 rounded-lg border"
         >
           <div class="px-3 py-2 border-b bg-muted/40">
             <p class="text-xs font-medium">Blok {{ block.block }}</p>
@@ -35,7 +35,7 @@
                     class="p-0.5"
                   >
                     <div
-                      class="mx-auto flex size-7 items-center justify-center rounded border font-semibold tabular-nums"
+                      class="mx-auto flex h-7 w-full max-w-7 items-center justify-center rounded border font-semibold tabular-nums"
                       :class="cellClass(cell)"
                       :title="`Soal ${cell.q}`"
                     >

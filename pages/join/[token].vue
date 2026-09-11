@@ -25,10 +25,10 @@
       </UiCard>
     </div>
 
-    <div v-else class="flex-1 flex items-center justify-center p-4">
-      <UiCard class="w-full max-w-md">
-        <UiCardHeader class="space-y-2">
-          <UiCardTitle>
+    <div v-else class="flex-1 flex items-start justify-center px-3 py-5 sm:items-center sm:p-4">
+      <UiCard class="w-full max-w-md overflow-hidden">
+        <UiCardHeader class="space-y-2 p-5 pb-4 sm:p-6 sm:pb-4">
+          <UiCardTitle class="text-xl leading-tight sm:text-2xl">
             {{ isMulti ? 'Paket Tes' : testType?.name }}
           </UiCardTitle>
           <UiCardDescription>
@@ -39,7 +39,7 @@
           <p v-if="invitation?.label" class="text-xs text-muted-foreground">{{ invitation.label }}</p>
         </UiCardHeader>
 
-        <UiCardContent>
+        <UiCardContent class="p-5 pt-0 sm:p-6 sm:pt-0">
           <div v-if="isMulti" class="mb-4 rounded-lg border p-3 text-sm space-y-2">
             <p class="text-xs font-medium text-muted-foreground">Tes dalam paket ({{ testTypes.length }})</p>
             <ol class="space-y-1 list-decimal list-inside">
@@ -60,15 +60,48 @@
             </ul>
           </div>
 
-          <form class="space-y-4" @submit.prevent="handleClaim">
+          <form class="space-y-3.5 sm:space-y-4" @submit.prevent="handleClaim">
             <div class="space-y-2">
               <UiLabel for="name">Nama Lengkap</UiLabel>
               <UiInput id="name" v-model="form.name" required class="h-10" placeholder="Nama sesuai identitas" />
             </div>
 
-            <div class="space-y-2">
-              <UiLabel for="birthDate">Tanggal Lahir</UiLabel>
-              <UiInput id="birthDate" v-model="form.birthDate" type="date" required class="h-10" />
+            <div class="space-y-2" role="group" aria-labelledby="birthDateLabel">
+              <UiLabel id="birthDateLabel">Tanggal Lahir</UiLabel>
+              <div class="grid grid-cols-[0.85fr_0.95fr_1.2fr] gap-2">
+                <UiSelect v-model="dateParts.day">
+                  <UiSelectTrigger class="h-10 min-w-0 px-2.5 text-sm">
+                    <UiSelectValue placeholder="Tgl" />
+                  </UiSelectTrigger>
+                  <UiSelectContent class="max-h-64">
+                    <UiSelectItem v-for="day in dayOptions" :key="day" :value="day">
+                      {{ day }}
+                    </UiSelectItem>
+                  </UiSelectContent>
+                </UiSelect>
+
+                <UiSelect v-model="dateParts.month">
+                  <UiSelectTrigger class="h-10 min-w-0 px-2.5 text-sm">
+                    <UiSelectValue placeholder="Bln" />
+                  </UiSelectTrigger>
+                  <UiSelectContent class="max-h-64">
+                    <UiSelectItem v-for="month in monthOptions" :key="month.value" :value="month.value">
+                      {{ month.label }}
+                    </UiSelectItem>
+                  </UiSelectContent>
+                </UiSelect>
+
+                <UiSelect v-model="dateParts.year">
+                  <UiSelectTrigger class="h-10 min-w-0 px-2.5 text-sm">
+                    <UiSelectValue placeholder="Thn" />
+                  </UiSelectTrigger>
+                  <UiSelectContent class="max-h-64">
+                    <UiSelectItem v-for="year in yearOptions" :key="year" :value="year">
+                      {{ year }}
+                    </UiSelectItem>
+                  </UiSelectContent>
+                </UiSelect>
+              </div>
             </div>
 
             <div class="space-y-2">
@@ -141,11 +174,52 @@ const form = reactive({
   email: '',
   nik: '',
 })
+const dateParts = reactive({
+  day: '',
+  month: '',
+  year: '',
+})
 const submitting = ref(false)
 const submitError = ref('')
 
 const canSubmit = computed(() => form.name.trim() && form.birthDate && form.gender)
 const isMulti = computed(() => testTypes.value.length > 1)
+const monthOptions = [
+  { value: '01', label: 'Jan' },
+  { value: '02', label: 'Feb' },
+  { value: '03', label: 'Mar' },
+  { value: '04', label: 'Apr' },
+  { value: '05', label: 'Mei' },
+  { value: '06', label: 'Jun' },
+  { value: '07', label: 'Jul' },
+  { value: '08', label: 'Agu' },
+  { value: '09', label: 'Sep' },
+  { value: '10', label: 'Okt' },
+  { value: '11', label: 'Nov' },
+  { value: '12', label: 'Des' },
+]
+const yearOptions = computed(() => {
+  const currentYear = new Date().getFullYear()
+  return Array.from({ length: 101 }, (_, index) => String(currentYear - index))
+})
+const dayOptions = computed(() => {
+  const year = Number(dateParts.year || new Date().getFullYear())
+  const month = Number(dateParts.month || 1)
+  const daysInMonth = new Date(year, month, 0).getDate()
+  return Array.from({ length: daysInMonth }, (_, index) => String(index + 1).padStart(2, '0'))
+})
+
+watch(
+  () => [dateParts.day, dateParts.month, dateParts.year],
+  ([day, month, year]) => {
+    if (day && !dayOptions.value.includes(day)) {
+      dateParts.day = dayOptions.value.at(-1) || ''
+      return
+    }
+
+    form.birthDate = day && month && year ? `${year}-${month}-${day}` : ''
+  },
+)
 
 onMounted(async () => {
   clearParticipantClientState()

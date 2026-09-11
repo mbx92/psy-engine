@@ -115,7 +115,7 @@
       </UiCard>
 
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <UiCard v-if="view.answerBlocks?.length" class="lg:col-span-6">
+        <UiCard v-if="view.answerBlocks?.length" class="min-w-0 lg:col-span-6">
           <UiCardHeader>
             <UiCardTitle class="text-sm">Matrix Jawaban 5×5</UiCardTitle>
             <UiCardDescription>9 blok jawaban EPPS (layout sistem lama)</UiCardDescription>
@@ -125,7 +125,7 @@
           </UiCardContent>
         </UiCard>
 
-        <UiCard :class="view.answerBlocks?.length ? 'lg:col-span-6' : 'lg:col-span-12'">
+        <UiCard class="min-w-0" :class="view.answerBlocks?.length ? 'lg:col-span-6' : 'lg:col-span-12'">
           <UiCardHeader><UiCardTitle class="text-sm">Matrix EPPS — Rincian Skor</UiCardTitle></UiCardHeader>
           <UiCardContent class="p-0 overflow-x-auto">
           <UiTable>
