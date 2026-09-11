@@ -39,7 +39,7 @@
     </aside>
 
       <header class="originals-toolbar sticky top-0 z-30 border-b bg-background/95 backdrop-blur">
-        <div class="mx-auto flex h-[72px] max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-10">
+        <div class="flex h-[72px] w-full items-center gap-3 px-3 sm:px-4 lg:px-6">
           <UiSheet v-model:open="mobileMenuOpen">
             <UiSheetTrigger as-child>
               <UiButton variant="ghost" size="icon" class="shrink-0 lg:hidden" aria-label="Open navigation">
