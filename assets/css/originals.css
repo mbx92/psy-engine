@@ -105,6 +105,29 @@
     background: hsl(var(--originals-sidebar));
   }
 
+  .originals-sidebar * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 0.22) transparent;
+  }
+
+  .originals-sidebar *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .originals-sidebar *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .originals-sidebar *::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.22);
+  }
+
+  .originals-sidebar *::-webkit-scrollbar-thumb:hover {
+    background: rgb(255 255 255 / 0.36);
+  }
+
   .originals-nav-link {
     @apply flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors;
     color: hsl(var(--originals-sidebar-muted));
