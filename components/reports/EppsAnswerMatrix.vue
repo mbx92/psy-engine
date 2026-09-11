@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
-    <div class="min-w-0">
-      <div class="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-3">
+    <div class="min-w-0 overflow-x-auto" tabindex="0" role="region" aria-label="Matriks jawaban EPPS 3 kali 3 blok">
+      <div class="mx-auto grid w-full min-w-[44rem] grid-cols-3 gap-3">
         <div
           v-for="block in blocks"
           :key="block.block"
