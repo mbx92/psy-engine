@@ -1,0 +1,320 @@
+{
+  "at": "2026-09-14T01:02:37.121Z",
+  "role": "admin",
+  "permissions": [
+    "users:read",
+    "users:create",
+    "users:update",
+    "users:delete",
+    "tests:read",
+    "tests:create",
+    "tests:update",
+    "tests:delete",
+    "participants:read",
+    "participants:create",
+    "participants:update",
+    "participants:delete",
+    "sessions:read",
+    "sessions:manage",
+    "psikograms:read",
+    "psikograms:create",
+    "psikograms:update",
+    "psikograms:delete",
+    "settings:read",
+    "settings:update",
+    "rbac:manage",
+    "activity:read",
+    "reports:read"
+  ],
+  "results": [
+    {
+      "path": "/api/auth/me",
+      "status": 200,
+      "expected": 200,
+      "ms": 43,
+      "bytes": 538,
+      "keys": [
+        "user"
+      ],
+      "counts": {}
+    },
+    {
+      "path": "/api/participants?page=1&limit=5",
+      "status": 200,
+      "expected": 200,
+      "ms": 21,
+      "bytes": 110,
+      "keys": [
+        "participants",
+        "pagination"
+      ],
+      "counts": {
+        "participants": 0
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 5,
+        "total": 0,
+        "totalPages": 1,
+        "hasPrev": false,
+        "hasNext": false
+      }
+    },
+    {
+      "path": "/api/participants?page=1&limit=5&search=QA-NONEXISTENT-20260914",
+      "status": 200,
+      "expected": 200,
+      "ms": 61,
+      "bytes": 110,
+      "keys": [
+        "participants",
+        "pagination"
+      ],
+      "counts": {
+        "participants": 0
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 5,
+        "total": 0,
+        "totalPages": 1,
+        "hasPrev": false,
+        "hasNext": false
+      }
+    },
+    {
+      "path": "/api/sessions?page=1&limit=5",
+      "status": 200,
+      "expected": 200,
+      "ms": 30,
+      "bytes": 106,
+      "keys": [
+        "sessions",
+        "pagination"
+      ],
+      "counts": {
+        "sessions": 0
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 5,
+        "total": 0,
+        "totalPages": 1,
+        "hasPrev": false,
+        "hasNext": false
+      }
+    },
+    {
+      "path": "/api/sessions?page=1&limit=5&tab=active",
+      "status": 200,
+      "expected": 200,
+      "ms": 19,
+      "bytes": 106,
+      "keys": [
+        "sessions",
+        "pagination"
+      ],
+      "counts": {
+        "sessions": 0
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 5,
+        "total": 0,
+        "totalPages": 1,
+        "hasPrev": false,
+        "hasNext": false
+      }
+    },
+    {
+      "path": "/api/sessions/monitoring",
+      "status": 200,
+      "expected": 200,
+      "ms": 52,
+      "bytes": 65,
+      "keys": [
+        "sessions",
+        "logs",
+        "serverTime"
+      ],
+      "counts": {
+        "sessions": 0,
+        "logs": 0
+      }
+    },
+    {
+      "path": "/api/admin/test-types",
+      "status": 200,
+      "expected": 200,
+      "ms": 21,
+      "bytes": 1021,
+      "keys": [
+        "testTypes"
+      ],
+      "counts": {
+        "testTypes": 3
+      }
+    },
+    {
+      "path": "/api/admin/open-invitations",
+      "status": 200,
+      "expected": 200,
+      "ms": 28,
+      "bytes": 18,
+      "keys": [
+        "invitations"
+      ],
+      "counts": {
+        "invitations": 0
+      }
+    },
+    {
+      "path": "/api/admin/psikograms",
+      "status": 200,
+      "expected": 200,
+      "ms": 33,
+      "bytes": 17,
+      "keys": [
+        "psikograms"
+      ],
+      "counts": {
+        "psikograms": 0
+      }
+    },
+    {
+      "path": "/api/admin/reports",
+      "status": 200,
+      "expected": 200,
+      "ms": 90,
+      "bytes": 2405,
+      "keys": [
+        "generatedAt",
+        "range",
+        "compareRange",
+        "testTypeId",
+        "periodSummary",
+        "completion",
+        "corporate",
+        "psikogramPipeline",
+        "scoreDistribution",
+        "periodCompare",
+        "publicLinks",
+        "adminActivity",
+        "examinerWorkload"
+      ],
+      "counts": {}
+    },
+    {
+      "path": "/api/admin/users",
+      "status": 200,
+      "expected": null,
+      "ms": 17,
+      "bytes": 267,
+      "keys": [
+        "users"
+      ],
+      "counts": {
+        "users": 2
+      }
+    },
+    {
+      "path": "/api/admin/rbac/roles",
+      "status": 200,
+      "expected": null,
+      "ms": 26,
+      "bytes": 1578,
+      "keys": [
+        "roles"
+      ],
+      "counts": {
+        "roles": 3
+      }
+    },
+    {
+      "path": "/api/admin/system/status",
+      "status": 403,
+      "expected": 403,
+      "ms": 19,
+      "bytes": 189,
+      "keys": [
+        "error",
+        "url",
+        "statusCode",
+        "statusMessage",
+        "message"
+      ],
+      "counts": {},
+      "error": "Forbidden: insufficient permissions"
+    },
+    {
+      "path": "/api/admin/activity-logs?page=1&limit=5",
+      "status": 200,
+      "expected": null,
+      "ms": 24,
+      "bytes": 2580,
+      "keys": [
+        "logs",
+        "pagination"
+      ],
+      "counts": {
+        "logs": 5
+      },
+      "pagination": {
+        "page": 1,
+        "limit": 5,
+        "total": 35,
+        "totalPages": 7,
+        "hasPrev": false,
+        "hasNext": true
+      }
+    },
+    {
+      "path": "/api/participants/not-a-uuid",
+      "status": 500,
+      "expected": 400,
+      "ms": 44,
+      "bytes": 170,
+      "keys": [
+        "error",
+        "url",
+        "statusCode",
+        "statusMessage",
+        "message"
+      ],
+      "counts": {},
+      "error": "Server Error"
+    },
+    {
+      "path": "/api/sessions?page=1&limit=5&testTypeId=not-a-uuid",
+      "status": 500,
+      "expected": 400,
+      "ms": 14,
+      "bytes": 192,
+      "keys": [
+        "error",
+        "url",
+        "statusCode",
+        "statusMessage",
+        "message"
+      ],
+      "counts": {},
+      "error": "Server Error"
+    },
+    {
+      "path": "/api/sessions?page=1&limit=5&dateFrom=not-a-date",
+      "status": 500,
+      "expected": 400,
+      "ms": 14,
+      "bytes": 190,
+      "keys": [
+        "error",
+        "url",
+        "statusCode",
+        "statusMessage",
+        "message"
+      ],
+      "counts": {},
+      "error": "Server Error"
+    }
+  ]
+}

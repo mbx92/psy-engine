@@ -8,7 +8,7 @@ import { logActivity } from '~~/server/utils/activityLog'
 import { getRequestHeader, getRequestIP } from 'h3'
 
 export default defineEventHandler(async (event) => {
-  checkRateLimit(event, { key: 'login', max: 10, windowMs: 15 * 60 * 1000 })
+  await checkRateLimit(event, 'login')
 
   const body = await readBody(event)
   const { email, password } = validateBody(loginSchema, body)
@@ -129,11 +129,7 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const token = signToken({
-    userId: user[0].id,
-    email: user[0].email,
-    role: user[0].role,
-  })
+  await createAuthSession(event, user[0])
 
   const permissions = await getRolePermissionKeys(user[0].role)
 
@@ -155,7 +151,6 @@ export default defineEventHandler(async (event) => {
   event.context._activityLogged = true
 
   return {
-    token,
     user: {
       id: user[0].id,
       email: user[0].email,

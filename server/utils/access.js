@@ -10,6 +10,10 @@ export async function requirePermission(event, permission) {
     throw createError({ statusCode: 401, message: 'Unauthorized' })
   }
 
+  if (permission === 'system:manage' && auth.role !== 'superadmin') {
+    throw createError({ statusCode: 403, message: 'Only superadmin can manage the system' })
+  }
+
   if (!(await roleHasPermission(auth.role, permission))) {
     throw createError({ statusCode: 403, message: 'Forbidden: insufficient permissions' })
   }

@@ -1,0 +1,390 @@
+{
+  "at": "2026-09-14T00:46:36.034Z",
+  "base": "http://10.100.10.100:8880",
+  "results": [
+    {
+      "path": "/login",
+      "method": "GET",
+      "status": 200,
+      "ms": 41,
+      "bytes": 81040,
+      "headers": {
+        "content-type": "text/html;charset=utf-8"
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 3,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/public/app-settings",
+      "method": "GET",
+      "status": 200,
+      "ms": 5,
+      "bytes": 184,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/auth/me",
+      "method": "GET",
+      "status": 401,
+      "ms": 3,
+      "bytes": 154,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/participants",
+      "method": "GET",
+      "status": 401,
+      "ms": 2,
+      "bytes": 159,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/sessions",
+      "method": "GET",
+      "status": 401,
+      "ms": 1,
+      "bytes": 155,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/admin/users",
+      "method": "GET",
+      "status": 401,
+      "ms": 3,
+      "bytes": 158,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/admin/reports",
+      "method": "GET",
+      "status": 401,
+      "ms": 2,
+      "bytes": 160,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/admin/system/status",
+      "method": "GET",
+      "status": 401,
+      "ms": 2,
+      "bytes": 166,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Unauthorized"
+    },
+    {
+      "path": "/api/tests/qa-nonexistent-20260914",
+      "method": "GET",
+      "status": 404,
+      "ms": 15,
+      "bytes": 178,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Test not found"
+    },
+    {
+      "path": "/api/open-invitations/token/qa-nonexistent-20260914",
+      "method": "GET",
+      "status": 404,
+      "ms": 14,
+      "bytes": 231,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Link undangan tidak valid atau sudah dinonaktifkan"
+    },
+    {
+      "path": "/api/public/psikograms/qa-nonexistent-20260914",
+      "method": "GET",
+      "status": 404,
+      "ms": 14,
+      "bytes": 211,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Psikogram not found or link invalid"
+    },
+    {
+      "path": "/api/tests",
+      "method": "GET",
+      "status": 200,
+      "ms": 9,
+      "bytes": 1550,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "tests": [
+        {
+          "slug": "cfit-scale-2",
+          "type": "aptitude"
+        },
+        {
+          "slug": "papi-kostick",
+          "type": "personality"
+        },
+        {
+          "slug": "epps",
+          "type": "personality"
+        }
+      ]
+    },
+    {
+      "path": "/api/tests/cfit-scale-2",
+      "method": "GET",
+      "status": 200,
+      "ms": 7,
+      "bytes": 30093,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "questionExposure": {
+        "count": 50,
+        "withAnswer": 46,
+        "withOptionWeights": 0,
+        "questionKeys": [
+          "id",
+          "text",
+          "type",
+          "rules",
+          "title",
+          "subtest",
+          "examples",
+          "subtitle",
+          "warnings",
+          "timeLimit",
+          "subtestKey",
+          "instruction",
+          "answer",
+          "number",
+          "options",
+          "imagePath"
+        ],
+        "configKeys": [
+          "subtests",
+          "allowBack",
+          "allowSkip",
+          "randomize",
+          "timeLimit",
+          "hasSubtests",
+          "requiresAge",
+          "showProgress",
+          "totalQuestions",
+          "instructionText",
+          "subtestTimeLimit",
+          "requiresBirthDate",
+          "subtestProtection",
+          "randomizeQuestions",
+          "autoSubmitOnTimeout"
+        ]
+      }
+    },
+    {
+      "path": "/api/tests/papi-kostick",
+      "method": "GET",
+      "status": 200,
+      "ms": 16,
+      "bytes": 51562,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "questionExposure": {
+        "count": 90,
+        "withAnswer": 0,
+        "withOptionWeights": 90,
+        "questionKeys": [
+          "id",
+          "pair",
+          "text",
+          "type",
+          "number",
+          "scaleA",
+          "scaleB",
+          "options"
+        ],
+        "configKeys": [
+          "allowSkip",
+          "randomize",
+          "timeLimit",
+          "instructions",
+          "questionsPerPage"
+        ]
+      }
+    },
+    {
+      "path": "/api/tests/epps",
+      "method": "GET",
+      "status": 200,
+      "ms": 23,
+      "bytes": 141816,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "questionExposure": {
+        "count": 225,
+        "withAnswer": 0,
+        "withOptionWeights": 0,
+        "questionKeys": [
+          "id",
+          "text",
+          "type",
+          "textA",
+          "textB",
+          "colIdx",
+          "number",
+          "rowIdx",
+          "options",
+          "matrixGroup"
+        ],
+        "configKeys": [
+          "allowBack",
+          "timeLimit",
+          "showProgress",
+          "randomizeQuestions"
+        ]
+      }
+    },
+    {
+      "path": "/api/auth/register",
+      "method": "POST",
+      "status": 400,
+      "ms": 16,
+      "bytes": 302,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Invalid input: expected string, received undefined; Invalid input: expected string, received undefined; Invalid input: expected string, received undefined"
+    },
+    {
+      "path": "/api/auth/login",
+      "method": "POST",
+      "status": 400,
+      "ms": 3,
+      "bytes": 247,
+      "headers": {
+        "content-security-policy": "script-src 'none'; frame-ancestors 'none';",
+        "content-type": "application/json",
+        "referrer-policy": "no-referrer",
+        "x-content-type-options": "nosniff",
+        "x-frame-options": "DENY"
+      },
+      "error": "Invalid input: expected string, received undefined; Invalid input: expected string, received undefined"
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 1,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 1,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 1,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 1,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    },
+    {
+      "path": "/api/health",
+      "method": "GET",
+      "status": 200,
+      "ms": 5,
+      "bytes": 53,
+      "headers": {
+        "content-type": "application/json"
+      }
+    }
+  ]
+}

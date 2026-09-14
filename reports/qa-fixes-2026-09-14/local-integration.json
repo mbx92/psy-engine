@@ -1,0 +1,232 @@
+{
+  "at": "2026-09-14T07:08:04.340Z",
+  "base": "http://127.0.0.1:8890",
+  "legacy": false,
+  "created": [
+    {
+      "slug": "cfit-scale-2",
+      "participantId": "fccd210b-62aa-42e3-a19a-0a3dc1d5baba",
+      "sessionId": "e6864eea-abf6-4e97-812d-d6353f4894b8",
+      "name": "QA-2026-09-14T07-08-01-892Z cfit-scale-2 SYNTHETIC"
+    },
+    {
+      "slug": "papi-kostick",
+      "participantId": "a628fa5d-2f4c-4b23-a509-d86bfc77b63e",
+      "sessionId": "61b08fad-84d8-4607-8865-35808ec11ec9",
+      "name": "QA-2026-09-14T07-08-01-892Z papi-kostick SYNTHETIC"
+    },
+    {
+      "slug": "epps",
+      "participantId": "0cc972e1-fb6f-498c-8380-5048984eb20a",
+      "sessionId": "65bb3644-5770-4206-8101-b6d81485cba0",
+      "name": "QA-2026-09-14T07-08-01-892Z epps SYNTHETIC"
+    }
+  ],
+  "results": [
+    {
+      "name": "Admin login",
+      "status": "PASS",
+      "role": "admin"
+    },
+    {
+      "name": "HttpOnly session; token not returned to JS",
+      "status": "PASS"
+    },
+    {
+      "name": "Public test list blocked",
+      "status": "PASS"
+    },
+    {
+      "name": "Public registration disabled",
+      "status": "PASS"
+    },
+    {
+      "name": "Cross-origin mutation rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "HTML security headers",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid query/ID /api/participants/not-a-uuid",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid query/ID /api/sessions?testTypeId=bad",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid query/ID /api/sessions?dateFrom=bad",
+      "status": "PASS"
+    },
+    {
+      "name": "System management denied for admin",
+      "status": "PASS"
+    },
+    {
+      "name": "RBAC restricted admin",
+      "status": "PASS"
+    },
+    {
+      "name": "RBAC restricted operator",
+      "status": "PASS"
+    },
+    {
+      "name": "RBAC restricted superadmin",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 no scoring secrets",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 rejects string answers",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 rejects unknown answers",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 autosave/resume",
+      "status": "PASS",
+      "answered": 46,
+      "expected": 46
+    },
+    {
+      "name": "cfit-scale-2 submit",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 raw score and adult IQ",
+      "status": "PASS",
+      "rawScore": 30,
+      "iqScore": 96,
+      "scoringStatus": "scored"
+    },
+    {
+      "name": "cfit-scale-2 duplicate submit idempotent",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 completed session cannot save",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick no scoring secrets",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick rejects string answers",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick rejects unknown answers",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick autosave/resume",
+      "status": "PASS",
+      "answered": 90,
+      "expected": 90
+    },
+    {
+      "name": "papi-kostick submit",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick 90 choices counted",
+      "status": "PASS",
+      "dimensionCount": 18
+    },
+    {
+      "name": "papi-kostick duplicate submit idempotent",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick completed session cannot save",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "epps participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "epps no scoring secrets",
+      "status": "PASS"
+    },
+    {
+      "name": "epps rejects string answers",
+      "status": "PASS"
+    },
+    {
+      "name": "epps rejects unknown answers",
+      "status": "PASS"
+    },
+    {
+      "name": "epps autosave/resume",
+      "status": "PASS",
+      "answered": 225,
+      "expected": 225
+    },
+    {
+      "name": "epps submit",
+      "status": "PASS"
+    },
+    {
+      "name": "epps score structure",
+      "status": "PASS",
+      "dimensionCount": 15,
+      "rawKeys": [
+        "needs",
+        "matrix",
+        "consistency"
+      ]
+    },
+    {
+      "name": "epps duplicate submit idempotent",
+      "status": "PASS"
+    },
+    {
+      "name": "epps completed session cannot save",
+      "status": "PASS"
+    },
+    {
+      "name": "epps admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "Reports query after synthetic sessions",
+      "status": "PASS"
+    },
+    {
+      "name": "Monitoring after completed sessions",
+      "status": "PASS"
+    },
+    {
+      "name": "Logout",
+      "status": "PASS"
+    },
+    {
+      "name": "Revoked cookie replay rejected",
+      "status": "PASS"
+    }
+  ]
+}

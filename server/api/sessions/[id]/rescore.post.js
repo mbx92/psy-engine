@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and } from 'drizzle-orm'
 import { sessions } from '~~/db/schema/sessions'
 import { participants } from '~~/db/schema/participants'
 import { testTypeNorms } from '~~/db/schema/testTypeNorms'
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
   if (!['completed', 'verified'].includes(session.status)) {
     throw createError({ statusCode: 400, message: 'Can only re-score completed or verified sessions' })
   }
-  if (!session.answers || !Object.keys(session.answers).length) {
+  if (!session.answers) {
     throw createError({ statusCode: 400, message: 'Session has no answers to score' })
   }
 
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
 
   const [norm] = await db.select({ data: testTypeNorms.data })
     .from(testTypeNorms)
-    .where(eq(testTypeNorms.testTypeId, session.testTypeId))
+    .where(and(eq(testTypeNorms.testTypeId, session.testTypeId), test.scoringConfig?.algorithm === 'raw_to_iq' ? eq(testTypeNorms.code, 'cfit_iq') : undefined))
     .limit(1)
 
   let result
@@ -49,6 +49,7 @@ export default defineEventHandler(async (event) => {
       birthDate: participant?.birthDate,
       gender: participant?.gender,
       norms: norm?.data || null,
+      assessmentDate: session.startedAt,
     })
   } catch (err) {
     throw createError({ statusCode: 500, message: `Scoring failed: ${err.message}` })
@@ -56,7 +57,7 @@ export default defineEventHandler(async (event) => {
 
   const now = new Date()
   const [updated] = await db.update(sessions).set({
-    scores: result,
+    scores: { ...result, status: 'scored' },
     interpretation: result.interpretation || {},
     updatedAt: now,
   }).where(eq(sessions.id, id)).returning()

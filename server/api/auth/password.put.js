@@ -22,9 +22,11 @@ export default defineEventHandler(async (event) => {
   }
 
   const passwordHash = await hashPassword(newPassword)
-  await db.update(users)
-    .set({ passwordHash, updatedAt: new Date() })
-    .where(eq(users.id, userId))
+  await db.transaction(async tx => {
+    await tx.update(users).set({ passwordHash, updatedAt: new Date() }).where(eq(users.id, userId))
+    await revokeUserSessions(userId, tx)
+  })
+  clearAuthCookie(event)
 
-  return { message: 'Password updated successfully' }
+  return { message: 'Password updated. Please sign in again.', requiresLogin: true }
 })

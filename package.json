@@ -4,6 +4,8 @@
   "private": true,
   "packageManager": "pnpm@11.15.1",
   "scripts": {
+    "test": "node --test scripts/test-qa-regressions.mjs scripts/test-rate-limits.mjs && node scripts/test-session-monitoring.mjs",
+    "db:seed-cfit-norms": "node scripts/seed-cfit-norms.mjs",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
@@ -17,7 +19,7 @@
     "db:studio": "drizzle-kit studio",
     "db:seed-rbac": "node scripts/seed-rbac.mjs",
     "db:seed-tests": "node seed/index.js",
-    "db:seed": "node scripts/seed-rbac.mjs && node seed/index.js"
+    "db:seed": "node scripts/seed-rbac.mjs && node seed/index.js && node scripts/seed-cfit-norms.mjs"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.1",
@@ -28,6 +30,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
+    "h3": "1.15.11",
     "jsonwebtoken": "^9.0.3",
     "lucide-vue-next": "^1.0.0",
     "nuxt": "^3.15.0",

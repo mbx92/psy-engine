@@ -1,0 +1,48 @@
+{
+  "at": "2026-09-14T01:01:08.317Z",
+  "results": [
+    {
+      "slug": "cfit-scale-2",
+      "questionCount": 46,
+      "duplicateIds": 0,
+      "missingIds": 0,
+      "missingOptions": 0,
+      "duplicateOptionIds": 0,
+      "assetChecks": [
+        {
+          "path": "/psychology/cfit/subtes1/1.png",
+          "status": 200,
+          "type": "image/png"
+        },
+        {
+          "path": "/psychology/cfit/subtes1/2.png",
+          "status": 200,
+          "type": "image/png"
+        },
+        {
+          "path": "/psychology/cfit/subtes1/3.png",
+          "status": 200,
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "slug": "papi-kostick",
+      "questionCount": 90,
+      "duplicateIds": 0,
+      "missingIds": 0,
+      "missingOptions": 0,
+      "duplicateOptionIds": 0,
+      "assetChecks": []
+    },
+    {
+      "slug": "epps",
+      "questionCount": 225,
+      "duplicateIds": 0,
+      "missingIds": 0,
+      "missingOptions": 0,
+      "duplicateOptionIds": 0,
+      "assetChecks": []
+    }
+  ]
+}

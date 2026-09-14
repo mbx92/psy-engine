@@ -1,3 +1,5 @@
+import { assertRoleEdit } from '~~/server/utils/rolePolicy'
+import { getRolePermissionKeys } from '~~/server/utils/permissions'
 import { eq } from 'drizzle-orm'
 import { roles } from '~~/db/schema/roles'
 import { permissions } from '~~/db/schema/permissions'
@@ -26,9 +28,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Role not found' })
   }
 
-  if (body.label !== undefined) {
-    await db.update(roles).set({ label: body.label, updatedAt: new Date() }).where(eq(roles.id, roleId))
-  }
+  assertRoleEdit(event.context.auth.role, role.name, body.permissionKeys, await getRolePermissionKeys(event.context.auth.role))
 
   if (body.permissionKeys !== undefined) {
     const allPermissions = await db.select().from(permissions)
@@ -47,6 +47,10 @@ export default defineEventHandler(async (event) => {
         )
       }
     })
+  }
+
+  if (body.label !== undefined) {
+    await db.update(roles).set({ label: body.label, updatedAt: new Date() }).where(eq(roles.id, roleId))
   }
 
   const [updatedRole] = await db.select().from(roles).where(eq(roles.id, roleId)).limit(1)

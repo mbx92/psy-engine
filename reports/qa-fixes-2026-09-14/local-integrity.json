@@ -1,0 +1,98 @@
+{
+  "at": "2026-09-14T07:08:10.235Z",
+  "base": "http://127.0.0.1:8890",
+  "results": [
+    {
+      "name": "Deactivate account",
+      "status": "PASS"
+    },
+    {
+      "name": "Disabled account cookie rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Reactivation does not restore old cookie",
+      "status": "PASS"
+    },
+    {
+      "name": "Role update revokes prior session",
+      "status": "PASS"
+    },
+    {
+      "name": "Password change requires login",
+      "status": "PASS"
+    },
+    {
+      "name": "Password change revokes all devices",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid biodata {\"name\":\"   \",\"birthDate\":\"2000-01-01\"}",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid biodata {\"name\":\"QA invalid\",\"birthDate\":\"2026-02-30\"}",
+      "status": "PASS"
+    },
+    {
+      "name": "Invalid biodata {\"name\":\"QA future\",\"birthDate\":\"2999-01-01\"}",
+      "status": "PASS"
+    },
+    {
+      "name": "Concurrent invitation quota: 1 winner, 4 rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "Quota increment and two battery sessions consistent",
+      "status": "PASS"
+    },
+    {
+      "name": "Global deadline rejects late save",
+      "status": "PASS"
+    },
+    {
+      "name": "Global deadline discards late final answer",
+      "status": "PASS"
+    },
+    {
+      "name": "Cannot skip first subtest",
+      "status": "PASS"
+    },
+    {
+      "name": "Subtest restart cannot extend deadline",
+      "status": "PASS"
+    },
+    {
+      "name": "Forged metadata does not overwrite server timing",
+      "status": "PASS"
+    },
+    {
+      "name": "Expired subtest rejects changed answer",
+      "status": "PASS"
+    },
+    {
+      "name": "Late submit preserves answers and marks missing norm for review",
+      "status": "PASS"
+    },
+    {
+      "name": "Late answer never overwrites saved choice",
+      "status": "PASS"
+    },
+    {
+      "name": "Failed score cannot be verified",
+      "status": "PASS"
+    },
+    {
+      "name": "Scoring failure explicitly reports saved answers without success",
+      "status": "PASS"
+    },
+    {
+      "name": "Admin rescore succeeds after restoring norm",
+      "status": "PASS"
+    },
+    {
+      "name": "Recovered scoring can be verified",
+      "status": "PASS"
+    }
+  ]
+}

@@ -15,6 +15,13 @@
           General
         </UiTabsTrigger>
         <UiTabsTrigger
+          v-if="can('settings:read')"
+          value="rate-limits"
+          class="w-full justify-start rounded-md px-3 py-2 data-[state=active]:bg-muted data-[state=active]:shadow-none"
+        >
+          Rate Limit
+        </UiTabsTrigger>
+        <UiTabsTrigger
           value="appearance"
           class="w-full justify-start rounded-md px-3 py-2 data-[state=active]:bg-muted data-[state=active]:shadow-none"
         >
@@ -144,6 +151,10 @@
       </UiTabsContent>
 
       <!-- Appearance Tab -->
+      <UiTabsContent v-if="can('settings:read')" value="rate-limits" class="mt-0 space-y-4">
+        <SettingsRateLimits />
+      </UiTabsContent>
+
       <UiTabsContent value="appearance" class="mt-0 space-y-4">
         <div>
           <h3 class="text-lg font-semibold">Appearance</h3>
@@ -981,7 +992,9 @@ async function updatePassword() {
       },
       headers: getAuthHeaders(),
     })
-    passwordSuccess.value = 'Password updated successfully'
+    user.value = null
+    await navigateTo('/login')
+    passwordSuccess.value = 'Password updated. Please sign in again.'
     toast.success('Password updated')
     passwordForm.currentPassword = ''
     passwordForm.newPassword = ''

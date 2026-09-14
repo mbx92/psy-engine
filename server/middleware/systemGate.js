@@ -8,11 +8,11 @@ import { getSystemFlags, isSuperadminRole } from '~~/server/utils/systemFlags'
 export default defineEventHandler(async (event) => {
   if (!event.path?.startsWith('/api/')) return
 
-  const path = event.path
+  const path = event.path.split('?')[0]
   const method = (event.method || 'GET').toLowerCase()
 
   // Login handler enforces lock/maintenance per role (superadmin may still sign in)
-  if (path === '/api/auth/login' || path === '/api/auth/register') return
+  if (['/api/auth/login', '/api/auth/register', '/api/auth/logout'].includes(path)) return
 
   // Health probes must stay up during maintenance / lock
   if (method === 'get' && (path === '/api/health' || path.startsWith('/api/health?'))) return

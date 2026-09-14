@@ -6,7 +6,7 @@ import {
   EPPS_ROW_GROUP_LABELS,
   EPPS_EXCLUDED_DIAGONAL,
   getBlockMatrix,
-} from '~~/utils/eppsConstants'
+} from '../../../utils/eppsConstants.js'
 
 export { EPPS_NEEDS, EPPS_NEED_LABELS, EPPS_INDEX_TO_NEED, getBlockMatrix }
 

@@ -1,4 +1,7 @@
+import { requirePermission } from '~~/server/utils/access'
+import { PERMISSIONS } from '~~/server/utils/permissions'
 export default defineEventHandler(async (event) => {
+  await requirePermission(event, PERMISSIONS.TESTS_READ)
   const slug = getRouterParam(event, 'slug')
   if (!slug) {
     throw createError({ statusCode: 400, message: 'Test slug required' })

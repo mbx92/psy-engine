@@ -31,6 +31,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, message: 'Session not found' })
   }
 
+  if (row.scores?.status === 'failed' || row.scores?.raw?.error) throw createError({ statusCode: 409, message: 'Scoring must succeed before analysis' })
   if (row.testTypeSlug !== 'papi-kostick') {
     return { analyzed: false, reason: 'Automatic aspect analysis is only available for PAPI Kostick sessions', sections: null }
   }

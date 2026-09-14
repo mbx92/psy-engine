@@ -1,3 +1,4 @@
+import { hasUsableScores } from '~~/server/utils/testIntegrity'
 import { eq } from 'drizzle-orm'
 import { sessions } from '~~/db/schema/sessions'
 import { PERMISSIONS } from '~~/server/utils/permissions'
@@ -23,6 +24,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const updateData = { status, updatedAt: new Date() }
+  if (status === 'verified' && !hasUsableScores(session)) throw createError({ statusCode: 409, message: 'Scoring must succeed before verification' })
+  if (status === 'completed') throw createError({ statusCode: 400, message: 'Complete the test through the submit endpoint so answers are scored' })
   if (status === 'verified') {
     updateData.verifiedAt = new Date()
     updateData.verifiedBy = event.context.auth.userId

@@ -1,7 +1,7 @@
 /**
  * Generic scoring engine — processes answers based on test definition
  */
-import { scoreEppsMatrix } from '~~/server/utils/scoring/epps'
+import { scoreEppsMatrix } from './scoring/epps.js'
 
 export function calculateScore(test, answers, context = {}) {
   switch (test.scoringConfig?.algorithm) {
@@ -90,6 +90,7 @@ function scoreRawToIq(test, answers, context = {}) {
     context.birthDate,
     context.norms,
     test.scoringConfig?.defaultAgeGroup || '13-9_dewasa',
+    context.assessmentDate,
   )
   const { iqScore, classification } = convertRawToIq(rawScore, ageGroup, context.norms, test.scoringConfig)
 
@@ -109,13 +110,12 @@ function scoreRawToIq(test, answers, context = {}) {
   }
 }
 
-function resolveAgeGroup(birthDate, norms, defaultAgeGroup = '13-9_dewasa') {
-  const fallback = norms?.[defaultAgeGroup] ? defaultAgeGroup : Object.keys(norms || {})[0]
-  if (!birthDate || !norms) return fallback || defaultAgeGroup
+function resolveAgeGroup(birthDate, norms, defaultAgeGroup = '13-9_dewasa', assessmentDate) {
+  if (!birthDate || !norms) throw new Error('IQ norms and participant birth date are required')
 
   const birth = new Date(birthDate)
-  const now = new Date()
-  if (Number.isNaN(birth.getTime())) return fallback || defaultAgeGroup
+  const now = assessmentDate ? new Date(assessmentDate) : new Date()
+  if (!Number.isFinite(birth.getTime()) || !Number.isFinite(now.getTime())) throw new Error('Invalid date for IQ norms')
 
   let months = (now.getFullYear() - birth.getFullYear()) * 12 + (now.getMonth() - birth.getMonth())
   if (now.getDate() < birth.getDate()) months -= 1
@@ -123,7 +123,7 @@ function resolveAgeGroup(birthDate, norms, defaultAgeGroup = '13-9_dewasa') {
   for (const [key, group] of Object.entries(norms)) {
     if (months >= group.ageMonthsStart && months <= group.ageMonthsEnd) return key
   }
-  return fallback || defaultAgeGroup
+  throw new Error('IQ norms do not cover the participant age')
 }
 
 function convertRawToIq(rawScore, ageGroup, norms, scoringConfig = {}) {
@@ -136,19 +136,9 @@ function convertRawToIq(rawScore, ageGroup, norms, scoringConfig = {}) {
         classification: exact.classification || classifyIq(exact.iqScore, scoringConfig),
       }
     }
-    const closest = [...group.norms].sort(
-      (a, b) => Math.abs(a.rawScore - rawScore) - Math.abs(b.rawScore - rawScore),
-    )[0]
-    if (closest?.iqScore != null) {
-      return {
-        iqScore: closest.iqScore,
-        classification: closest.classification || classifyIq(closest.iqScore, scoringConfig),
-      }
-    }
   }
 
-  const estimated = Math.round((rawScore / (scoringConfig.maxRawScore || 46)) * 70 + 60)
-  return { iqScore: estimated, classification: classifyIq(estimated, scoringConfig) }
+  throw new Error('IQ norms are missing or invalid for the participant age group')
 }
 
 function classifyIq(iq, scoringConfig = {}) {
@@ -176,7 +166,7 @@ function scoreDimensionSum(test, answers) {
 
     const dim = option.dimension
     if (dim) {
-      raw[dim] = (raw[dim] || 0) + (option.weight || 1)
+      raw[dim] = (raw[dim] || 0) + (option.weight ?? 1)
       counts[dim] = (counts[dim] || 0) + 1
     }
   }
@@ -208,7 +198,7 @@ function scorePairedChoice(test, answers) {
 
     const dim = option.dimension
     if (dim) {
-      raw[dim] = (raw[dim] || 0) + (option.weight || 1)
+      raw[dim] = (raw[dim] || 0) + (option.weight ?? 1)
     }
   }
 
@@ -233,7 +223,7 @@ function scoreLikertAverage(test, answers) {
     if (!option) continue
 
     const dim = option.dimension || 'general'
-    raw[dim] = (raw[dim] || 0) + (option.weight || 3)
+    raw[dim] = (raw[dim] || 0) + (option.weight ?? 3)
     counts[dim] = (counts[dim] || 0) + 1
   }
 

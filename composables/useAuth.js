@@ -1,135 +1,44 @@
-const COOKIE_OPTS = {
-  maxAge: 60 * 60 * 24 * 7,
-  sameSite: 'lax',
-  path: '/',
-}
-
 export const useAuth = () => {
-  // Cookies keep SSR and client auth state in sync (avoids hydration mismatch).
-  const token = useCookie('psy-token', COOKIE_OPTS)
-  const user = useCookie('psy-user', COOKIE_OPTS)
+  // This cookie is only a display cache. The server authorizes from its HttpOnly session.
+  const user = useCookie('psy-user', { maxAge: 7 * 86400, sameSite: 'lax', path: '/' })
+  const requestHeaders = import.meta.server ? useRequestHeaders(['cookie']) : {}
   const loading = ref(false)
-
-  const isAuthenticated = computed(() => !!token.value && !!user.value)
+  const isAuthenticated = computed(() => !!user.value)
   const role = computed(() => user.value?.role ?? '')
-
-  // Permissions are resolved server-side (DB-backed RBAC) and attached to
-  // the user object by /api/auth/login, /register, /me, and /profile.
-  /** Check if the current user has a specific permission */
-  function can(permission) {
-    const perms = user.value?.permissions
-    if (!perms) return false
-    return perms.includes(permission)
-  }
-
-  /** Check if the current user has all specified permissions */
-  function canAll(...permissions) {
-    return permissions.every((p) => can(p))
-  }
-
-  /** Check if the current user has any of the specified permissions */
-  function canAny(...permissions) {
-    return permissions.some((p) => can(p))
-  }
-
-  const isAdmin = computed(() => role.value === 'admin' || role.value === 'superadmin')
+  const can = permission => (user.value?.permissions || []).includes(permission)
+  const canAll = (...permissions) => permissions.every(can)
+  const canAny = (...permissions) => permissions.some(can)
+  const isAdmin = computed(() => ['admin', 'superadmin'].includes(role.value))
   const isSuperadmin = computed(() => role.value === 'superadmin')
-
-  function persist(nextToken, nextUser) {
-    token.value = nextToken
-    user.value = nextUser
-  }
-
-  /** One-time migration from legacy localStorage auth (post-hydration only). */
+  function getAuthHeaders() { return requestHeaders }
   function migrateFromLocalStorage() {
-    if (!import.meta.client || token.value) return false
-    const stored = localStorage.getItem('psy-auth')
-    if (!stored) return false
-    try {
-      const parsed = JSON.parse(stored)
-      if (parsed?.token && parsed?.user) {
-        persist(parsed.token, parsed.user)
-        localStorage.removeItem('psy-auth')
-        return true
-      }
-    } catch { /* ignore */ }
-    localStorage.removeItem('psy-auth')
+    if (import.meta.client) localStorage.removeItem('psy-auth')
     return false
   }
-
   async function login(email, password) {
     loading.value = true
     try {
-      const data = await $fetch('/api/auth/login', {
-        method: 'POST',
-        body: { email, password },
-      })
-      persist(data.token, data.user)
-      if (import.meta.client) localStorage.removeItem('psy-auth')
+      const data = await $fetch('/api/auth/login', { method: 'POST', body: { email, password } })
+      user.value = data.user
+      migrateFromLocalStorage()
       return data
-    } finally {
-      loading.value = false
-    }
+    } finally { loading.value = false }
   }
-
-  async function register(email, password, name) {
-    loading.value = true
-    try {
-      const data = await $fetch('/api/auth/register', {
-        method: 'POST',
-        body: { email, password, name },
-      })
-      persist(data.token, data.user)
-      if (import.meta.client) localStorage.removeItem('psy-auth')
-      return data
-    } finally {
-      loading.value = false
-    }
-  }
-
   async function fetchMe() {
-    if (!token.value) return null
     try {
-      const data = await $fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token.value}` },
-      })
+      const data = await $fetch('/api/auth/me', { headers: getAuthHeaders() })
       user.value = data.user
       return data.user
-    } catch {
-      logout()
+    } catch (err) {
+      if ([401, 403].includes(err?.statusCode || err?.response?.status)) user.value = null
       return null
     }
   }
-
-  function logout() {
-    token.value = null
+  async function logout() {
+    try { await $fetch('/api/auth/logout', { method: 'POST', headers: getAuthHeaders() }) }
+    catch (err) { if (err?.statusCode !== 401) throw err }
     user.value = null
-    if (import.meta.client) {
-      localStorage.removeItem('psy-auth')
-    }
+    migrateFromLocalStorage()
   }
-
-  function getAuthHeaders() {
-    if (!token.value) return {}
-    return { Authorization: `Bearer ${token.value}` }
-  }
-
-  return {
-    user,
-    token,
-    role,
-    loading,
-    isAuthenticated,
-    isAdmin,
-    isSuperadmin,
-    can,
-    canAll,
-    canAny,
-    login,
-    register,
-    fetchMe,
-    logout,
-    getAuthHeaders,
-    migrateFromLocalStorage,
-  }
+  return { user, role, loading, isAuthenticated, isAdmin, isSuperadmin, can, canAll, canAny, login, fetchMe, logout, getAuthHeaders, migrateFromLocalStorage }
 }

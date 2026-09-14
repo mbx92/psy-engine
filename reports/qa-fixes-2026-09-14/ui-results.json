@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-14",
+  "base": "http://127.0.0.1:8890",
+  "method": "Browser nyata melalui CUA; akun dan peserta sintetis",
+  "results": [
+    {"name":"Login admin melalui form membuka dashboard", "status":"PASS"},
+    {"name":"Refresh dashboard mempertahankan sesi HttpOnly", "status":"PASS"},
+    {"name":"Laporan admin menampilkan rekap sesi", "status":"PASS"},
+    {"name":"CFIT menampilkan petunjuk, 46 soal, dan durasi empat subtes", "status":"PASS"},
+    {"name":"Mulai subtes CFIT menjalankan timer tiga menit", "status":"PASS"},
+    {"name":"Pilihan CFIT tersimpan dan posisi soal dua dipulihkan setelah refresh", "status":"PASS"},
+    {"name":"Timer CFIT setelah refresh berlanjut dari 02:53 menjadi 02:42, tanpa reset", "status":"PASS"},
+    {"name":"Gambar soal CFIT berhasil dimuat", "status":"PASS"},
+    {"name":"PAPI menampilkan 90 soal, timer 30 menit, menerima pilihan dan berpindah soal", "status":"PASS"},
+    {"name":"EPPS menampilkan 225 soal, menerima pilihan dan berpindah soal", "status":"PASS"}
+  ],
+  "notes": [
+    "Alur lengkap seluruh jawaban sampai verifikasi diperiksa melalui API; UI diperiksa pada login, petunjuk, pilihan, navigasi, refresh, timer, gambar, dan laporan.",
+    "Sempat terjadi kegagalan memuat aset saat build menimpa folder output proses lama. Setelah build selesai dan proses direstart, halaman kembali normal.",
+    "Label nomor contoh sempat hilang akibat allowlist DTO; field number dan description kemudian dipulihkan."
+  ]
+}
