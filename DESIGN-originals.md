@@ -1,6 +1,6 @@
 # Originals
 
-Originals is an additional PsyEngine theme: a calm assessment workspace with warm off-white surfaces, forest green accents, soft corners, and a persistent desktop sidebar. Studio (`minimax`) remains the default; Corporate (`ibm`) remains available.
+Originals is the default PsyEngine theme: a calm assessment workspace with warm off-white surfaces, forest green accents, soft corners, and a persistent desktop sidebar. Studio (`minimax`) and Corporate (`ibm`) remain available.
 
 ## Use
 

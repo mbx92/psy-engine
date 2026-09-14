@@ -11,7 +11,7 @@ export default defineNuxtConfig({
     head: {
       title: 'PsyEngine',
       htmlAttrs: {
-        'data-theme': 'minimax',
+        'data-theme': 'originals',
       },
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },

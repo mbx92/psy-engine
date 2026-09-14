@@ -1,5 +1,10 @@
 export const DESIGN_THEMES = [
   {
+    id: 'originals',
+    label: 'Originals',
+    description: 'A calmer workspace with warm surfaces, forest green accents, and focused navigation.',
+  },
+  {
     id: 'minimax',
     label: 'Studio',
     description: 'Product-forward surface with pill CTAs and high contrast.',
@@ -9,23 +14,19 @@ export const DESIGN_THEMES = [
     label: 'Corporate',
     description: 'Enterprise psychology surface — square geometry and clinical restraint.',
   },
-  {
-    id: 'originals',
-    label: 'Originals',
-    description: 'A calmer workspace with warm surfaces, forest green accents, and focused navigation.',
-  },
 ]
 
 const THEME_IDS = new Set(DESIGN_THEMES.map((t) => t.id))
 const STORAGE_KEY = 'psy-design-theme'
+const DEFAULT_THEME = 'originals'
 
 function normalizeTheme(value) {
-  return THEME_IDS.has(value) ? value : 'minimax'
+  return THEME_IDS.has(value) ? value : DEFAULT_THEME
 }
 
 export function useDesignTheme() {
   const theme = useCookie(STORAGE_KEY, {
-    default: () => 'minimax',
+    default: () => DEFAULT_THEME,
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 365,
   })
