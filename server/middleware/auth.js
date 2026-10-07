@@ -1,4 +1,6 @@
 export default defineEventHandler((event) => {
+  if (event.method === 'OPTIONS') return
+
   // Skip auth for non-API routes
   if (!event.path?.startsWith('/api/')) return
 

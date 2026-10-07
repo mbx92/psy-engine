@@ -6,6 +6,7 @@ import { getSystemFlags, isSuperadminRole } from '~~/server/utils/systemFlags'
  * Exceptions: login/register (handler checks role) and public app-settings (banner/branding).
  */
 export default defineEventHandler(async (event) => {
+  if (event.method === 'OPTIONS') return
   if (!event.path?.startsWith('/api/')) return
 
   const path = event.path

@@ -49,6 +49,12 @@ export default defineNuxtConfig({
     appManifest: false,
   },
 
+  vite: {
+    server: {
+      allowedHosts: true,
+    },
+  },
+
   nitro: {
     experimental: {
       openAPI: true,
