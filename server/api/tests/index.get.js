@@ -1,4 +1,7 @@
-export default defineEventHandler(async () => {
+import { requirePermission } from '~~/server/utils/access'
+import { PERMISSIONS } from '~~/server/utils/permissions'
+export default defineEventHandler(async (event) => {
+  await requirePermission(event, PERMISSIONS.TESTS_READ)
   const tests = await getAllTests()
   return tests.map(t => ({
     id: t.id,

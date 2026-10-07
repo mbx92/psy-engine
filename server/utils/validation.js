@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { calendarDateSchema } from './input.js'
 
 /** Parse `body` against `schema`; throws a clean 400 on failure, else returns the validated data. */
 export function validateBody(schema, body) {
@@ -11,16 +12,16 @@ export function validateBody(schema, body) {
 }
 
 const uuid = () => z.string().uuid('Must be a valid UUID')
-const dateString = () => z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be a date in YYYY-MM-DD format')
+const dateString = () => calendarDateSchema
 
 // ── Participants ─────────────────────────────────────────────
 export const participantCreateSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  birthDate: dateString(),
+  name: z.string().trim().min(1, 'Name is required').max(255),
+  birthDate: dateString().refine(value => value <= new Date().toISOString().slice(0, 10), 'Birth date cannot be in the future'),
   gender: z.enum(['L', 'P'], { message: "Gender must be 'L' or 'P'" }),
-  phone: z.string().optional().nullable(),
+  phone: z.string().max(50).optional().nullable(),
   email: z.union([z.string().email('Must be a valid email'), z.literal(''), z.null()]).optional(),
-  nik: z.string().optional().nullable(),
+  nik: z.string().max(20).optional().nullable(),
 })
 
 export const participantUpdateSchema = participantCreateSchema.partial()
@@ -63,7 +64,7 @@ export const openInvitationCreateSchema = z.object({
   maxUses: z.union([z.number().int().positive(), z.null()]).optional(),
   expiresAt: z.union([
     z.string().datetime({ offset: true }),
-    z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Must be YYYY-MM-DD'),
+    calendarDateSchema,
     z.literal(''),
     z.null(),
   ]).optional(),

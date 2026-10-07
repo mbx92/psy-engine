@@ -1,0 +1,60 @@
+{
+  "checks": [
+    {
+      "test": "Login desktop (1280×720)",
+      "result": "Form email/password dan tombol Sign In tampil utuh; tidak terlihat masalah tata letak utama."
+    },
+    {
+      "test": "Submit form kosong",
+      "result": "Browser menampilkan 'Please fill out this field' dan memfokuskan email."
+    },
+    {
+      "test": "Kredensial salah",
+      "result": "Server mengembalikan 401 Invalid credentials; UI menampilkan pesan yang sama. Akun awal telah dikoreksi oleh pemilik."
+    },
+    {
+      "test": "Pembatasan percobaan login",
+      "result": "Setelah beberapa percobaan, UI menampilkan Too many attempts, please try again later. Ambang tepat dan reset lintas instance tidak diuji."
+    },
+    {
+      "test": "Halaman admin tanpa sesi",
+      "result": "Navigasi /admin/participants diarahkan ke /login."
+    },
+    {
+      "test": "Login mobile (390×844)",
+      "result": "Setelah reload pada viewport mobile, form tampil utuh. DOM: innerWidth=390, documentWidth=390; tidak ditemukan overflow horizontal pada halaman ini."
+    },
+    {
+      "test": "Undangan tidak valid",
+      "result": "/join/qa-nonexistent-20260914 menampilkan Link Tidak Valid dan penjelasan link tidak valid/nonaktif."
+    },
+    {
+      "test": "Login admin yang dikoreksi",
+      "result": "Berhasil setelah jendela rate-limit berakhir. Dashboard menampilkan tiga jenis tes, nol peserta dan nol sesi."
+    },
+    {
+      "test": "Form peserta",
+      "result": "Modal Add Participant terbuka; submit kosong diblokir validasi required pada Name. Dibatalkan tanpa penyimpanan."
+    },
+    {
+      "test": "Sesi",
+      "result": "Halaman daftar dan tab Completed dapat dibuka. Modal Create Session menonaktifkan tombol pembuatan sebelum tipe tes/peserta dipilih."
+    },
+    {
+      "test": "Reports",
+      "result": "Halaman Periode dan Completion menampilkan kondisi kosong tanpa crash; completion rate 0%, jumlah sesi 0."
+    },
+    {
+      "test": "Monitoring",
+      "result": "Halaman terhubung dan menampilkan waktu sinkron terbaru, filter, serta kondisi nol sesi; sinyal dari peserta nyata belum diuji."
+    },
+    {
+      "test": "Jenis tes, psikogram, pengaturan",
+      "result": "Daftar menampilkan CFIT, PAPI dan EPPS aktif. Psikogram menampilkan kondisi kosong. Settings tersedia sesuai peran, tanpa tab pengelolaan sistem khusus superadmin."
+    },
+    {
+      "test": "Logout dan akses ulang",
+      "result": "Logout mengarahkan ke login; akses /admin/participants setelah logout kembali diarahkan ke login. Pencabutan token server tidak dibuktikan oleh uji UI ini."
+    }
+  ]
+}

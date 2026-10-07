@@ -6,8 +6,9 @@ if [ -z "${DATABASE_URL:-}" ]; then
   exit 1
 fi
 
-if [ -z "${JWT_SECRET:-}" ] || [ "$JWT_SECRET" = "change-me-in-production-use-long-random-string" ]; then
-  echo "[entrypoint] WARNING: set a strong JWT_SECRET for production"
+if [ -z "${JWT_SECRET:-}" ] || [ "${#JWT_SECRET}" -lt 32 ]; then
+  echo "[entrypoint] ERROR: JWT_SECRET must contain at least 32 random characters"
+  exit 1
 fi
 
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
@@ -29,6 +30,10 @@ fi
 if [ "${SEED_ON_BOOT:-true}" != "true" ] && [ "${SEED_TESTS:-false}" = "true" ]; then
   echo "[entrypoint] Seeding test types..."
   node seed/index.js
+fi
+
+if [ "${SEED_CFIT_NORMS:-true}" = "true" ]; then
+  node scripts/seed-cfit-norms.mjs
 fi
 
 echo "[entrypoint] Starting PsyEngine on ${HOST:-0.0.0.0}:${PORT:-3000}"

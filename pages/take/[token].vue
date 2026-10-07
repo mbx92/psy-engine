@@ -422,6 +422,7 @@ function getSelected(optionId) {
 function selectOption(optionId) {
   if (!currentQuestion.value || isInstruction.value) return
   answers.value[currentQuestion.value.id] = optionId
+  saveAnswers()
 }
 
 function showDevNotice(message) {
@@ -561,36 +562,40 @@ function persistSubtestTime() {
   }
 }
 
-function startSubtestCountdown(code, seconds) {
+let clockOffset = 0
+let subtestStarting = false
+function runDeadline(deadlineAt, onTimeout) {
   stopCountdown()
-  activeSubtestCode.value = code
-  timeLeft.value = seconds
-  timeWarning.value = seconds <= 60
+  const deadline = Date.parse(deadlineAt)
+  const tick = () => {
+    timeLeft.value = Math.max(0, Math.ceil((deadline - (Date.now() + clockOffset)) / 1000))
+    timeWarning.value = timeLeft.value <= 60
+    if (timeLeft.value <= 0) { stopCountdown(); onTimeout() }
+  }
   timerRunning.value = true
-  timerInterval.value = setInterval(() => {
-    timeLeft.value--
-    subtestTimers.value[code] = timeLeft.value
-    if (timeLeft.value <= 60) timeWarning.value = true
-    if (timeLeft.value <= 0) {
-      stopCountdown()
-      onSubtestTimeout()
-    }
-  }, 1000)
+  timerInterval.value = setInterval(tick, 1000)
+  tick()
 }
-
-function startGlobalCountdown(totalSec) {
-  stopCountdown()
-  timeLeft.value = totalSec
-  timeWarning.value = totalSec <= 60
-  timerRunning.value = true
-  timerInterval.value = setInterval(() => {
-    timeLeft.value--
-    if (timeLeft.value <= 60) timeWarning.value = true
-    if (timeLeft.value <= 0) {
-      stopCountdown()
-      submitTest()
+async function startSubtestCountdown(code) {
+  if (subtestStarting) return false
+  subtestStarting = true
+  try {
+    const data = await $fetch(`/api/sessions/token/${token}/subtest`, { method: 'PATCH', body: { code } })
+    clockOffset = Date.parse(data.serverTime) - Date.now()
+    activeSubtestCode.value = code
+    if (Date.parse(data.timing.subtests[code].deadlineAt) <= Date.now() + clockOffset) {
+      await onSubtestTimeout()
+      return false
     }
-  }, 1000)
+    runDeadline(data.timing.subtests[code].deadlineAt, onSubtestTimeout)
+    return true
+  } catch (err) {
+    error.value = err?.data?.message || 'Gagal memulai subtes'
+    return false
+  } finally { subtestStarting = false }
+}
+function startGlobalCountdown(totalSec) {
+  runDeadline(new Date(Date.now() + clockOffset + totalSec * 1000).toISOString(), submitTest)
 }
 
 function beginAutoSave() {
@@ -626,30 +631,17 @@ async function onSubtestTimeout() {
   timeWarning.value = false
 }
 
-function continueFromInstruction() {
-  if (!isInstruction.value) return
-  const instruction = currentQuestion.value
-  const subtestCode = instruction.subtestKey || instruction.subtest
-  const instructionLimit = instruction.timeLimit
-
-  if (currentIndex.value < questions.value.length - 1) {
-    currentIndex.value++
-  }
-
-  // Still on an instruction somehow — don't start timer
-  if (currentQuestion.value?.type === 'instruction') return
-
-  const code = currentQuestion.value?.subtestKey || currentQuestion.value?.subtest || subtestCode
-  const st = getSubtestConfig(code)
-  const seconds = subtestTimers.value[code] ?? st?.timeLimit ?? instructionLimit
-  if (hasSubtests.value && seconds > 0) {
-    startSubtestCountdown(code, seconds)
-  }
-  saveAnswers()
+async function continueFromInstruction() {
+  if (!isInstruction.value || subtestStarting) return
+  const code = currentQuestion.value.subtestKey || currentQuestion.value.subtest
+  if (hasSubtests.value && !await startSubtestCountdown(code)) return
+  if (currentIndex.value < questions.value.length - 1) currentIndex.value++
+  await saveAnswers()
 }
 
-function nextQuestion() {
+async function nextQuestion() {
   if (!canProceed.value) return
+  if (!await saveAnswers()) return
   const prevSub = currentQuestion.value?.subtestKey || currentQuestion.value?.subtest
   if (currentIndex.value >= questions.value.length - 1) return
 
@@ -673,7 +665,7 @@ function nextQuestion() {
   ) {
     const st = getSubtestConfig(nextSub)
     const seconds = subtestTimers.value[nextSub] ?? st?.timeLimit
-    if (seconds > 0) startSubtestCountdown(nextSub, seconds)
+    if (seconds > 0) await startSubtestCountdown(nextSub)
   }
 
   saveAnswers()
@@ -688,7 +680,8 @@ async function startTest() {
   if (starting.value) return
   starting.value = true
   try {
-    await $fetch(`/api/sessions/token/${token}/start`, { method: 'PATCH' })
+    const startData = await $fetch(`/api/sessions/token/${token}/start`, { method: 'PATCH' })
+    clockOffset = Date.parse(startData.serverTime) - Date.now()
     status.value = 'in_progress'
     started.value = true
     prepareQuestions()
@@ -700,7 +693,8 @@ async function startTest() {
       stopCountdown()
     } else {
       const totalSec = (config.value?.timeLimit || 0) * 60
-      if (totalSec > 0) startGlobalCountdown(totalSec)
+      if (startData.timing?.deadlineAt) runDeadline(startData.timing.deadlineAt, submitTest)
+      else if (totalSec > 0) startGlobalCountdown(totalSec)
     }
   } catch (err) {
     error.value = err?.data?.message || err?.message || 'Gagal memulai tes'
@@ -709,25 +703,27 @@ async function startTest() {
   }
 }
 
-async function saveAnswers() {
-  saveState.value = 'saving'
-  try {
-    persistSubtestTime()
-    await $fetch(`/api/sessions/token/${token}/answers`, {
-      method: 'PATCH',
-      body: {
-        answers: answers.value,
-        metadata: {
-          subtestTimers: subtestTimers.value,
-          currentQuestionIndex: currentIndex.value,
-          currentSubtest: activeSubtestCode.value,
-        },
-      },
-    })
-    saveState.value = 'saved'
-  } catch {
-    saveState.value = 'error'
-  }
+let saveQueue = Promise.resolve()
+function saveAnswers() {
+  const snapshot = { answers: { ...answers.value }, metadata: { currentQuestionIndex: currentIndex.value } }
+  saveQueue = saveQueue.catch(() => false).then(async () => {
+    saveState.value = 'saving'
+    try {
+      await $fetch(`/api/sessions/token/${token}/answers`, { method: 'PATCH', body: snapshot })
+      saveState.value = 'saved'
+      return true
+    } catch (err) {
+      const detail = err?.data?.data
+      if (detail?.code === 'TIME_LIMIT_EXCEEDED') {
+        answers.value = detail.answers || {}
+        saveState.value = 'saved'
+        return true
+      }
+      saveState.value = 'error'
+      return false
+    }
+  })
+  return saveQueue
 }
 
 async function goToComplete() {
@@ -749,21 +745,18 @@ async function submitTest() {
 
   try {
     await saveAnswers()
-    await $fetch(`/api/sessions/token/${token}/submit`, {
+    const submitted = await $fetch(`/api/sessions/token/${token}/submit`, {
       method: 'POST',
       body: { answers: answers.value },
     })
+    if (!submitted.answersSaved) throw new Error('Jawaban belum tersimpan. Silakan coba lagi.')
     status.value = 'completed'
     await goToComplete()
   } catch (err) {
     const msg = err?.data?.message || err?.message || ''
-    if (/completed|verified/i.test(msg) || err?.statusCode === 400) {
-      status.value = 'completed'
-      await goToComplete()
-      return
-    }
     error.value = msg || 'Gagal mengirim jawaban'
     submitting.value = false
+    beginAutoSave()
   }
 }
 
@@ -801,7 +794,7 @@ function restoreInProgress(session) {
   }
 
   const elapsedSec = session.startedAt
-    ? Math.floor((Date.now() - new Date(session.startedAt).getTime()) / 1000)
+    ? Math.floor((Date.now() + clockOffset - new Date(session.startedAt).getTime()) / 1000)
     : 0
   const totalSec = (config.value?.timeLimit || 0) * 60
   const left = Math.max(totalSec - elapsedSec, 0)
@@ -838,6 +831,7 @@ onMounted(async () => {
 
     const data = await $fetch(`/api/sessions/token/${token}`)
     const session = data.session
+    clockOffset = Date.parse(data.serverTime) - Date.now()
     status.value = session.status
 
     if (['completed', 'verified'].includes(session.status)) {

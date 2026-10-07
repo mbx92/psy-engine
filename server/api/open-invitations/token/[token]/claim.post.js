@@ -9,19 +9,19 @@ import { checkRateLimit } from '~~/server/utils/rateLimit'
 import { validateBody, openInvitationClaimSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
-  checkRateLimit(event, { key: 'open-invite-claim', max: 20, windowMs: 15 * 60 * 1000 })
+  await checkRateLimit(event, 'invitationClaim')
 
   const token = getRouterParam(event, 'token')
   const body = await readBody(event)
   const biodata = validateBody(openInvitationClaimSchema, body)
 
-  const db = useDB()
+  return useDB().transaction(async (db) => {
 
   const [invitation] = await db
     .select()
     .from(openInvitations)
     .where(eq(openInvitations.token, token))
-    .limit(1)
+    .limit(1).for('update')
 
   if (!invitation || !invitation.isActive) {
     throw createError({ statusCode: 404, message: 'Link undangan tidak valid atau sudah dinonaktifkan' })
@@ -117,4 +117,5 @@ export default defineEventHandler(async (event) => {
       })),
     },
   }
+  })
 })

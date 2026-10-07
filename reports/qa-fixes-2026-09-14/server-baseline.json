@@ -1,0 +1,116 @@
+{
+  "at": "2026-09-14T01:32:46.588Z",
+  "base": "http://10.100.10.100:8880",
+  "legacy": true,
+  "created": [
+    {
+      "slug": "cfit-scale-2",
+      "participantId": "f47252b3-22b2-40ca-ba09-2ab3d97cf103",
+      "sessionId": "77ff2e5a-3bcf-4b9b-a232-73f65a55e801",
+      "name": "QA-2026-09-14T01-32-45-705Z cfit-scale-2 SYNTHETIC"
+    },
+    {
+      "slug": "papi-kostick",
+      "participantId": "67335273-9fe3-474a-b994-b1dc75ed1e3a",
+      "sessionId": "1f4c2dc6-6774-4ca9-af5e-dd425727a941",
+      "name": "QA-2026-09-14T01-32-45-705Z papi-kostick SYNTHETIC"
+    },
+    {
+      "slug": "epps",
+      "participantId": "ccecc023-19ae-457e-b760-3ba0d7afa69d",
+      "sessionId": "ceac275a-99cc-4cfc-99d9-dc017a5e189d",
+      "name": "QA-2026-09-14T01-32-45-705Z epps SYNTHETIC"
+    }
+  ],
+  "results": [
+    {
+      "name": "Admin login",
+      "status": "PASS",
+      "role": "admin"
+    },
+    {
+      "name": "cfit-scale-2 participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 autosave/resume",
+      "status": "PASS",
+      "answered": 46,
+      "expected": 46
+    },
+    {
+      "name": "cfit-scale-2 submit",
+      "status": "PASS"
+    },
+    {
+      "name": "cfit-scale-2 raw score and adult IQ",
+      "status": "PASS",
+      "rawScore": 30,
+      "iqScore": 96,
+      "scoringStatus": "legacy"
+    },
+    {
+      "name": "cfit-scale-2 admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick autosave/resume",
+      "status": "PASS",
+      "answered": 90,
+      "expected": 90
+    },
+    {
+      "name": "papi-kostick submit",
+      "status": "PASS"
+    },
+    {
+      "name": "papi-kostick 90 choices counted",
+      "status": "PASS",
+      "dimensionCount": 18
+    },
+    {
+      "name": "papi-kostick admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "epps participant link",
+      "status": "PASS"
+    },
+    {
+      "name": "epps autosave/resume",
+      "status": "PASS",
+      "answered": 225,
+      "expected": 225
+    },
+    {
+      "name": "epps submit",
+      "status": "PASS"
+    },
+    {
+      "name": "epps score structure",
+      "status": "PASS",
+      "dimensionCount": 15,
+      "rawKeys": [
+        "needs",
+        "matrix",
+        "consistency"
+      ]
+    },
+    {
+      "name": "epps admin verification",
+      "status": "PASS"
+    },
+    {
+      "name": "Reports query after synthetic sessions",
+      "status": "PASS"
+    },
+    {
+      "name": "Monitoring after completed sessions",
+      "status": "PASS"
+    }
+  ]
+}

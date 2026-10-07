@@ -13,6 +13,9 @@
         </UiCard>
       </template>
 
+      <p v-if="!loading && session?.scores?.status === 'failed'" role="status" class="rounded-md border border-amber-500/40 p-4 text-sm">
+        Jawaban tersimpan. Hasil sedang menunggu pemeriksaan dan perhitungan ulang oleh administrator.
+      </p>
       <!-- Multi-test: continue to next -->
       <template v-else-if="battery?.nextTakePath">
         <div class="w-full text-center space-y-4">

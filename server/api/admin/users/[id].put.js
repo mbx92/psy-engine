@@ -38,14 +38,18 @@ export default defineEventHandler(async (event) => {
   if (body.isActive !== undefined) updateData.isActive = body.isActive
   updateData.updatedAt = new Date()
 
-  const [updated] = await db.update(users)
+  const updated = await db.transaction(async tx => {
+  const [row] = await tx.update(users)
     .set(updateData)
     .where(eq(users.id, targetId))
     .returning({ id: users.id, email: users.email, name: users.name, role: users.role, isActive: users.isActive })
 
-  if (!updated) {
+  if (!row) {
     throw createError({ statusCode: 404, message: 'User not found' })
   }
 
+  if (body.role !== undefined || body.isActive !== undefined) await revokeUserSessions(targetId, tx)
+  return row
+  })
   return { user: updated }
 })

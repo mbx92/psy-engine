@@ -1,0 +1,183 @@
+
+> test
+> node --test scripts/test-qa-regressions.mjs && node scripts/test-session-monitoring.mjs
+
+TAP version 13
+# Subtest: valid participant and leap day accepted
+ok 1 - valid participant and leap day accepted
+  ---
+  duration_ms: 2.3393
+  type: 'test'
+  ...
+# Subtest: reject invalid/future birth date 2000-02-31
+ok 2 - reject invalid/future birth date 2000-02-31
+  ---
+  duration_ms: 0.4541
+  type: 'test'
+  ...
+# Subtest: reject invalid/future birth date 2001-02-29
+ok 3 - reject invalid/future birth date 2001-02-29
+  ---
+  duration_ms: 0.9162
+  type: 'test'
+  ...
+# Subtest: reject invalid/future birth date 2000-13-01
+ok 4 - reject invalid/future birth date 2000-13-01
+  ---
+  duration_ms: 0.1234
+  type: 'test'
+  ...
+# Subtest: reject invalid/future birth date 2099-01-01
+ok 5 - reject invalid/future birth date 2099-01-01
+  ---
+  duration_ms: 0.1622
+  type: 'test'
+  ...
+# Subtest: reject whitespace name and excessive field length
+ok 6 - reject whitespace name and excessive field length
+  ---
+  duration_ms: 0.3745
+  type: 'test'
+  ...
+# Subtest: invalid filters return 400 {"testTypeId":"bad"}
+ok 7 - invalid filters return 400 {"testTypeId":"bad"}
+  ---
+  duration_ms: 1.0357
+  type: 'test'
+  ...
+# Subtest: invalid filters return 400 {"dateFrom":"not-a-date"}
+ok 8 - invalid filters return 400 {"dateFrom":"not-a-date"}
+  ---
+  duration_ms: 0.0793
+  type: 'test'
+  ...
+# Subtest: invalid filters return 400 {"dateFrom":"2026-02-31"}
+ok 9 - invalid filters return 400 {"dateFrom":"2026-02-31"}
+  ---
+  duration_ms: 0.2306
+  type: 'test'
+  ...
+# Subtest: invalid filters return 400 {"dateFrom":"2026-02-02","dateTo":"2026-02-01"}
+ok 10 - invalid filters return 400 {"dateFrom":"2026-02-02","dateTo":"2026-02-01"}
+  ---
+  duration_ms: 0.2469
+  type: 'test'
+  ...
+# Subtest: participant DTO strips keys and scoring metadata
+ok 11 - participant DTO strips keys and scoring metadata
+  ---
+  duration_ms: 0.3279
+  type: 'test'
+  ...
+# Subtest: invalid answer payload "invalid"
+ok 12 - invalid answer payload "invalid"
+  ---
+  duration_ms: 0.1398
+  type: 'test'
+  ...
+# Subtest: invalid answer payload []
+ok 13 - invalid answer payload []
+  ---
+  duration_ms: 0.0495
+  type: 'test'
+  ...
+# Subtest: invalid answer payload null
+ok 14 - invalid answer payload null
+  ---
+  duration_ms: 0.0358
+  type: 'test'
+  ...
+# Subtest: invalid answer payload {"noSuchQuestion":"a"}
+ok 15 - invalid answer payload {"noSuchQuestion":"a"}
+  ---
+  duration_ms: 0.0612
+  type: 'test'
+  ...
+# Subtest: invalid answer payload {"q1":"wrong"}
+ok 16 - invalid answer payload {"q1":"wrong"}
+  ---
+  duration_ms: 0.1241
+  type: 'test'
+  ...
+# Subtest: invalid answer payload {"q1":{"answer":"a"}}
+ok 17 - invalid answer payload {"q1":{"answer":"a"}}
+  ---
+  duration_ms: 0.054
+  type: 'test'
+  ...
+# Subtest: valid answers accepted
+ok 18 - valid answers accepted
+  ---
+  duration_ms: 0.3335
+  type: 'test'
+  ...
+# Subtest: global deadline rejects late saves and freezes final answers
+ok 19 - global deadline rejects late saves and freezes final answers
+  ---
+  duration_ms: 0.2975
+  type: 'test'
+  ...
+# Subtest: subtest starts are ordered, idempotent and cannot reopen closed work
+ok 20 - subtest starts are ordered, idempotent and cannot reopen closed work
+  ---
+  duration_ms: 0.4516
+  type: 'test'
+  ...
+# Subtest: client cannot overwrite timing/battery metadata
+ok 21 - client cannot overwrite timing/battery metadata
+  ---
+  duration_ms: 0.096
+  type: 'test'
+  ...
+# Subtest: zero weight preserved paired_choice
+ok 22 - zero weight preserved paired_choice
+  ---
+  duration_ms: 0.2089
+  type: 'test'
+  ...
+# Subtest: zero weight preserved dimension_sum
+ok 23 - zero weight preserved dimension_sum
+  ---
+  duration_ms: 0.1524
+  type: 'test'
+  ...
+# Subtest: zero weight preserved likert_average
+ok 24 - zero weight preserved likert_average
+  ---
+  duration_ms: 0.0985
+  type: 'test'
+  ...
+# Subtest: CFIT without norms fails explicitly; supplied fixture norm used exactly
+ok 25 - CFIT without norms fails explicitly; supplied fixture norm used exactly
+  ---
+  duration_ms: 0.2879
+  type: 'test'
+  ...
+# Subtest: failed or empty scores cannot be verified
+ok 26 - failed or empty scores cannot be verified
+  ---
+  duration_ms: 0.0767
+  type: 'test'
+  ...
+# Subtest: ordinary RBAC admin cannot grant system rights, self-edit or modify superadmin
+ok 27 - ordinary RBAC admin cannot grant system rights, self-edit or modify superadmin
+  ---
+  duration_ms: 0.202
+  type: 'test'
+  ...
+# Subtest: production auth fails closed and LAN/HTTPS cookie modes remain HttpOnly
+ok 28 - production auth fails closed and LAN/HTTPS cookie modes remain HttpOnly
+  ---
+  duration_ms: 0.3579
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 153.9337
+Monitoring connection and attention checks passed.

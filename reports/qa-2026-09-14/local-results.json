@@ -1,0 +1,172 @@
+{
+  "at": "2026-09-14T00:48:34.409Z",
+  "method": "Production schema/scoring and submit handler with synthetic in-memory dependencies; no real DB writes",
+  "results": [
+    {
+      "id": "valid participant",
+      "expected": "accepted",
+      "observed": "accepted",
+      "status": "PASS"
+    },
+    {
+      "id": "impossible birth date",
+      "expected": "rejected",
+      "observed": "accepted",
+      "status": "FAIL"
+    },
+    {
+      "id": "invalid month",
+      "expected": "rejected",
+      "observed": "accepted",
+      "status": "FAIL"
+    },
+    {
+      "id": "future birth date",
+      "expected": "rejected",
+      "observed": "accepted",
+      "status": "FAIL"
+    },
+    {
+      "id": "blank name",
+      "expected": "rejected",
+      "observed": "accepted",
+      "status": "FAIL"
+    },
+    {
+      "id": "invalid email",
+      "expected": "rejected",
+      "observed": "rejected",
+      "status": "PASS"
+    },
+    {
+      "id": "invalid gender",
+      "expected": "rejected",
+      "observed": "rejected",
+      "status": "PASS"
+    },
+    {
+      "id": "zero option weight",
+      "expected": 0,
+      "observed": 1,
+      "status": "FAIL"
+    },
+    {
+      "id": "one option weight",
+      "expected": 1,
+      "observed": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "missing IQ norms",
+      "expected": "explicit missing-norm status",
+      "observed": {
+        "raw": {
+          "rawScore": 1,
+          "answered": 1,
+          "maxRawScore": 1,
+          "ageGroup": "13-9_dewasa"
+        },
+        "dimensions": {
+          "total": 1,
+          "rawScore": 1,
+          "iqScore": 130
+        },
+        "interpretation": {
+          "iq": {
+            "label": "—",
+            "description": "IQ 130 (—) · raw 1/1"
+          }
+        }
+      },
+      "status": "FAIL"
+    },
+    {
+      "id": "correct answer count",
+      "expected": 1,
+      "observed": 1,
+      "status": "PASS"
+    },
+    {
+      "id": "expired submission (24h after start)",
+      "expected": "reject invalid or expired submission",
+      "observed": {
+        "response": {
+          "success": true,
+          "result": {
+            "dimensions": {},
+            "interpretation": {}
+          },
+          "battery": null,
+          "nextTakePath": null
+        },
+        "savedStatus": "completed",
+        "storedAnswers": {}
+      },
+      "status": "FAIL"
+    },
+    {
+      "id": "string answers accepted",
+      "expected": "reject invalid or expired submission",
+      "observed": {
+        "response": {
+          "success": true,
+          "result": {
+            "dimensions": {},
+            "interpretation": {}
+          },
+          "battery": null,
+          "nextTakePath": null
+        },
+        "savedStatus": "completed",
+        "storedAnswers": {
+          "0": "i",
+          "1": "n",
+          "2": "v",
+          "3": "a",
+          "4": "l",
+          "5": "i",
+          "6": "d"
+        }
+      },
+      "status": "FAIL"
+    },
+    {
+      "id": "unknown question accepted",
+      "expected": "reject invalid or expired submission",
+      "observed": {
+        "response": {
+          "success": true,
+          "result": {
+            "dimensions": {},
+            "interpretation": {}
+          },
+          "battery": null,
+          "nextTakePath": null
+        },
+        "savedStatus": "completed",
+        "storedAnswers": {
+          "unknown_question": "invalid_option"
+        }
+      },
+      "status": "FAIL"
+    },
+    {
+      "id": "scoring failure marked successful",
+      "expected": "scoring error surfaced, not successful completion",
+      "observed": {
+        "response": {
+          "success": true,
+          "result": {
+            "dimensions": {},
+            "interpretation": {}
+          },
+          "battery": null,
+          "nextTakePath": null
+        },
+        "savedStatus": "completed",
+        "storedAnswers": {}
+      },
+      "status": "FAIL"
+    }
+  ]
+}

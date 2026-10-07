@@ -1,11 +1,11 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   if (event.method === 'OPTIONS') return
 
   // Skip auth for non-API routes
   if (!event.path?.startsWith('/api/')) return
 
   const method = event.method?.toLowerCase() || 'get'
-  const path = event.path
+  const path = event.path.split('?')[0]
 
   // Public: auth endpoints
   if (['/api/auth/login', '/api/auth/register'].some(p => path === p)) return
@@ -13,8 +13,7 @@ export default defineEventHandler((event) => {
   // Public: health / readiness (Coolify, Docker, load balancers)
   if (method === 'get' && (path === '/api/health' || path.startsWith('/api/health?'))) return
 
-  // Public: GET test listing and detail
-  if (method === 'get' && path.startsWith('/api/tests')) return
+  // Test definitions are staff-only; participants use their session link.
 
   // Public: token-based test-taking flow (participant is not a logged-in user)
   if (path.startsWith('/api/sessions/token/')) return
@@ -40,5 +39,7 @@ export default defineEventHandler((event) => {
   }
 
   // Attach user info to event context
-  event.context.auth = payload
+  const auth = await resolveAuthSession(payload)
+  if (!auth) throw createError({ statusCode: 401, message: 'Session expired or revoked' })
+  event.context.auth = auth
 })

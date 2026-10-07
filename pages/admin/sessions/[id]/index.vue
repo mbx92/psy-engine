@@ -441,7 +441,7 @@ const answeredSummary = computed(() => {
 const displayLogs = computed(() => [...logs.value].reverse())
 
 const canAbandon = computed(() => can('sessions:manage') && ['pending', 'in_progress'].includes(session.value?.status))
-const canVerify = computed(() => can('sessions:manage') && session.value?.status === 'completed')
+const canVerify = computed(() => can('sessions:manage') && session.value?.status === 'completed' && session.value?.scores?.status !== 'failed' && !session.value?.scores?.raw?.error && Object.keys(session.value?.scores?.dimensions || {}).length > 0)
 const canDelete = computed(() => can('sessions:manage') && session.value?.status === 'pending')
 
 function appendLog(log) {

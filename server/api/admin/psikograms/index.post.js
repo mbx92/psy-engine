@@ -19,11 +19,12 @@ export default defineEventHandler(async (event) => {
   }
 
   if (body.sessionId) {
-    const [session] = await db.select({ id: sessions.id, participantId: sessions.participantId, status: sessions.status })
+    const [session] = await db.select({ id: sessions.id, participantId: sessions.participantId, status: sessions.status, scores: sessions.scores })
       .from(sessions).where(eq(sessions.id, body.sessionId)).limit(1)
     if (!session) {
       throw createError({ statusCode: 404, message: 'Session not found' })
     }
+    if (session.scores?.status === 'failed' || session.scores?.raw?.error) throw createError({ statusCode: 409, message: 'Scoring must succeed before creating a psikogram' })
     if (session.participantId !== body.participantId) {
       throw createError({ statusCode: 400, message: 'Session does not belong to the specified participant' })
     }
