@@ -77,6 +77,8 @@
 </template>
 
 <script setup>
+import { isInstructionQuestion } from '~~/utils/question'
+
 const props = defineProps({
   modelValue: { type: Array, default: () => [] },
   subtests: { type: Array, default: () => [] },
@@ -101,7 +103,7 @@ const isEppsShape = computed(() => (
 ))
 
 function summarize(q) {
-  if (q.type === 'instruction') return q.title || q.instruction || q.text || 'Instruction'
+  if (isInstructionQuestion(q)) return q.title || q.instruction || q.text || 'Instruction'
   if (q.pair?.A || q.textA !== undefined) {
     const a = q.pair?.A?.text || q.textA || ''
     const b = q.pair?.B?.text || q.textB || ''
@@ -113,7 +115,7 @@ function summarize(q) {
 
 function renumber(list) {
   let n = 1
-  return list.map((q) => (q.type === 'instruction' ? q : { ...q, number: n++ }))
+  return list.map((q) => (isInstructionQuestion(q) ? q : { ...q, number: n++ }))
 }
 
 const dialogOpen = ref(false)

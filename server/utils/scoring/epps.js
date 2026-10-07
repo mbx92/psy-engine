@@ -1,3 +1,4 @@
+import { isInstructionQuestion } from '../../../utils/question.js'
 import { getEppsCategory } from './eppsThresholds.js'
 import {
   EPPS_NEEDS,
@@ -94,7 +95,7 @@ export function scoreEppsMatrix(test, answers, context = {}) {
   // Raw matrix tally: A → row need, B → col need
   const rawNeeds = Object.fromEntries(EPPS_NEEDS.map((n) => [n, 0]))
   for (const q of questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const num = Number(q.number ?? q.id)
     const choice = answerMap[num]
     if (!choice) continue

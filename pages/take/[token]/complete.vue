@@ -13,11 +13,11 @@
         </UiCard>
       </template>
 
-      <p v-if="!loading && session?.scores?.status === 'failed'" role="status" class="rounded-md border border-amber-500/40 p-4 text-sm">
+      <p v-if="!loading && !error && session?.scores?.status === 'failed'" role="status" class="rounded-md border border-amber-500/40 p-4 text-sm">
         Jawaban tersimpan. Hasil sedang menunggu pemeriksaan dan perhitungan ulang oleh administrator.
       </p>
       <!-- Multi-test: continue to next -->
-      <template v-else-if="battery?.nextTakePath">
+      <template v-if="!loading && !error && battery?.nextTakePath">
         <div class="w-full text-center space-y-4">
           <div class="size-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
             <Icon icon="lucide:check" class="size-8 text-primary" />
@@ -84,7 +84,7 @@
       </template>
 
       <!-- Single test / package finished -->
-      <template v-else>
+      <template v-else-if="!loading && !error">
         <div class="w-full text-center space-y-4">
           <div class="size-16 rounded-full bg-emerald-100 dark:bg-emerald-500/15 flex items-center justify-center mx-auto">
             <Icon icon="lucide:party-popper" class="size-8 text-emerald-600 dark:text-emerald-400" />

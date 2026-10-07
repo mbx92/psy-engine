@@ -99,6 +99,7 @@
 </template>
 
 <script setup>
+import { isAnswerableQuestion } from '~~/utils/question'
 import { statusLabel, statusVariant } from '~~/utils/sessionStatus'
 
 definePageMeta({
@@ -144,7 +145,7 @@ const answerRows = computed(() => {
   const showCorrect = algo === 'correct_count' || algo === 'raw_to_iq'
 
   return questions
-    .filter((q) => q.type !== 'instruction')
+    .filter(isAnswerableQuestion)
     .map((q, i) => {
       const answerId = answers[q.id]
       const option = q.options?.find((o) => o.id === answerId)

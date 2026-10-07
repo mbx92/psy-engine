@@ -1,11 +1,15 @@
 import { createError } from 'h3'
+import { isInstructionQuestion } from '../../utils/question.js'
 import { questionOptions } from './participantTest.js'
 export const subtestsFor = test => (test.config?.hasSubtests || test.config?.subtestTimeLimit) ? (test.config?.subtests || []) : []
 export const subtestKey = q => q.subtestKey || q.subtest
 export function validateAnswers(test, answers) {
   if (!answers || typeof answers !== 'object' || Array.isArray(answers)) throw createError({ statusCode: 400, message: 'answers must be an object' })
-  const questions = new Map((test.questions || []).filter(q => q.type !== 'instruction').map(q => [String(q.id), q]))
+  const all = test.questions || []
+  const questions = new Map(all.filter(q => !isInstructionQuestion(q)).map(q => [String(q.id), q]))
+  const instructionIds = new Set(all.filter(isInstructionQuestion).map(q => String(q.id)))
   for (const [key, value] of Object.entries(answers)) {
+    if (instructionIds.has(String(key))) continue
     const q = questions.get(key)
     if (!q || !questionOptions(q).some(o => o.id === value)) throw createError({ statusCode: 400, message: 'Unknown question or invalid answer option' })
   }
@@ -38,8 +42,13 @@ export function mergeTimedAnswers(test, session, incoming, { now = Date.now(), f
   const merged = { ...previous }
   const discarded = []
   for (const [id, value] of Object.entries(incoming)) {
+    const q = questions.get(id)
+    if (isInstructionQuestion(q)) {
+      delete merged[id]
+      continue
+    }
     if (previous[id] === value) continue
-    const sub = subtestKey(questions.get(id))
+    const sub = subtestKey(q)
     const clock = subtestsFor(test).length ? timing.subtests?.[sub] : timing
     const expired = !clock || clock.closedAt || (clock.deadlineAt && now >= Date.parse(clock.deadlineAt))
     if (expired) { discarded.push(id); continue }

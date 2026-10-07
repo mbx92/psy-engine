@@ -1,3 +1,5 @@
+import { isAnswerableQuestion, isInstructionQuestion } from '~~/utils/question'
+
 export function useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState }) {
   let timer, debounce
   let busy = false
@@ -12,9 +14,9 @@ export function useParticipantMonitoring({ token, status, currentIndex, currentQ
         body: {
           currentQuestionIndex: status.value === 'in_progress' ? currentIndex.value : null,
           questionId: currentQuestion.value?.id == null ? null : String(currentQuestion.value.id),
-          questionNumber: currentQuestion.value && currentQuestion.value.type !== 'instruction'
-            ? questions.value.filter(q => q.type !== 'instruction').findIndex(q => q.id === currentQuestion.value.id) + 1 : null,
-          instruction: currentQuestion.value?.type === 'instruction',
+          questionNumber: currentQuestion.value && isAnswerableQuestion(currentQuestion.value)
+            ? questions.value.filter(isAnswerableQuestion).findIndex(q => q.id === currentQuestion.value.id) + 1 : null,
+          instruction: isInstructionQuestion(currentQuestion.value),
           subtest: String(currentQuestion.value?.subtestKey || currentQuestion.value?.subtest || '').slice(0, 100),
           visibility: document.visibilityState === 'hidden' ? 'hidden' : 'visible',
           saveState: saveState.value,

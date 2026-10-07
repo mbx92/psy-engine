@@ -1,6 +1,7 @@
 /**
  * Generic scoring engine — processes answers based on test definition
  */
+import { isInstructionQuestion } from '../../utils/question.js'
 import { scoreEppsMatrix } from './scoring/epps.js'
 
 export function calculateScore(test, answers, context = {}) {
@@ -29,7 +30,7 @@ function scoreCorrectCount(test, answers) {
   const subtestScores = {}
 
   for (const q of test.questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const answer = answers[q.id]
     if (answer == null) continue
 
@@ -67,7 +68,7 @@ function scoreRawToIq(test, answers, context = {}) {
   let answered = 0
 
   for (const q of test.questions) {
-    if (q.type === 'instruction' || !q.answer) continue
+    if (isInstructionQuestion(q) || !q.answer) continue
     const selected = answers[q.id]
     if (selected == null) continue
     answered++
@@ -84,7 +85,7 @@ function scoreRawToIq(test, answers, context = {}) {
   }
 
   const maxRawScore = test.scoringConfig?.maxRawScore
-    || test.questions.filter(q => q.type !== 'instruction' && q.answer).length
+    || test.questions.filter(q => !isInstructionQuestion(q) && q.answer).length
 
   const ageGroup = resolveAgeGroup(
     context.birthDate,
@@ -157,7 +158,7 @@ function scoreDimensionSum(test, answers) {
   const counts = {}
 
   for (const q of test.questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const answer = answers[q.id]
     if (answer == null) continue
 
@@ -189,7 +190,7 @@ function scorePairedChoice(test, answers) {
   const raw = {}
 
   for (const q of test.questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const answer = answers[q.id]
     if (answer == null) continue
 
@@ -215,7 +216,7 @@ function scoreLikertAverage(test, answers) {
   const counts = {}
 
   for (const q of test.questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const answer = answers[q.id]
     if (answer == null) continue
 

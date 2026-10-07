@@ -99,6 +99,7 @@ function convertCFITFromV15(exportData) {
     timeLimit: null, // global timer off — use per-subtest
     allowSkip: exportData.config?.allowSkip ?? true,
     allowBack: exportData.config?.allowBack ?? false,
+    allowNext: exportData.config?.allowNext ?? true,
     randomize: false,
     randomizeQuestions: false,
     hasSubtests: true,

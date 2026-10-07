@@ -227,6 +227,8 @@ async function seed() {
     config: {
       timeLimit: 30,
       allowSkip: true,
+      allowBack: true,
+      allowNext: true,
       randomize: true,
       questionsPerPage: 1,
       instructions: [
@@ -269,6 +271,8 @@ async function seed() {
     config: {
       timeLimit: 20,
       allowSkip: false,
+      allowBack: true,
+      allowNext: true,
       randomize: true,
       questionsPerPage: 1,
       instructions: [
@@ -312,6 +316,8 @@ async function seed() {
     config: {
       timeLimit: 15,
       allowSkip: true,
+      allowBack: true,
+      allowNext: true,
       randomize: true,
       questionsPerPage: 5,
       instructions: [

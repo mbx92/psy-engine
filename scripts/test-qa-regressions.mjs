@@ -25,6 +25,17 @@ test('participant DTO strips keys and scoring metadata', () => {
  const instructions=participantTest({...fixture,questions:[{type:'instruction',examples:[{number:1,description:'Practice',answer:'A'}]}]})
  assert.equal(instructions.questions[0].examples[0].number,1)
  assert.equal(instructions.questions[0].examples[0].description,'Practice')
+ const untyped=participantTest({...fixture,questions:[{
+  id:'series_intro', type:'question', title:'Subtes 1',
+  content:{ intro:'Perhatikan contoh', examples:[{ number:1, imagePath:'/x.png', answer:'A', explanation:'pola' }] },
+  options:['A','B','C','D','E'],
+ }, fixture.questions[0]]})
+ assert.equal(untyped.questions[0].type,'instruction')
+ assert.equal(untyped.questions[0].options.length,0)
+ assert.equal(untyped.questions[0].instruction,'Perhatikan contoh')
+ assert.equal(untyped.questions[0].examples[0].imagePath,'/x.png')
+ assert.equal(untyped.config.allowNext,undefined)
+ assert.doesNotThrow(()=>validateAnswers({...fixture,questions:[{id:'series_intro',title:'Subtes 1',content:{examples:[{number:1}]},options:['A']},fixture.questions[0]]},{q1:'a',series_intro:'A'}))
 })
 for(const answers of ['invalid',[],null,{noSuchQuestion:'a'},{q1:'wrong'},{q1:{answer:'a'}}]) test('invalid answer payload '+JSON.stringify(answers),()=>assert.throws(()=>validateAnswers(fixture,answers),{statusCode:400}))
 test('valid answers accepted',()=>assert.deepEqual(validateAnswers(fixture,{q1:'a'}),{q1:'a'}))
@@ -34,6 +45,18 @@ test('global deadline rejects late saves and freezes final answers',()=>{
  assert.throws(()=>mergeTimedAnswers(fixture,session,{q1:'b'},{now:now+60000}),{statusCode:409})
  assert.deepEqual(mergeTimedAnswers(fixture,session,{q1:'b'},{now:now+60000,finalize:true}),{answers:{q1:'a'},discarded:['q1']})
  assert.equal(mergeTimedAnswers(fixture,session,{q1:'b'},{now:now+59999}).answers.q1,'b')
+})
+test('instruction keys are ignored and do not expire a subtest save',()=>{
+ const f={...fixture,config:{hasSubtests:true,subtests:[{key:'one',timeLimit:10}]},questions:[
+  {id:'intro',type:'instruction',subtestKey:'one',examples:[{number:1}]},
+  {...fixture.questions[0],subtestKey:'one'},
+ ]}
+ const session={startedAt:new Date(now),answers:{},metadata:{timing:initialTiming(f,now)}}
+ assert.doesNotThrow(()=>mergeTimedAnswers(f,session,{intro:'a'},{now}))
+ const started={...session,metadata:{timing:advanceSubtest(f,initialTiming(f,now),'one',now)}}
+ const merged=mergeTimedAnswers(f,started,{intro:'a',q1:'a'},{now})
+ assert.equal(merged.answers.q1,'a')
+ assert.equal(merged.answers.intro,undefined)
 })
 test('subtest starts are ordered, idempotent and cannot reopen closed work',()=>{
  const f={...fixture,config:{hasSubtests:true,subtests:[{key:'one',timeLimit:10},{key:'two',timeLimit:20}]}}

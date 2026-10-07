@@ -142,8 +142,15 @@
                   <h2 class="text-lg font-semibold">{{ currentQuestion.title || currentQuestion.text }}</h2>
                 </div>
                 <p class="text-sm leading-relaxed whitespace-pre-line">
-                  {{ currentQuestion.instruction || 'Baca petunjuk dengan saksama, lalu lanjutkan.' }}
+                  {{ currentQuestion.instruction || currentQuestion.text || 'Baca petunjuk dengan saksama, lalu lanjutkan.' }}
                 </p>
+                <div v-if="currentQuestion.imagePath" class="rounded-xl border bg-white p-2">
+                  <img
+                    :src="currentQuestion.imagePath"
+                    :alt="currentQuestion.title || 'Petunjuk'"
+                    class="w-full h-auto max-h-[360px] object-contain mx-auto"
+                  >
+                </div>
                 <div v-if="currentQuestion.timeLimit" class="rounded-lg bg-muted px-3 py-2 text-sm">
                   Waktu pengerjaan: <span class="font-medium">{{ formatSeconds(currentQuestion.timeLimit) }}</span>
                 </div>
@@ -159,20 +166,22 @@
                 <div v-if="currentQuestion.examples?.length" class="space-y-4">
                   <p class="text-xs font-medium text-muted-foreground">Contoh:</p>
                   <div
-                    v-for="ex in currentQuestion.examples"
-                    :key="ex.number"
+                    v-for="(ex, exIndex) in currentQuestion.examples"
+                    :key="ex.number ?? exIndex"
                     class="space-y-2 rounded-lg border p-3"
                   >
-                    <p class="text-xs font-medium">Contoh {{ ex.number }}</p>
+                    <p class="text-xs font-medium">{{ ex.title || `Contoh ${ex.number ?? exIndex + 1}` }}</p>
                     <img
                       v-if="ex.imagePath"
                       :src="ex.imagePath"
-                      :alt="`Contoh ${ex.number}`"
+                      :alt="ex.title || `Contoh ${ex.number ?? exIndex + 1}`"
                       class="w-full rounded-md border bg-white"
                     >
+                    <p v-if="ex.text" class="text-sm">{{ ex.text }}</p>
                     <p v-if="ex.description" class="text-sm text-muted-foreground">{{ ex.description }}</p>
-                    <p v-if="ex.explanation" class="text-xs">
-                      <span class="font-medium">Jawaban:</span> {{ ex.answer }} — {{ ex.explanation }}
+                    <p v-if="ex.explanation || ex.answer" class="text-xs">
+                      <span class="font-medium">Jawaban:</span>
+                      {{ [ex.answer, ex.explanation].filter(Boolean).join(' — ') }}
                     </p>
                   </div>
                 </div>
@@ -253,7 +262,7 @@
         </div>
         <div class="max-w-lg mx-auto w-full flex gap-3">
           <UiButton
-            v-if="canGoBack"
+            v-if="showPrevious"
             variant="outline"
             class="flex-1 h-12"
             @click="prevQuestion"
@@ -270,7 +279,7 @@
           </UiButton>
 
           <UiButton
-            v-else-if="!isLastQuestion"
+            v-else-if="showNext"
             class="flex-1 h-12"
             :disabled="!canProceed"
             @click="nextQuestion"
@@ -279,7 +288,7 @@
           </UiButton>
 
           <UiButton
-            v-else
+            v-else-if="isLastQuestion"
             class="flex-1 h-12"
             :disabled="!canProceed || submitting"
             @click="submitTest"
@@ -292,6 +301,7 @@
       <div v-if="config?.allowSkip && !isInstruction && !hasCurrentAnswer" class="text-[10px] text-muted-foreground text-center pb-2">
         Lewatkan dulu (belum dijawab)
       </div>
+      <p v-if="submitError" class="text-xs text-center text-destructive pb-2">{{ submitError }}</p>
       <p v-if="devFillNotice" class="text-[10px] text-center text-amber-600 pb-2">{{ devFillNotice }}</p>
     </div>
   </div>
@@ -299,6 +309,7 @@
 
 <script setup>
 import { buildDevAnswers, mergeDevAnswers, pickDevAnswer } from '~~/utils/devFillAnswers'
+import { instructionDisplayFields, isAnswerableQuestion, isInstructionQuestion } from '~~/utils/question'
 import { clearParticipantClientState } from '~~/utils/participantSession'
 import {
   parseSystemAccessError,
@@ -317,6 +328,7 @@ const devToolsEnabled = computed(() => import.meta.dev || !!runtimeConfig.public
 
 const loading = ref(true)
 const error = ref('')
+const submitError = ref('')
 const accessBlocked = ref(null)
 const status = ref('')
 const test = ref(null)
@@ -341,17 +353,22 @@ const devFillNotice = ref('')
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
 useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState })
-const isInstruction = computed(() => currentQuestion.value?.type === 'instruction')
+const isInstruction = computed(() => isInstructionQuestion(currentQuestion.value))
 const hasSubtests = computed(() => !!(config.value?.hasSubtests || config.value?.subtestTimeLimit))
 const questionCount = computed(() =>
-  (test.value?.questions || []).filter((q) => q.type !== 'instruction').length,
+  (test.value?.questions || []).filter(isAnswerableQuestion).length,
 )
 const isLastQuestion = computed(() => currentIndex.value >= questions.value.length - 1)
-const canGoBack = computed(() => {
+const showPrevious = computed(() => {
   if (isInstruction.value) return false
   if (config.value?.allowBack === false || config.value?.subtestProtection) return false
   return currentIndex.value > 0
 })
+const showNext = computed(() => {
+  if (isInstruction.value || isLastQuestion.value) return false
+  return config.value?.allowNext !== false
+})
+const canGoBack = computed(() => showPrevious.value)
 const showTimer = computed(() => {
   if (hasSubtests.value) return timerRunning.value && !isInstruction.value
   return !!config.value?.timeLimit
@@ -365,7 +382,7 @@ const overviewTimeLabel = computed(() => {
   return '—'
 })
 const progressPercent = computed(() => {
-  const answerable = questions.value.filter((q) => q.type !== 'instruction')
+  const answerable = questions.value.filter(isAnswerableQuestion)
   if (!answerable.length) return 0
   if (isInstruction.value) {
     const done = answerable.filter((_, i) => {
@@ -382,9 +399,9 @@ const progressLabel = computed(() => {
   return `Soal ${answerableProgress.value}`
 })
 const answerableProgress = computed(() => {
-  const answerable = questions.value.filter((q) => q.type !== 'instruction')
+  const answerable = questions.value.filter(isAnswerableQuestion)
   const current = currentQuestion.value
-  if (!current || current.type === 'instruction') return '—'
+  if (!current || isInstructionQuestion(current)) return '—'
   const idx = answerable.findIndex((q) => q.id === current.id)
   return `${idx + 1} / ${answerable.length}`
 })
@@ -421,7 +438,12 @@ function getSelected(optionId) {
 
 function selectOption(optionId) {
   if (!currentQuestion.value || isInstruction.value) return
+  const already = answers.value[currentQuestion.value.id] === optionId
   answers.value[currentQuestion.value.id] = optionId
+  if (config.value?.allowNext === false && !isLastQuestion.value) {
+    if (!already) nextQuestion()
+    return
+  }
   saveAnswers()
 }
 
@@ -462,7 +484,7 @@ function devFillAll(mode = 'correct') {
 
 function devJumpToEnd(mode = 'random') {
   devFillAll(mode)
-  const lastAnswerable = questions.value.reduce((last, q, i) => (q.type !== 'instruction' ? i : last), 0)
+  const lastAnswerable = questions.value.reduce((last, q, i) => (isAnswerableQuestion(q) ? i : last), 0)
   currentIndex.value = Math.max(lastAnswerable, questions.value.length - 1)
   saveAnswers()
   showDevNotice(`Dev: ${mode} sampai akhir`)
@@ -485,7 +507,7 @@ function getSubtestConfig(code) {
 
 function prepareQuestions() {
   let qs = [...(test.value.questions || [])].map((q) => normalizeQuestion(q))
-  if ((config.value?.randomize || config.value?.randomizeQuestions) && !qs.some((q) => q.type === 'instruction')) {
+  if ((config.value?.randomize || config.value?.randomizeQuestions) && !qs.some(isInstructionQuestion)) {
     qs = qs.sort(() => Math.random() - 0.5)
   }
   questions.value = qs
@@ -493,13 +515,21 @@ function prepareQuestions() {
 
 function normalizeQuestion(q) {
   if (!q) return q
-  if (q.type === 'instruction') {
+  if (isInstructionQuestion(q)) {
+    const display = instructionDisplayFields(q)
     return {
       ...q,
+      type: 'instruction',
       subtestKey: q.subtestKey || q.subtest,
-      examples: q.examples || [],
-      rules: q.rules || [],
-      warnings: q.warnings || [],
+      title: display.title || q.title,
+      subtitle: display.subtitle || q.subtitle,
+      instruction: display.instruction || q.instruction || q.text,
+      timeLimit: display.timeLimit ?? q.timeLimit,
+      examples: display.examples,
+      rules: display.rules,
+      warnings: display.warnings,
+      imagePath: display.imagePath || q.imagePath,
+      options: [],
     }
   }
   if (Array.isArray(q.options) && q.options.length) {
@@ -610,7 +640,7 @@ function findNextSubtestIndex(fromIndex) {
   while (nextIndex < questions.value.length) {
     const q = questions.value[nextIndex]
     const sub = q.subtestKey || q.subtest
-    if (q.type === 'instruction' || (sub && sub !== currentSub)) return nextIndex
+    if (isInstructionQuestion(q) || (sub && sub !== currentSub)) return nextIndex
     nextIndex++
   }
   return -1
@@ -647,7 +677,7 @@ async function nextQuestion() {
 
   // Leaving a subtest into an instruction: pause & persist timer
   const peek = questions.value[currentIndex.value + 1]
-  if (hasSubtests.value && peek?.type === 'instruction') {
+  if (hasSubtests.value && isInstructionQuestion(peek)) {
     persistSubtestTime()
     stopCountdown()
   }
@@ -658,7 +688,7 @@ async function nextQuestion() {
   // Entering a new subtest question without instruction (edge) — start timer if needed
   if (
     hasSubtests.value
-    && currentQuestion.value?.type !== 'instruction'
+    && !isInstructionQuestion(currentQuestion.value)
     && nextSub
     && nextSub !== prevSub
     && !timerRunning.value
@@ -703,9 +733,20 @@ async function startTest() {
   }
 }
 
+function answerableAnswers() {
+  const out = {}
+  for (const [id, value] of Object.entries(answers.value)) {
+    const q = questions.value.find((item) => String(item.id) === String(id))
+    if (q && isInstructionQuestion(q)) continue
+    if (value === undefined) continue
+    out[id] = value
+  }
+  return out
+}
+
 let saveQueue = Promise.resolve()
 function saveAnswers() {
-  const snapshot = { answers: { ...answers.value }, metadata: { currentQuestionIndex: currentIndex.value } }
+  const snapshot = { answers: answerableAnswers(), metadata: { currentQuestionIndex: currentIndex.value } }
   saveQueue = saveQueue.catch(() => false).then(async () => {
     saveState.value = 'saving'
     try {
@@ -743,18 +784,19 @@ async function submitTest() {
   persistSubtestTime()
   stopTimers()
 
+  submitError.value = ''
   try {
     await saveAnswers()
     const submitted = await $fetch(`/api/sessions/token/${token}/submit`, {
       method: 'POST',
-      body: { answers: answers.value },
+      body: { answers: answerableAnswers() },
     })
     if (!submitted.answersSaved) throw new Error('Jawaban belum tersimpan. Silakan coba lagi.')
     status.value = 'completed'
     await goToComplete()
   } catch (err) {
     const msg = err?.data?.message || err?.message || ''
-    error.value = msg || 'Gagal mengirim jawaban'
+    submitError.value = msg || 'Gagal mengirim jawaban'
     submitting.value = false
     beginAutoSave()
   }
@@ -777,7 +819,7 @@ function restoreInProgress(session) {
 
   if (hasSubtests.value) {
     const q = currentQuestion.value
-    if (q?.type === 'instruction') {
+    if (isInstructionQuestion(q)) {
       stopCountdown()
       return
     }

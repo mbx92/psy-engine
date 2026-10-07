@@ -52,7 +52,11 @@
         </div>
 
         <AdminConfigToggleRow v-model="local.allowSkip" label="Allow skipping questions" />
-        <AdminConfigToggleRow v-model="local.allowBack" label="Allow going back to previous questions" />
+        <AdminConfigToggleRow v-model="local.allowBack" label="Show Previous button" />
+        <AdminConfigToggleRow v-model="local.allowNext" label="Show Next button" />
+        <p class="text-xs text-muted-foreground">
+          When Next is off, choosing an answer advances automatically. Instruction screens still use “I understand”.
+        </p>
         <AdminConfigToggleRow v-model="local.randomize" label="Randomize question order" @update:model-value="mirrorRandomize" />
         <AdminConfigToggleRow v-model="local.showProgress" label="Show progress bar" />
         <AdminConfigToggleRow v-model="local.autoSubmitOnTimeout" label="Auto-submit when time runs out" />
@@ -172,7 +176,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const KNOWN_KEYS = [
-  'timeLimit', 'questionsPerPage', 'allowSkip', 'allowBack', 'randomize', 'randomizeQuestions',
+  'timeLimit', 'questionsPerPage', 'allowSkip', 'allowBack', 'allowNext', 'randomize', 'randomizeQuestions',
   'showProgress', 'autoSubmitOnTimeout', 'requiresAge', 'requiresBirthDate',
   'hasSubtests', 'subtestTimeLimit', 'subtestProtection', 'totalQuestions',
   'instructions', 'instructionText', 'subtests',
@@ -189,6 +193,8 @@ function normalize(src) {
   if (c.timeLimit === undefined) c.timeLimit = null
   if (c.questionsPerPage === undefined) c.questionsPerPage = 1
   if (c.totalQuestions === undefined) c.totalQuestions = null
+  if (c.allowBack === undefined) c.allowBack = true
+  if (c.allowNext === undefined) c.allowNext = true
   if (c.instructionText === undefined) c.instructionText = ''
   if (!Array.isArray(c.instructions)) c.instructions = []
   if (!Array.isArray(c.subtests)) c.subtests = []

@@ -1,6 +1,7 @@
 /**
  * Dev-only helpers to auto-fill test answers (CFIT, PAPI, EPPS, etc.)
  */
+import { isInstructionQuestion } from '~~/utils/question'
 
 function normalizeOptionId(option, questionId, index) {
   if (!option) return null
@@ -28,7 +29,7 @@ function normalizeOptions(question) {
 
 /** Resolve answerable question list (skip instructions). */
 export function getAnswerableQuestions(questions) {
-  return (questions || []).filter((q) => q && q.type !== 'instruction')
+  return (questions || []).filter((q) => q && !isInstructionQuestion(q))
 }
 
 /**
@@ -36,7 +37,7 @@ export function getAnswerableQuestions(questions) {
  * @param {'first'|'random'|'correct'} mode
  */
 export function pickDevAnswer(question, mode = 'first') {
-  if (!question || question.type === 'instruction') return null
+  if (!question || isInstructionQuestion(question)) return null
 
   let options = question.options
   if (!Array.isArray(options) || !options.length) {

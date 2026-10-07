@@ -96,7 +96,7 @@ const form = reactive({
   isActive: true,
 })
 
-const config = ref({ timeLimit: 20, allowSkip: false, randomize: true, questionsPerPage: 1, instructions: [] })
+const config = ref({ timeLimit: 20, allowSkip: false, allowBack: true, allowNext: true, randomize: true, questionsPerPage: 1, instructions: [] })
 const questions = ref([])
 const scoringConfig = ref({ algorithm: 'correct_count', dimensions: [], interpretations: {} })
 

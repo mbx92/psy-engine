@@ -1,3 +1,5 @@
+import { instructionDisplayFields, isInstructionQuestion } from '../../utils/question.js'
+
 // Allowlist the participant DTO: scoring keys must never leave staff endpoints.
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]))
 export function questionOptions(q) {
@@ -9,14 +11,28 @@ export function questionOptions(q) {
   return []
 }
 export function participantTest(test) {
-  const config = pick(test.config, ['allowBack','allowSkip','randomize','randomizeQuestions','timeLimit','hasSubtests','requiresAge','requiresBirthDate','showProgress','totalQuestions','instructionText','instructions','questionsPerPage','subtestTimeLimit','subtestProtection','autoSubmitOnTimeout'])
+  const config = pick(test.config, ['allowBack','allowNext','allowSkip','randomize','randomizeQuestions','timeLimit','hasSubtests','requiresAge','requiresBirthDate','showProgress','totalQuestions','instructionText','instructions','questionsPerPage','subtestTimeLimit','subtestProtection','autoSubmitOnTimeout'])
   config.subtests = (test.config?.subtests || []).map(s => pick(s, ['key','code','name','label','title','description','questionCount','timeLimit']))
   return {
     ...pick(test, ['id','name','slug','type','description']), config,
-    questions: (test.questions || []).map(q => ({
-      ...pick(q, ['id','type','text','number','imagePath','subtestKey','subtest','title','subtitle','instruction','timeLimit','rules','warnings']),
-      ...(q.type === 'instruction' ? { examples: (q.examples || []).map(e => pick(e, ['number','description','text','imagePath','answer','explanation','title'])) } : {}),
-      options: questionOptions(q).map(o => pick(o, ['id','text','label','value','imagePath'])),
-    })),
+    questions: (test.questions || []).map(q => {
+      const instruction = isInstructionQuestion(q)
+      const display = instruction ? instructionDisplayFields(q) : null
+      return {
+        ...pick(q, ['id','type','text','number','imagePath','subtestKey','subtest','title','subtitle','instruction','timeLimit','rules','warnings']),
+        type: instruction ? 'instruction' : q.type,
+        ...(instruction ? {
+          title: display.title || q.title,
+          subtitle: display.subtitle || q.subtitle,
+          instruction: display.instruction || q.instruction,
+          timeLimit: display.timeLimit ?? q.timeLimit,
+          rules: display.rules,
+          warnings: display.warnings,
+          imagePath: display.imagePath || q.imagePath,
+          examples: display.examples.map(e => pick(e, ['number','description','text','imagePath','answer','explanation','title'])),
+        } : {}),
+        options: instruction ? [] : questionOptions(q).map(o => pick(o, ['id','text','label','value','imagePath'])),
+      }
+    }),
   }
 }

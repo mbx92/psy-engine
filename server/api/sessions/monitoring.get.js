@@ -19,7 +19,13 @@ export default defineEventHandler(async (event) => {
     startedAt: sessions.startedAt, completedAt: sessions.completedAt, lastActivity: sessions.lastActivity,
     monitoring: sql`${sessions.metadata}->'monitoring'`,
     answeredCount: sql`(select count(*)::int from jsonb_object_keys(coalesce(${sessions.answers}, '{}'::jsonb)))`,
-    totalQuestions: sql`(select count(*)::int from jsonb_array_elements(${testTypes.questions}) q where q->>'type' is distinct from 'instruction')`,
+    totalQuestions: sql`(select count(*)::int from jsonb_array_elements(${testTypes.questions}) q
+      where coalesce(q->>'type','') not in ('instruction','intro','petunjuk')
+      and not (
+        (jsonb_typeof(q->'examples') = 'array' and jsonb_array_length(q->'examples') > 0)
+        or (jsonb_typeof(q#>'{content,examples}') = 'array' and jsonb_array_length(q#>'{content,examples}') > 0)
+      )
+      and coalesce(q->>'id','') !~* '(instruk|petunjuk|intro|contoh)')`,
   }).from(sessions)
     .innerJoin(participants, eq(sessions.participantId, participants.id))
     .innerJoin(testTypes, eq(sessions.testTypeId, testTypes.id))

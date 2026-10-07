@@ -1,3 +1,5 @@
+import { isInstructionQuestion } from './question.js'
+
 export const EPPS_NEEDS = [
   'ach', 'def', 'ord', 'exh', 'aut',
   'aff', 'int', 'suc', 'dom', 'aba',
@@ -93,7 +95,7 @@ export function buildEppsAnswerBlocks(session) {
   const byNumber = new Map()
 
   for (const q of questions) {
-    if (q.type === 'instruction') continue
+    if (isInstructionQuestion(q)) continue
     const num = Number(q.number ?? q.id)
     if (!Number.isFinite(num)) continue
     const raw = answers[q.id] ?? answers[String(q.id)] ?? answers[num] ?? answers[String(num)]

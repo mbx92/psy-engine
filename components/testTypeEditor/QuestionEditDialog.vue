@@ -33,6 +33,7 @@
 </template>
 
 <script setup>
+import { isInstructionQuestion } from '~~/utils/question'
 import InstructionQuestionForm from '@/components/testTypeEditor/InstructionQuestionForm.vue'
 import ImageChoiceQuestionForm from '@/components/testTypeEditor/ImageChoiceQuestionForm.vue'
 import PairedChoiceQuestionForm from '@/components/testTypeEditor/PairedChoiceQuestionForm.vue'
@@ -50,7 +51,7 @@ const isNew = computed(() => !props.item)
 
 function kindOf(item) {
   if (!item) return props.initialKind || 'instruction'
-  if (item.type === 'instruction') return 'instruction'
+  if (isInstructionQuestion(item)) return 'instruction'
   if (item.pair?.A || item.textA !== undefined) return 'paired_choice'
   if (item.imagePath || item.type === 'image_choice' || item.type === 'question') return 'image_choice'
   return 'simple_choice'
