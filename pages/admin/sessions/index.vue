@@ -93,14 +93,28 @@
           <span v-else class="text-xs text-muted-foreground">—</span>
         </template>
         <template #cell-actions="{ row }">
-          <NuxtLink
-            :to="`/admin/sessions/${row.id}`"
-            class="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-md text-xs font-medium hover:bg-accent hover:text-accent-foreground"
-            @click.stop
-          >
-            <Icon icon="lucide:eye" class="size-3.5" />
-            <span class="hidden md:inline">View</span>
-          </NuxtLink>
+          <div class="flex items-center justify-end gap-1" @click.stop>
+            <UiButton
+              v-if="canTerminate(row)"
+              type="button"
+              variant="outline"
+              size="sm"
+              class="h-8 px-2 text-destructive"
+              :disabled="!!terminatingId"
+              title="Hentikan sesi"
+              @click.stop.prevent="askTerminate(row)"
+            >
+              <Icon icon="lucide:ban" class="size-3.5" />
+              <span class="hidden lg:inline ml-1">Hentikan</span>
+            </UiButton>
+            <NuxtLink
+              :to="`/admin/sessions/${row.id}`"
+              class="inline-flex items-center justify-center gap-1 h-8 px-3 rounded-md text-xs font-medium hover:bg-accent hover:text-accent-foreground"
+            >
+              <Icon icon="lucide:eye" class="size-3.5" />
+              <span class="hidden md:inline">View</span>
+            </NuxtLink>
+          </div>
         </template>
       </UiResponsiveTable>
 
@@ -394,6 +408,25 @@
         </UiDialogFooter>
       </UiDialogContent>
     </UiDialog>
+
+    <UiDialog v-model:open="showTerminate">
+      <UiDialogContent class="sm:max-w-md">
+        <UiDialogHeader>
+          <UiDialogTitle>Hentikan sesi ini?</UiDialogTitle>
+          <UiDialogDescription>
+            {{ terminateTarget?.status === 'in_progress'
+              ? `Sesi ${terminateTarget?.participantName || 'peserta'} sedang berjalan. Peserta akan kehilangan akses dan tidak bisa melanjutkan.`
+              : `Undangan untuk ${terminateTarget?.participantName || 'peserta'} akan dinonaktifkan.` }}
+          </UiDialogDescription>
+        </UiDialogHeader>
+        <UiDialogFooter>
+          <UiButton type="button" variant="outline" :disabled="!!terminatingId" @click="showTerminate = false">Batal</UiButton>
+          <UiButton type="button" variant="destructive" :disabled="!!terminatingId" @click="terminateSession">
+            {{ terminatingId ? 'Menghentikan...' : 'Hentikan sesi' }}
+          </UiButton>
+        </UiDialogFooter>
+      </UiDialogContent>
+    </UiDialog>
   </div>
 </template>
 
@@ -414,11 +447,44 @@ const columns = [
   { key: 'status', label: 'Status', headClass: 'hidden sm:table-cell', showOnMobile: false },
   { key: 'created', label: 'Created', headClass: 'hidden lg:table-cell', showOnMobile: false },
   { key: 'invite', label: 'Invitation link', headClass: 'hidden md:table-cell', cellClass: 'hidden md:table-cell', mobileLabel: 'Invite' },
-  { key: 'actions', label: '', headClass: 'w-28', mobileLabel: '' },
+  { key: 'actions', label: '', headClass: 'w-40', mobileLabel: '' },
 ]
 
 const copiedId = ref('')
+const terminatingId = ref('')
+const showTerminate = ref(false)
+const terminateTarget = ref(null)
 let copiedTimer = null
+
+function canTerminate(row) {
+  return can('sessions:manage') && ['pending', 'in_progress'].includes(row?.status)
+}
+
+function askTerminate(row) {
+  if (!row?.id || terminatingId.value) return
+  terminateTarget.value = row
+  showTerminate.value = true
+}
+
+async function terminateSession() {
+  const row = terminateTarget.value
+  if (!row?.id || terminatingId.value) return
+  terminatingId.value = row.id
+  try {
+    await $fetch(`/api/sessions/${row.id}/terminate`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    })
+    showTerminate.value = false
+    terminateTarget.value = null
+    toast.success('Sesi dihentikan')
+    await loadSessions()
+  } catch (err) {
+    toast.error(err?.data?.message || err?.message || 'Gagal menghentikan sesi')
+  } finally {
+    terminatingId.value = ''
+  }
+}
 
 function shortToken(token) {
   if (!token) return ''

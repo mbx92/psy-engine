@@ -1,5 +1,5 @@
 import { createError } from 'h3'
-import { isInstructionQuestion } from '../../utils/question.js'
+import { isInstructionQuestion } from '~~/utils/question'
 import { questionOptions } from './participantTest.js'
 export const subtestsFor = test => (test.config?.hasSubtests || test.config?.subtestTimeLimit) ? (test.config?.subtests || []) : []
 export const subtestKey = q => q.subtestKey || q.subtest

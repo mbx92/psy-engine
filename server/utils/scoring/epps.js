@@ -1,4 +1,4 @@
-import { isInstructionQuestion } from '../../../utils/question.js'
+import { isInstructionQuestion } from '~~/utils/question'
 import { getEppsCategory } from './eppsThresholds.js'
 import {
   EPPS_NEEDS,
@@ -7,7 +7,7 @@ import {
   EPPS_ROW_GROUP_LABELS,
   EPPS_EXCLUDED_DIAGONAL,
   getBlockMatrix,
-} from '../../../utils/eppsConstants.js'
+} from '~~/utils/eppsConstants'
 
 export { EPPS_NEEDS, EPPS_NEED_LABELS, EPPS_INDEX_TO_NEED, getBlockMatrix }
 

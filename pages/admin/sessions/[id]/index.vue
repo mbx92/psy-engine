@@ -41,9 +41,16 @@
               Full report
             </NuxtLink>
           </UiButton>
-          <UiButton v-if="canAbandon" variant="outline" size="sm" class="text-destructive" @click="abandonSession">
+          <UiButton
+            v-if="canTerminate"
+            variant="outline"
+            size="sm"
+            class="text-destructive"
+            :disabled="terminateLoading"
+            @click="showTerminate = true"
+          >
             <Icon icon="lucide:ban" class="size-4 mr-1" />
-            Abandon
+            Hentikan sesi
           </UiButton>
           <UiButton v-if="canVerify" size="sm" @click="showVerify = true">
             <Icon icon="lucide:shield-check" class="size-4 mr-1" />
@@ -256,6 +263,24 @@
     </template>
 
     <ClientOnly>
+      <UiDialog v-model:open="showTerminate">
+        <UiDialogContent class="sm:max-w-md">
+          <UiDialogHeader>
+            <UiDialogTitle>Hentikan sesi ini?</UiDialogTitle>
+            <UiDialogDescription>
+              {{ session?.status === 'in_progress'
+                ? 'Peserta yang sedang mengerjakan akan kehilangan akses. Jawaban tersimpan tetap ada, tetapi sesi tidak bisa dilanjutkan.'
+                : 'Undangan akan dinonaktifkan dan sesi tidak bisa dimulai. Tindakan ini tidak dapat dibatalkan.' }}
+            </UiDialogDescription>
+          </UiDialogHeader>
+          <UiDialogFooter>
+            <UiButton type="button" variant="outline" :disabled="terminateLoading" @click="showTerminate = false">Batal</UiButton>
+            <UiButton type="button" variant="destructive" :disabled="terminateLoading" @click="terminateSession">
+              {{ terminateLoading ? 'Menghentikan...' : 'Hentikan sesi' }}
+            </UiButton>
+          </UiDialogFooter>
+        </UiDialogContent>
+      </UiDialog>
       <UiDialog v-model:open="showVerify">
         <UiDialogContent class="sm:max-w-md">
           <UiDialogHeader>
@@ -317,7 +342,7 @@ const EVENT_LABELS = {
   answer_saved: 'Answers auto-saving',
   answer_progress: 'Answer progress',
   test_completed: 'Test submitted',
-  session_abandoned: 'Abandoned',
+  session_abandoned: 'Session terminated',
   session_verified: 'Verified by admin',
   scoring_failed: 'Scoring failed',
 }
@@ -440,7 +465,7 @@ const answeredSummary = computed(() => {
 
 const displayLogs = computed(() => [...logs.value].reverse())
 
-const canAbandon = computed(() => can('sessions:manage') && ['pending', 'in_progress'].includes(session.value?.status))
+const canTerminate = computed(() => can('sessions:manage') && ['pending', 'in_progress'].includes(session.value?.status))
 const canVerify = computed(() => can('sessions:manage') && session.value?.status === 'completed' && session.value?.scores?.status !== 'failed' && !session.value?.scores?.raw?.error && Object.keys(session.value?.scores?.dimensions || {}).length > 0)
 const canDelete = computed(() => can('sessions:manage') && session.value?.status === 'pending')
 
@@ -574,25 +599,25 @@ async function copyInvite() {
   }
 }
 
-async function abandonSession() {
-  const ok = await confirm({
-    title: 'Abandon this session?',
-    description: 'This cannot be undone.',
-    confirmLabel: 'Abandon',
-    variant: 'destructive',
-  })
-  if (!ok) return
+const showTerminate = ref(false)
+const terminateLoading = ref(false)
 
+async function terminateSession() {
+  if (terminateLoading.value) return
+  terminateLoading.value = true
   try {
-    await $fetch(`/api/sessions/${route.params.id}/status`, {
-      method: 'PATCH',
-      body: { status: 'abandoned' },
+    const data = await $fetch(`/api/sessions/${route.params.id}/terminate`, {
+      method: 'POST',
       headers: getAuthHeaders(),
     })
-    toast.success('Session abandoned')
-    await loadSession()
+    if (data?.session) session.value = { ...session.value, ...data.session }
+    showTerminate.value = false
+    toast.success('Sesi dihentikan')
+    await loadSession({ silent: true })
   } catch (err) {
-    toast.error(err?.data?.message || 'Failed to abandon session')
+    toast.error(err?.data?.message || err?.message || 'Gagal menghentikan sesi')
+  } finally {
+    terminateLoading.value = false
   }
 }
 

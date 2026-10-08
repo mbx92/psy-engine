@@ -1,4 +1,4 @@
-import { instructionDisplayFields, isInstructionQuestion } from '../../utils/question.js'
+import { instructionDisplayFields, isInstructionQuestion } from '~~/utils/question'
 
 // Allowlist the participant DTO: scoring keys must never leave staff endpoints.
 const pick = (value, keys) => Object.fromEntries(keys.filter(k => value?.[k] !== undefined).map(k => [k, value[k]]))

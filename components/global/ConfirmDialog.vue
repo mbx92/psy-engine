@@ -39,6 +39,6 @@ function respond(result) {
 }
 
 function onOpenChange(open) {
-  if (!open) respond(false)
+  if (!open && state.open) respond(false)
 }
 </script>

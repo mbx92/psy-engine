@@ -4,6 +4,7 @@ import { sessions } from '~~/db/schema/sessions'
 import { PERMISSIONS } from '~~/server/utils/permissions'
 import { requirePermission } from '~~/server/utils/access'
 import { canTransition, logSessionEvent } from '~~/server/utils/sessionLifecycle'
+import { publishSessionEvent } from '~~/server/utils/sessionLogBus'
 import { validateBody, sessionStatusPatchSchema } from '~~/server/utils/validation'
 
 export default defineEventHandler(async (event) => {
@@ -35,7 +36,16 @@ export default defineEventHandler(async (event) => {
   const [updated] = await db.update(sessions).set(updateData).where(eq(sessions.id, id)).returning()
 
   const eventType = status === 'verified' ? 'session_verified' : status === 'abandoned' ? 'session_abandoned' : `session_${status}`
-  await logSessionEvent(db, id, eventType, `Status changed from ${session.status} to ${status} by admin`, notes ? { notes } : {})
+  const message = status === 'abandoned'
+    ? `Session terminated by admin (was ${session.status})`
+    : `Status changed from ${session.status} to ${status} by admin`
+  await logSessionEvent(db, id, eventType, message, notes ? { notes } : {})
+  publishSessionEvent(id, {
+    type: 'progress',
+    status,
+    answeredCount: Object.keys(updated.answers || {}).length,
+    lastActivity: updated.lastActivity,
+  })
 
   return { session: updated }
 })

@@ -12,6 +12,12 @@ const props = defineProps({
 const items = computed(() => props.data ?? [])
 
 const emits = defineEmits(['select'])
+
+function onSelect(event, row) {
+  if (event?.defaultPrevented) return
+  if (event?.target?.closest?.('button, a, input, textarea, select, [role="button"]')) return
+  emits('select', row)
+}
 </script>
 
 <template>
@@ -22,7 +28,7 @@ const emits = defineEmits(['select'])
         v-for="row in items"
         :key="row[itemKey]"
         class="rounded-lg border bg-card p-4 space-y-3"
-        @click="emits('select', row)"
+        @click="onSelect($event, row)"
       >
         <div
           v-for="col in columns"
@@ -72,7 +78,7 @@ const emits = defineEmits(['select'])
               <UiTableRow
                 v-for="row in items"
                 :key="row[itemKey]"
-                @click="emits('select', row)"
+                @click="onSelect($event, row)"
               >
                 <UiTableCell
                   v-for="col in columns"

@@ -1,4 +1,4 @@
-import { nextTick, reactive } from 'vue'
+import { reactive } from 'vue'
 
 // Single shared piece of state driving one globally-mounted <ConfirmDialog />
 // (see app/app.vue). This is a client-only interaction (always triggered from
@@ -44,9 +44,9 @@ export function useConfirm() {
 
       // Open after the triggering click finishes so Reka Dialog doesn't treat
       // that same pointer event as an outside-dismiss.
-      nextTick(() => {
-        state.open = true
-      })
+      setTimeout(() => {
+        if (state.resolve === resolve) state.open = true
+      }, 0)
     })
   }
 

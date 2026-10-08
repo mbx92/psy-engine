@@ -30,8 +30,8 @@
     <div v-else-if="status === 'abandoned'" class="flex-1 flex items-center justify-center p-4">
       <UiCard class="w-full max-w-sm text-center">
         <UiCardHeader>
-          <UiCardTitle class="text-destructive">Link Undangan Kedaluwarsa</UiCardTitle>
-          <UiCardDescription>Sesi ini sudah tidak aktif karena melebihi batas waktu. Hubungi admin untuk undangan baru.</UiCardDescription>
+          <UiCardTitle class="text-destructive">Sesi Dihentikan</UiCardTitle>
+          <UiCardDescription>Sesi tes ini sudah tidak aktif. Hubungi admin jika membutuhkan undangan baru.</UiCardDescription>
         </UiCardHeader>
       </UiCard>
     </div>
@@ -352,7 +352,21 @@ const timerRunning = ref(false)
 const devFillNotice = ref('')
 
 const currentQuestion = computed(() => questions.value[currentIndex.value])
-useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState })
+
+function handleSessionEnded() {
+  if (['completed', 'verified', 'abandoned'].includes(status.value)) return
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+    timerInterval.value = null
+  }
+  if (autoSaveInterval.value) {
+    clearInterval(autoSaveInterval.value)
+    autoSaveInterval.value = null
+  }
+  status.value = 'abandoned'
+}
+
+useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState, onEnded: handleSessionEnded })
 const isInstruction = computed(() => isInstructionQuestion(currentQuestion.value))
 const hasSubtests = computed(() => !!(config.value?.hasSubtests || config.value?.subtestTimeLimit))
 const questionCount = computed(() =>
@@ -759,6 +773,10 @@ function saveAnswers() {
         answers.value = detail.answers || {}
         saveState.value = 'saved'
         return true
+      }
+      if (err?.statusCode === 409 || err?.data?.statusCode === 409) {
+        handleSessionEnded()
+        return false
       }
       saveState.value = 'error'
       return false

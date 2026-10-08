@@ -1,6 +1,6 @@
 import { isAnswerableQuestion, isInstructionQuestion } from '~~/utils/question'
 
-export function useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState }) {
+export function useParticipantMonitoring({ token, status, currentIndex, currentQuestion, questions, saveState, onEnded }) {
   let timer, debounce
   let busy = false
   let stopped = false
@@ -22,7 +22,10 @@ export function useParticipantMonitoring({ token, status, currentIndex, currentQ
           saveState: saveState.value,
         },
       })
-      if (result.ended) stopped = true
+      if (result.ended) {
+        stopped = true
+        onEnded?.()
+      }
     } catch { /* The next heartbeat retries without interrupting the assessment. */ }
     finally { busy = false }
   }

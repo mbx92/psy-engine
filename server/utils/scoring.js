@@ -1,7 +1,7 @@
 /**
  * Generic scoring engine — processes answers based on test definition
  */
-import { isInstructionQuestion } from '../../utils/question.js'
+import { isInstructionQuestion } from '~~/utils/question'
 import { scoreEppsMatrix } from './scoring/epps.js'
 
 export function calculateScore(test, answers, context = {}) {
