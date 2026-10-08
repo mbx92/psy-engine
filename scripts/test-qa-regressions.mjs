@@ -75,6 +75,12 @@ test('CFIT without norms fails explicitly; supplied fixture norm used exactly',(
  assert.throws(()=>calculateScore(f,{q1:'a'}),/norms/)
  const norms={adult:{ageMonthsStart:0,ageMonthsEnd:2000,norms:[{rawScore:1,iqScore:101,classification:'QA fixture'}]}}
  assert.equal(calculateScore(f,{q1:'a'},{birthDate:'2000-01-01',assessmentDate:'2026-01-01',norms}).dimensions.iqScore,101)
+ const nested={ageGroups:norms}
+ assert.equal(calculateScore(f,{q1:'a'},{birthDate:'2000-01-01',assessmentDate:'2026-01-01',norms:nested}).dimensions.iqScore,101)
+ const floor={adult:{ageMonthsStart:0,ageMonthsEnd:2000,norms:[{rawScore:14,iqScore:57},{rawScore:15,iqScore:62}]}}
+ const low=calculateScore({...fixture,scoringConfig:{algorithm:'raw_to_iq',maxRawScore:12}},{q1:'a'},{birthDate:'1992-10-27',assessmentDate:'2026-01-01',norms:floor})
+ assert.equal(low.dimensions.iqScore,57)
+ assert.equal(low.raw.normRawScore,14)
 })
 test('failed or empty scores cannot be verified',()=>{
  assert.equal(hasUsableScores({scores:{status:'failed',dimensions:{x:1}}}),false)

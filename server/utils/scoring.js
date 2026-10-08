@@ -68,35 +68,33 @@ function scoreRawToIq(test, answers, context = {}) {
   let answered = 0
 
   for (const q of test.questions) {
-    if (isInstructionQuestion(q) || !q.answer) continue
-    const selected = answers[q.id]
+    if (isInstructionQuestion(q) || !isScoredQuestion(q)) continue
+    const selected = answers[q.id] ?? answers[String(q.id)]
     if (selected == null) continue
     answered++
 
-    const selectedOpt = q.options?.find(o => o.id === selected)
-    const selectedValue = (selectedOpt?.value || selectedOpt?.label || selected || '').toString().toUpperCase()
-    const correct = q.answer.toString().toUpperCase()
     const key = q.subtestKey || q.subtest || 'total'
     if (subtestScores[key] === undefined) subtestScores[key] = 0
-    if (selectedValue === correct) {
+    if (isCorrectChoice(q, selected)) {
       rawScore++
       subtestScores[key]++
     }
   }
 
   const maxRawScore = test.scoringConfig?.maxRawScore
-    || test.questions.filter(q => !isInstructionQuestion(q) && q.answer).length
+    || test.questions.filter(q => !isInstructionQuestion(q) && isScoredQuestion(q)).length
 
+  const norms = unwrapIqNorms(context.norms)
   const ageGroup = resolveAgeGroup(
     context.birthDate,
-    context.norms,
+    norms,
     test.scoringConfig?.defaultAgeGroup || '13-9_dewasa',
     context.assessmentDate,
   )
-  const { iqScore, classification } = convertRawToIq(rawScore, ageGroup, context.norms, test.scoringConfig)
+  const { iqScore, classification, normRawScore } = convertRawToIq(rawScore, ageGroup, norms, test.scoringConfig)
 
   return {
-    raw: { rawScore, answered, maxRawScore, ageGroup },
+    raw: { rawScore, answered, maxRawScore, ageGroup, ...(normRawScore !== rawScore ? { normRawScore } : {}) },
     dimensions: {
       ...subtestScores,
       rawScore,
@@ -111,6 +109,33 @@ function scoreRawToIq(test, answers, context = {}) {
   }
 }
 
+function unwrapIqNorms(norms) {
+  if (!norms || typeof norms !== 'object' || Array.isArray(norms)) return null
+  const nested = norms.ageGroups
+  const source = nested && typeof nested === 'object' && !Array.isArray(nested) ? nested : norms
+  const groups = Object.fromEntries(
+    Object.entries(source).filter(([, group]) => group && typeof group === 'object' && Number.isFinite(Number(group.ageMonthsStart))),
+  )
+  return Object.keys(groups).length ? groups : null
+}
+
+function isScoredQuestion(q) {
+  if (q?.answer != null && String(q.answer).trim() !== '') return true
+  return Boolean(q?.options?.some(o => o.weight === 1 || o.isCorrect))
+}
+
+function isCorrectChoice(q, selected) {
+  const selectedOpt = q.options?.find(o => o.id === selected || String(o.id) === String(selected)
+    || o.value === selected || o.label === selected)
+  if (q.answer != null && String(q.answer).trim() !== '') {
+    const selectedValue = (selectedOpt?.value || selectedOpt?.label || selected || '').toString().toUpperCase()
+    return selectedValue === q.answer.toString().toUpperCase()
+  }
+  const correctOpt = q.options?.find(o => o.weight === 1 || o.isCorrect)
+  if (!correctOpt) return false
+  return selectedOpt === correctOpt || selected === correctOpt.id || String(selected) === String(correctOpt.id)
+}
+
 function resolveAgeGroup(birthDate, norms, defaultAgeGroup = '13-9_dewasa', assessmentDate) {
   if (!birthDate || !norms) throw new Error('IQ norms and participant birth date are required')
 
@@ -122,24 +147,30 @@ function resolveAgeGroup(birthDate, norms, defaultAgeGroup = '13-9_dewasa', asse
   if (now.getDate() < birth.getDate()) months -= 1
 
   for (const [key, group] of Object.entries(norms)) {
-    if (months >= group.ageMonthsStart && months <= group.ageMonthsEnd) return key
+    if (months >= Number(group.ageMonthsStart) && months <= Number(group.ageMonthsEnd)) return key
   }
+  if (defaultAgeGroup && norms[defaultAgeGroup]) return defaultAgeGroup
   throw new Error('IQ norms do not cover the participant age')
 }
 
 function convertRawToIq(rawScore, ageGroup, norms, scoringConfig = {}) {
   const group = norms?.[ageGroup]
-  if (group?.norms?.length) {
-    const exact = group.norms.find(n => n.rawScore === rawScore)
-    if (exact?.iqScore != null) {
-      return {
-        iqScore: exact.iqScore,
-        classification: exact.classification || classifyIq(exact.iqScore, scoringConfig),
-      }
-    }
+  const table = Array.isArray(group?.norms) ? group.norms.filter(n => n?.iqScore != null && Number.isFinite(Number(n.rawScore))) : []
+  if (!table.length) {
+    throw new Error(`IQ norms are missing or invalid for the participant age group (${ageGroup || 'unknown'})`)
   }
 
-  throw new Error('IQ norms are missing or invalid for the participant age group')
+  const raw = Number(rawScore) || 0
+  const exact = table.find(n => Number(n.rawScore) === raw)
+  const picked = exact || table.reduce((best, n) => (
+    Math.abs(Number(n.rawScore) - raw) < Math.abs(Number(best.rawScore) - raw) ? n : best
+  ))
+
+  return {
+    iqScore: picked.iqScore,
+    classification: picked.classification || classifyIq(picked.iqScore, scoringConfig),
+    normRawScore: Number(picked.rawScore),
+  }
 }
 
 function classifyIq(iq, scoringConfig = {}) {
