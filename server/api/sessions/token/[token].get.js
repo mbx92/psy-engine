@@ -21,6 +21,7 @@ export default defineEventHandler(async (event) => {
     metadata: sessions.metadata,
     startedAt: sessions.startedAt,
     completedAt: sessions.completedAt,
+    participantId: sessions.participantId,
     participantName: participants.name,
     participantGender: participants.gender,
     participantBirthDate: participants.birthDate,
@@ -53,5 +54,6 @@ export default defineEventHandler(async (event) => {
     metadata: { currentQuestionIndex: row.metadata?.currentQuestionIndex, currentSubtest: timing?.activeSubtest, subtestTimers, timing },
   }
   delete safeRow.token
+  delete safeRow.participantId
   return { session: safeRow, battery, serverTime: new Date().toISOString() }
 })

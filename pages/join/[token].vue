@@ -18,7 +18,7 @@
             <Icon :icon="accessBlocked.icon" class="size-6" />
           </div>
           <UiCardTitle :class="accessBlocked ? '' : 'text-destructive'">
-            {{ accessBlocked?.title || 'Link Tidak Valid' }}
+            {{ accessBlocked?.title || errorTitle }}
           </UiCardTitle>
           <UiCardDescription>{{ error }}</UiCardDescription>
         </UiCardHeader>
@@ -161,6 +161,7 @@ const { refresh: refreshAppSettings, systemLocked, maintenanceMode, maintenanceM
 
 const loading = ref(true)
 const error = ref('')
+const errorTitle = ref('Link Tidak Valid')
 const accessBlocked = ref(null)
 const invitation = ref(null)
 const testType = ref(null)
@@ -252,6 +253,8 @@ onMounted(async () => {
       accessBlocked.value = blocked
       error.value = systemAccessMessage(blocked.code, maintenanceMessage.value)
     } else {
+      const status = err?.statusCode || err?.data?.statusCode
+      errorTitle.value = status === 410 ? 'Undangan Tidak Bisa Dipakai' : 'Link Tidak Valid'
       error.value = err?.data?.message || err?.message || 'Gagal membuka undangan'
     }
   } finally {

@@ -31,8 +31,15 @@
       <UiCard class="w-full max-w-sm text-center">
         <UiCardHeader>
           <UiCardTitle class="text-destructive">Sesi Dihentikan</UiCardTitle>
-          <UiCardDescription>Sesi tes ini sudah tidak aktif. Hubungi admin jika membutuhkan undangan baru.</UiCardDescription>
+          <UiCardDescription>
+            {{ nextTakePath
+              ? 'Sesi ini sudah tidak aktif. Anda masih bisa lanjut ke tes berikutnya yang masih terbuka.'
+              : 'Sesi tes ini sudah tidak aktif. Hubungi admin jika membutuhkan undangan baru.' }}
+          </UiCardDescription>
         </UiCardHeader>
+        <UiCardContent v-if="nextTakePath">
+          <UiButton class="w-full" @click="goNextOpenSession">Lanjut ke tes berikutnya</UiButton>
+        </UiCardContent>
       </UiCard>
     </div>
 
@@ -322,12 +329,13 @@ definePageMeta({ layout: false })
 
 const route = useRoute()
 const runtimeConfig = useRuntimeConfig()
-const token = route.params.token
+const token = computed(() => String(route.params.token || ''))
 const { refresh: refreshAppSettings, systemLocked, maintenanceMode, maintenanceMessage } = useAppSettings()
 const devToolsEnabled = computed(() => import.meta.dev || !!runtimeConfig.public.devTestTools)
 
 const loading = ref(true)
 const error = ref('')
+const nextTakePath = ref('')
 const submitError = ref('')
 const accessBlocked = ref(null)
 const status = ref('')
@@ -624,7 +632,7 @@ async function startSubtestCountdown(code) {
   if (subtestStarting) return false
   subtestStarting = true
   try {
-    const data = await $fetch(`/api/sessions/token/${token}/subtest`, { method: 'PATCH', body: { code } })
+    const data = await $fetch(`/api/sessions/token/${token.value}/subtest`, { method: 'PATCH', body: { code } })
     clockOffset = Date.parse(data.serverTime) - Date.now()
     activeSubtestCode.value = code
     if (Date.parse(data.timing.subtests[code].deadlineAt) <= Date.now() + clockOffset) {
@@ -724,7 +732,7 @@ async function startTest() {
   if (starting.value) return
   starting.value = true
   try {
-    const startData = await $fetch(`/api/sessions/token/${token}/start`, { method: 'PATCH' })
+    const startData = await $fetch(`/api/sessions/token/${token.value}/start`, { method: 'PATCH' })
     clockOffset = Date.parse(startData.serverTime) - Date.now()
     status.value = 'in_progress'
     started.value = true
@@ -764,7 +772,7 @@ function saveAnswers() {
   saveQueue = saveQueue.catch(() => false).then(async () => {
     saveState.value = 'saving'
     try {
-      await $fetch(`/api/sessions/token/${token}/answers`, { method: 'PATCH', body: snapshot })
+      await $fetch(`/api/sessions/token/${token.value}/answers`, { method: 'PATCH', body: snapshot })
       saveState.value = 'saved'
       return true
     } catch (err) {
@@ -787,11 +795,11 @@ function saveAnswers() {
 
 async function goToComplete() {
   clearParticipantClientState()
-  const path = `/take/${token}/complete`
+  const path = `/take/${token.value}/complete`
   try {
     await navigateTo(path, { replace: true })
   } catch { /* ignore */ }
-  if (import.meta.client && !window.location.pathname.startsWith(`/take/${token}/complete`)) {
+  if (import.meta.client && !window.location.pathname.startsWith(`/take/${token.value}/complete`)) {
     window.location.assign(path)
   }
 }
@@ -805,7 +813,7 @@ async function submitTest() {
   submitError.value = ''
   try {
     await saveAnswers()
-    const submitted = await $fetch(`/api/sessions/token/${token}/submit`, {
+    const submitted = await $fetch(`/api/sessions/token/${token.value}/submit`, {
       method: 'POST',
       body: { answers: answerableAnswers() },
     })
@@ -865,12 +873,26 @@ function restoreInProgress(session) {
   }
 }
 
-onMounted(async () => {
+async function goNextOpenSession() {
+  if (!nextTakePath.value) return
+  clearParticipantClientState()
+  if (import.meta.client) window.location.assign(nextTakePath.value)
+  else await navigateTo(nextTakePath.value, { replace: true })
+}
+
+async function loadTake() {
   if (route.matched.length > 1) {
-    // Nested child route (e.g. /complete) handles its own data fetching.
     loading.value = false
     return
   }
+
+  loading.value = true
+  error.value = ''
+  accessBlocked.value = null
+  nextTakePath.value = ''
+  started.value = false
+  status.value = ''
+  test.value = null
 
   try {
     await refreshAppSettings()
@@ -885,14 +907,19 @@ onMounted(async () => {
         icon: systemAccessIcon(flags),
       }
       error.value = systemAccessMessage(flags, maintenanceMessage.value)
-      loading.value = false
       return
     }
 
-    const data = await $fetch(`/api/sessions/token/${token}`)
+    const data = await $fetch(`/api/sessions/token/${token.value}`)
     const session = data.session
     clockOffset = Date.parse(data.serverTime) - Date.now()
     status.value = session.status
+    nextTakePath.value = data.battery?.nextTakePath || ''
+
+    if (session.status === 'abandoned' && nextTakePath.value) {
+      await goNextOpenSession()
+      return
+    }
 
     if (['completed', 'verified'].includes(session.status)) {
       await goToComplete()
@@ -917,7 +944,6 @@ onMounted(async () => {
     if (session.status === 'in_progress') {
       restoreInProgress(session)
     }
-    loading.value = false
   } catch (err) {
     const blocked = parseSystemAccessError(err)
     if (blocked) {
@@ -926,9 +952,12 @@ onMounted(async () => {
     } else {
       error.value = err?.data?.message || err?.message || 'Undangan tidak ditemukan'
     }
+  } finally {
     loading.value = false
   }
-})
+}
+
+watch(() => [token.value, route.matched.length], loadTake, { immediate: true })
 
 onUnmounted(() => {
   persistSubtestTime()

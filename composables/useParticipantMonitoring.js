@@ -9,7 +9,7 @@ export function useParticipantMonitoring({ token, status, currentIndex, currentQ
     if (stopped || busy || !['pending', 'in_progress'].includes(status.value)) return
     busy = true
     try {
-      const result = await $fetch(`/api/sessions/token/${token}/heartbeat`, {
+      const result = await $fetch(`/api/sessions/token/${unref(token)}/heartbeat`, {
         method: 'POST', timeout: 10000, retry: 0,
         body: {
           currentQuestionIndex: status.value === 'in_progress' ? currentIndex.value : null,

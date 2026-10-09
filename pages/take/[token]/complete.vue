@@ -172,7 +172,7 @@ const InfoRow = (props) => h('div', { class: 'flex justify-between gap-3' }, [
 InfoRow.props = { label: String, value: [String, Number] }
 
 const route = useRoute()
-const token = route.params.token
+const token = computed(() => String(route.params.token || ''))
 
 const loading = ref(true)
 const error = ref('')
@@ -233,7 +233,7 @@ function badgeVariant(s) {
 onMounted(async () => {
   clearParticipantClientState()
   try {
-    const data = await $fetch(`/api/sessions/token/${token}`)
+    const data = await $fetch(`/api/sessions/token/${token.value}`)
     const s = data.session
 
     if (!['completed', 'verified'].includes(s.status)) {
@@ -254,6 +254,10 @@ async function goNext() {
   const path = battery.value?.nextTakePath
   if (!path) return
   clearParticipantClientState()
+  if (import.meta.client) {
+    window.location.assign(path)
+    return
+  }
   await navigateTo(path, { replace: true })
 }
 
