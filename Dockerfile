@@ -1,6 +1,6 @@
 # Two-stage only (less disk during Coolify builds). Uses corepack — no `npm i -g pnpm`.
 
-FROM node:22-bookworm-slim AS build
+FROM node:22.23.4-bookworm-slim AS build
 WORKDIR /app
 
 RUN apt-get update \
@@ -22,7 +22,7 @@ RUN pnpm run build \
  && rm -rf node_modules .nuxt
 
 # ---- Runtime ----
-FROM node:22-bookworm-slim AS runner
+FROM node:22.23.4-bookworm-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
